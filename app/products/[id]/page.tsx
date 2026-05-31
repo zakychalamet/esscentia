@@ -1,6 +1,6 @@
 'use client';
 
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { ChevronDown, Star } from 'lucide-react';
@@ -11,6 +11,8 @@ import {
   ProductReview,
 } from '@/lib/product-reviews';
 import { useCart } from '@/lib/cart-context';
+import { useAuth } from '@/lib/auth-context';
+import { getLoginUrl } from '@/lib/auth-guard';
 import { CatalogNav, CatalogFooter } from '@/components/CatalogChrome';
 
 const intensityLabels: Record<Product['intensity'], string> = {
@@ -28,9 +30,16 @@ const performanceByIntensity: Record<
   EXTRAIT: { longevity: '12h+', sillage: 'Strong', projection: '12h', natural: '94%' },
 };
 
-const storyByFamily: Record<
-  Product['family'],
-  { title: string; quote: string; image: string }
+const defaultStory = {
+  title: 'A Journey Through Scent',
+  quote:
+    '"Every fragrance tells a story — unfolding slowly on the skin, revealing layers of depth with every hour that passes."',
+  image:
+    'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=800&h=800&fit=crop',
+};
+
+const storyByFamily: Partial<
+  Record<Product['family'], { title: string; quote: string; image: string }>
 > = {
   Floral: {
     title: 'A Journey Through Nightfall',
@@ -59,6 +68,34 @@ const storyByFamily: Record<
       '"Amber and vanilla weave through the air like candlelight — comforting, indulgent, and unmistakably intimate."',
     image:
       'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=800&h=800&fit=crop',
+  },
+  Fresh: {
+    title: 'A Journey by the Water',
+    quote:
+      '"Crisp air and open horizons — where aquatic notes meet green leaves in effortless clarity."',
+    image:
+      'https://images.unsplash.com/photo-1490750967868-88aa298bd6c0?w=800&h=800&fit=crop',
+  },
+  Amber: {
+    title: 'A Journey in Golden Light',
+    quote:
+      '"Warm resin and glowing amber wrap the skin like sunset — rich, enveloping, and deeply sensual."',
+    image:
+      'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=800&h=800&fit=crop',
+  },
+  Aromatic: {
+    title: 'A Journey Through the Garden',
+    quote:
+      '"Herbal freshness and aromatic spices awaken the senses — clean, refined, and invigorating."',
+    image:
+      'https://images.unsplash.com/photo-1615634260167-c8cdede054de?w=800&h=800&fit=crop',
+  },
+  Leather: {
+    title: 'A Journey Into the Night',
+    quote:
+      '"Smoky leather and dark woods command the room — bold, masculine, and unmistakably confident."',
+    image:
+      'https://images.unsplash.com/photo-1602928322639-0a6860196d4b?w=800&h=800&fit=crop',
   },
 };
 
@@ -261,10 +298,12 @@ function ReviewsSection({
 
 export default function ProductDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const productId = params.id as string;
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const { addToCart } = useCart();
+  const { user } = useAuth();
 
   useEffect(() => {
     setLoading(true);
@@ -320,7 +359,7 @@ export default function ProductDetailPage() {
   }
 
   const performance = performanceByIntensity[product.intensity];
-  const story = storyByFamily[product.family];
+  const story = storyByFamily[product.family] ?? defaultStory;
   const displayPrice = priceForVolume(product.price, product.volume, selectedVolume);
   const notes = {
     top: product.scent[0] || '—',
@@ -329,6 +368,10 @@ export default function ProductDetailPage() {
   };
 
   const handleAddToCart = () => {
+    if (!user) {
+      router.push(getLoginUrl(`/products/${productId}`));
+      return;
+    }
     addToCart(product, 1);
     alert(`${product.name} (${selectedVolume}ml) ditambahkan ke keranjang!`);
   };

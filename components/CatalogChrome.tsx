@@ -13,6 +13,8 @@ import {
   ArrowRight,
 } from 'lucide-react';
 import { SearchModal } from '@/components/SearchModal';
+import { useAuth } from '@/lib/auth-context';
+import { getLoginUrl } from '@/lib/auth-guard';
 
 type NavKey = 'shop' | 'discovery' | 'quiz' | 'journal' | 'story';
 
@@ -51,6 +53,7 @@ export function CatalogNav() {
   const pathname = usePathname();
   const active = getActiveNav(pathname);
   const [searchOpen, setSearchOpen] = useState(false);
+  const { user } = useAuth();
 
   return (
     <>
@@ -103,13 +106,22 @@ export function CatalogNav() {
             >
               <ShoppingBag size={20} strokeWidth={1.5} />
             </Link>
-            <Link
-              href="/profile"
-              className="text-[#4A3728] hover:text-[#8C7355] transition"
-              aria-label="Profil"
-            >
-              <User size={20} strokeWidth={1.5} />
-            </Link>
+            {user ? (
+              <Link
+                href="/profile"
+                className="text-[#4A3728] hover:text-[#8C7355] transition"
+                aria-label="Profil"
+              >
+                <User size={20} strokeWidth={1.5} />
+              </Link>
+            ) : (
+              <Link
+                href={getLoginUrl(pathname)}
+                className="text-[11px] uppercase tracking-[0.15em] text-[#4A3728] hover:text-[#8D4F38] transition whitespace-nowrap"
+              >
+                Login
+              </Link>
+            )}
           </div>
         </div>
 

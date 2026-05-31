@@ -9,7 +9,8 @@
     "lint": "eslint",
     "db:init": "node init-db.mjs",
     "db:seed": "npx tsx seed.ts",
-    "db:setup": "node init-db.mjs && npx tsx seed.ts"
+    "db:seed-journal": "npx tsx seed-journal.ts",
+    "db:setup": "node init-db.mjs && npx tsx seed.ts && npx tsx seed-journal.ts"
   },
   "dependencies": {
     "class-variance-authority": "^0.7.1",

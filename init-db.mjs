@@ -81,6 +81,23 @@ async function init() {
     );
   `);
 
+  await connection.query(`
+    CREATE TABLE IF NOT EXISTS journal_articles (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      slug VARCHAR(255) UNIQUE NOT NULL,
+      title VARCHAR(255) NOT NULL,
+      excerpt TEXT,
+      content JSON,
+      category VARCHAR(100) NOT NULL DEFAULT 'Edukasi',
+      published_date VARCHAR(100),
+      read_time VARCHAR(50) DEFAULT '5 menit',
+      image TEXT,
+      author VARCHAR(255) DEFAULT 'Tim Esscentia',
+      is_featured BOOLEAN DEFAULT false,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
+
   // Migrate users table
   const userMigrations = [
     ['login_count', 'ALTER TABLE users ADD COLUMN login_count INT DEFAULT 0'],

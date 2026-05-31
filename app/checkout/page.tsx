@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Shield, Truck, Heart } from 'lucide-react';
 import { useCart } from '@/lib/cart-context';
 import { useAuth } from '@/lib/auth-context';
+import { getLoginUrl } from '@/lib/auth-guard';
 import { CatalogNav } from '@/components/CatalogChrome';
 
 function formatPrice(amount: number) {
@@ -133,8 +134,14 @@ function CheckoutFooter() {
 
 export default function CheckoutPage() {
   const { items, total, clearCart } = useCart();
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
   const router = useRouter();
+
+  useEffect(() => {
+    if (!isLoading && !user) {
+      router.replace(getLoginUrl('/checkout'));
+    }
+  }, [user, isLoading, router]);
 
   const [formData, setFormData] = useState({
     name: user?.name || '',
@@ -243,6 +250,18 @@ export default function CheckoutPage() {
               Kembali Belanja
             </Link>
           </div>
+        </div>
+        <CheckoutFooter />
+      </div>
+    );
+  }
+
+  if (isLoading || !user) {
+    return (
+      <div className="min-h-screen bg-[#F9F7F2] flex flex-col">
+        <CatalogNav />
+        <div className="flex-1 flex items-center justify-center text-stone-500 text-sm">
+          Memuat checkout…
         </div>
         <CheckoutFooter />
       </div>

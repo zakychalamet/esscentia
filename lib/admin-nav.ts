@@ -8,6 +8,7 @@ import {
   Settings,
   Package,
   ShoppingCart,
+  BookOpen,
 } from 'lucide-react';
 
 export interface AdminNavItem {
@@ -25,12 +26,13 @@ export const adminNavItems: AdminNavItem[] = [
   { href: '/admin/campaigns', label: 'Campaign Manager', icon: Megaphone, superOnly: true },
   { href: '/admin/customers', label: 'Customers', icon: Users, superOnly: true },
   { href: '/admin/products', label: 'Produk', icon: Package },
+  { href: '/admin/journal', label: 'Jurnal', icon: BookOpen },
   { href: '/admin/orders', label: 'Pesanan', icon: ShoppingCart, superOnly: true },
   { href: '/admin/settings', label: 'Settings', icon: Settings },
 ];
 
 /** Rute yang boleh diakses marketing admin */
-export const marketingAllowedPaths = ['/admin/products', '/admin/settings'];
+export const marketingAllowedPaths = ['/admin/products', '/admin/journal', '/admin/settings'];
 
 export function filterNavForRole(
   items: AdminNavItem[],

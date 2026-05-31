@@ -15,9 +15,12 @@ const trendingSearches = [
 const exploreFamilies: { label: string; family: Product['family'] | 'all' }[] = [
   { label: 'Woody', family: 'Woody' },
   { label: 'Floral', family: 'Floral' },
-  { label: 'Fresh', family: 'Citrus' },
-  { label: 'Oriental', family: 'Gourmand' },
   { label: 'Citrus', family: 'Citrus' },
+  { label: 'Fresh', family: 'Fresh' },
+  { label: 'Amber', family: 'Amber' },
+  { label: 'Gourmand', family: 'Gourmand' },
+  { label: 'Aromatic', family: 'Aromatic' },
+  { label: 'Leather', family: 'Leather' },
 ];
 
 function formatPrice(amount: number) {

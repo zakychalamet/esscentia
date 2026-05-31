@@ -1,15 +1,20 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { fetchProducts, Product, getSuggestedProducts } from '@/lib/products';
 import { useCart } from '@/lib/cart-context';
+import { useAuth } from '@/lib/auth-context';
+import { getLoginUrl } from '@/lib/auth-guard';
 import { Button } from '@/components/Button';
 import { ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import { CatalogNav } from '@/components/CatalogChrome';
 
 export default function HomePage() {
+  const router = useRouter();
   const { addToCart } = useCart();
+  const { user } = useAuth();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [email, setEmail] = useState('');
   const [allProducts, setAllProducts] = useState<Product[]>([]);
@@ -144,6 +149,10 @@ export default function HomePage() {
                   </div>
                   <button
                     onClick={() => {
+                      if (!user) {
+                        router.push(getLoginUrl('/'));
+                        return;
+                      }
                       addToCart(product, 1);
                       alert(`${product.name} ditambahkan ke keranjang!`);
                     }}

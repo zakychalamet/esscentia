@@ -3,30 +3,48 @@
 import { Suspense, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { Minus, Plus, TreePine, Flower2, Citrus, Cake, ChevronRight, Search, X } from 'lucide-react';
+import {
+  Minus,
+  Plus,
+  TreePine,
+  Flower2,
+  Citrus,
+  Wind,
+  Flame,
+  Cake,
+  Leaf,
+  Briefcase,
+  ChevronRight,
+  Search,
+  X,
+} from 'lucide-react';
 import {
   Product,
   fetchProducts,
   searchProductsInList,
 } from '@/lib/products';
+import {
+  FRAGRANCE_FAMILIES,
+  getFragranceFamilyTag,
+  isFragranceFamily,
+  type FragranceFamily,
+} from '@/lib/fragrance-families';
 import { CatalogNav, CatalogFooter } from '@/components/CatalogChrome';
 
 const ITEMS_PER_PAGE = 12;
-const FAMILIES = ['Woody', 'Floral', 'Citrus', 'Gourmand'] as const;
-
-const getAllBrands = (list: Product[]) => {
-  const uniqueBrands = Array.from(new Set(list.map((p) => p.brand)));
-  return uniqueBrands.sort();
-};
 
 const familyConfig: Record<
-  (typeof FAMILIES)[number],
+  FragranceFamily,
   { label: string; icon: typeof TreePine; tag: string }
 > = {
   Woody: { label: 'Woody', icon: TreePine, tag: 'WOODY & SPICED' },
   Floral: { label: 'Floral', icon: Flower2, tag: 'FLORAL' },
-  Citrus: { label: 'Citrus', icon: Citrus, tag: 'CITRUS & FLORAL' },
-  Gourmand: { label: 'Gourmand', icon: Cake, tag: 'AMBER & VANILLA' },
+  Citrus: { label: 'Citrus', icon: Citrus, tag: 'CITRUS' },
+  Fresh: { label: 'Fresh', icon: Wind, tag: 'FRESH & AQUATIC' },
+  Amber: { label: 'Amber', icon: Flame, tag: 'AMBER & WARM' },
+  Gourmand: { label: 'Gourmand', icon: Cake, tag: 'GOURMAND' },
+  Aromatic: { label: 'Aromatic', icon: Leaf, tag: 'AROMATIC & HERBAL' },
+  Leather: { label: 'Leather', icon: Briefcase, tag: 'LEATHER & SMOKY' },
 };
 
 const intensityLabels: Record<Product['intensity'], string> = {
@@ -44,10 +62,13 @@ const sortOptions = [
 
 type SortValue = (typeof sortOptions)[number]['value'];
 
-const defaultPriceBounds = { min: 0, max: 1000000 };
+const getAllBrands = (list: Product[]) => {
+  const uniqueBrands = Array.from(new Set(list.map((p) => p.brand)));
+  return uniqueBrands.sort();
+};
 
 function getFamilyTag(product: Product): string {
-  return familyConfig[product.family].tag;
+  return getFragranceFamilyTag(product.family);
 }
 
 function CatalogProductCard({ product }: { product: Product }) {
@@ -103,35 +124,13 @@ function ProductsContent() {
       .finally(() => setLoading(false));
   }, []);
 
-  const priceBounds = useMemo(() => {
-    if (!allProducts.length) return defaultPriceBounds;
-    return {
-      min: Math.min(...allProducts.map((p) => p.price)),
-      max: Math.max(...allProducts.map((p) => p.price)),
-    };
-  }, [allProducts]);
-
   const [expandedFamily, setExpandedFamily] = useState<string | null>(
-    familyParam && FAMILIES.includes(familyParam as (typeof FAMILIES)[number])
-      ? familyParam
-      : 'Woody'
+    isFragranceFamily(familyParam) ? familyParam : null
   );
   const [selectedFamily, setSelectedFamily] = useState<string | null>(
-    familyParam && FAMILIES.includes(familyParam as (typeof FAMILIES)[number])
-      ? familyParam
-      : null
+    isFragranceFamily(familyParam) ? familyParam : null
   );
-  const [priceRange, setPriceRange] = useState<[number, number]>([
-    defaultPriceBounds.min,
-    defaultPriceBounds.max,
-  ]);
-
-  useEffect(() => {
-    if (allProducts.length) {
-      setPriceRange([priceBounds.min, priceBounds.max]);
-    }
-  }, [allProducts, priceBounds.min, priceBounds.max]);
-  const [selectedIntensity, setSelectedIntensity] = useState<Product['intensity'] | null>('EDP');
+  const [selectedIntensity, setSelectedIntensity] = useState<Product['intensity'] | null>(null);
   const [sortBy, setSortBy] = useState<SortValue>('newest');
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState(queryParam);
@@ -160,9 +159,6 @@ function ProductsContent() {
     if (selectedBrand) {
       result = result.filter((p) => p.brand === selectedBrand);
     }
-    result = result.filter(
-      (p) => p.price >= priceRange[0] && p.price <= priceRange[1]
-    );
 
     switch (sortBy) {
       case 'price-asc':
@@ -179,7 +175,7 @@ function ProductsContent() {
     }
 
     return result;
-  }, [allProducts, selectedFamily, selectedIntensity, priceRange, sortBy, searchQuery, selectedBrand]);
+  }, [allProducts, selectedFamily, selectedIntensity, sortBy, searchQuery, selectedBrand]);
 
   const totalPages = Math.max(1, Math.ceil(filteredProducts.length / ITEMS_PER_PAGE));
   const safePage = Math.min(currentPage, totalPages);
@@ -191,17 +187,10 @@ function ProductsContent() {
 
   const pageNumbers = buildPageNumbers(safePage, totalPages);
 
-  const toggleFamily = (family: (typeof FAMILIES)[number]) => {
+  const toggleFamily = (family: FragranceFamily) => {
     setSelectedFamily((prev) => (prev === family ? null : family));
     setCurrentPage(1);
   };
-
-  const formatPrice = (n: number) =>
-    new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      maximumFractionDigits: 0,
-    }).format(n);
 
   return (
     <div className="min-h-screen bg-[#F9F7F2] text-[#4A3728] flex flex-col">
@@ -242,7 +231,7 @@ function ProductsContent() {
                 Fragrance Families
               </p>
               <ul className="space-y-1">
-                {FAMILIES.map((family) => {
+                {FRAGRANCE_FAMILIES.map((family) => {
                   const { label, icon: Icon } = familyConfig[family];
                   const isExpanded = expandedFamily === family;
                   const isActive = selectedFamily === family;
@@ -286,30 +275,6 @@ function ProductsContent() {
                   );
                 })}
               </ul>
-            </div>
-
-            <div className="mb-10">
-              <p className="text-[10px] uppercase tracking-[0.2em] text-stone-500 mb-4">
-                Price Range
-              </p>
-              <div className="space-y-3">
-                <input
-                  type="range"
-                  min={priceBounds.min}
-                  max={priceBounds.max}
-                  value={priceRange[1]}
-                  onChange={(e) => {
-                    const max = Number(e.target.value);
-                    setPriceRange([priceRange[0], max]);
-                    setCurrentPage(1);
-                  }}
-                  className="w-full h-1 accent-[#6B8F71] cursor-pointer"
-                />
-                <div className="flex justify-between text-xs text-stone-500">
-                  <span>{formatPrice(priceBounds.min)}</span>
-                  <span>{formatPrice(priceBounds.max)}</span>
-                </div>
-              </div>
             </div>
 
             <div>

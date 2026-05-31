@@ -2,8 +2,11 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Trash2, Plus, Minus, ShoppingBag } from 'lucide-react';
 import { useCart } from '@/lib/cart-context';
+import { useAuth } from '@/lib/auth-context';
+import { getLoginUrl } from '@/lib/auth-guard';
 import { Product } from '@/lib/products';
 import { CatalogNav, CatalogFooter } from '@/components/CatalogChrome';
 
@@ -18,7 +21,9 @@ function formatPrice(amount: number) {
 }
 
 export default function CartPage() {
+  const router = useRouter();
   const { items, removeFromCart, updateQuantity, total, clearCart } = useCart();
+  const { user } = useAuth();
   const [promoCode, setPromoCode] = useState('');
   const [discount, setDiscount] = useState(0);
 
@@ -34,6 +39,14 @@ export default function CartPage() {
       alert('Kode promo tidak valid');
       setDiscount(0);
     }
+  };
+
+  const handleCheckout = () => {
+    if (!user) {
+      router.push(getLoginUrl('/checkout'));
+      return;
+    }
+    router.push('/checkout');
   };
 
   return (
@@ -205,12 +218,13 @@ export default function CartPage() {
                 </span>
               </div>
 
-              <Link
-                href="/checkout"
+              <button
+                type="button"
+                onClick={handleCheckout}
                 className="block w-full py-3.5 bg-[#8D4F38] text-[#F9F7F2] text-xs uppercase tracking-[0.2em] text-center hover:bg-[#7a4532] transition mb-4"
               >
                 Lanjut ke Checkout
-              </Link>
+              </button>
 
               <button
                 type="button"

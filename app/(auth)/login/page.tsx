@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
+import { getSafeRedirect } from '@/lib/auth-guard';
 import {
   AuthHeader,
   AuthFooter,
@@ -14,6 +15,11 @@ import {
 export default function LoginPage() {
   const { login, isLoading } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = getSafeRedirect(searchParams.get('redirect'));
+  const registerHref = redirectTo === '/profile'
+    ? '/register'
+    : `/register?redirect=${encodeURIComponent(redirectTo)}`;
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -29,7 +35,7 @@ export default function LoginPage() {
 
     try {
       await login(email, password);
-      router.push('/profile');
+      router.push(redirectTo);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Login gagal');
     }
@@ -88,7 +94,7 @@ export default function LoginPage() {
             <p className="text-center text-sm text-stone-600 mt-8">
               Belum punya akun?{' '}
               <Link
-                href="/register"
+                href={registerHref}
                 className="text-[#8D4F38] font-medium hover:underline underline-offset-4"
               >
                 Daftar

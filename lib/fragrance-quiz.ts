@@ -1,6 +1,7 @@
 import { Product, products } from './products';
+import { FRAGRANCE_FAMILIES, type FragranceFamily } from './fragrance-families';
 
-export type ScentFamily = Product['family'];
+export type ScentFamily = FragranceFamily;
 
 export interface QuizOption {
   id: string;
@@ -35,7 +36,7 @@ export const quizQuestions: QuizQuestion[] = [
         description: 'Sunlit citrus, sea salt, and green tea',
         image:
           'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=600&fit=crop',
-        scores: { Citrus: 3, Floral: 1 },
+        scores: { Citrus: 3, Fresh: 2 },
       },
       {
         id: 'formal',
@@ -103,7 +104,7 @@ export const quizQuestions: QuizQuestion[] = [
         description: 'Lemon zest, neroli, and ocean breeze',
         image:
           'https://images.unsplash.com/photo-1571975414439-27d4b93f5f2d?w=600&h=600&fit=crop',
-        scores: { Citrus: 4 },
+        scores: { Citrus: 4, Fresh: 2 },
       },
     ],
   },
@@ -129,35 +130,58 @@ const familyProfiles: Record<
     title: 'The Citrus Voyager',
     description:
       'Kesegaran adalah identitas Anda — jeruk, bergamot, dan angin laut. Parfum citrus membawa energi dan optimisme ke setiap langkah.',
-    tagline: 'Citrus & Fresh',
+    tagline: 'Citrus & Bright',
+  },
+  Fresh: {
+    title: 'The Fresh Explorer',
+    description:
+      'Anda menyukai kesegaran aquatic dan green notes yang ringan. Aroma fresh Anda clean, modern, dan penuh vitalitas.',
+    tagline: 'Fresh & Aquatic',
+  },
+  Amber: {
+    title: 'The Amber Enthusiast',
+    description:
+      'Kehangatan resin dan amber membalut kulit Anda dengan sensualitas yang dalam. Aroma Anda rich, golden, dan memorable.',
+    tagline: 'Amber & Warm',
   },
   Gourmand: {
     title: 'The Gourmand Dreamer',
     description:
       'Anda menyukai kehangatan vanilla, amber, dan rempah yang membalut seperti selimut. Aroma gourmand Anda intimate dan memorable.',
-    tagline: 'Amber & Vanilla',
+    tagline: 'Gourmand & Sweet',
+  },
+  Aromatic: {
+    title: 'The Aromatic Artisan',
+    description:
+      'Herbal, spices, dan aromatic notes adalah bahasa Anda. Parfum Anda refined, sophisticated, dan penuh karakter.',
+    tagline: 'Aromatic & Herbal',
+  },
+  Leather: {
+    title: 'The Leather Maverick',
+    description:
+      'Anda drawn to smoky leather, dark woods, dan bold compositions. Aroma Anda powerful, maskulin, dan commanding.',
+    tagline: 'Leather & Smoky',
   },
 };
+
+function emptyFamilyTotals(): Record<ScentFamily, number> {
+  return Object.fromEntries(FRAGRANCE_FAMILIES.map((f) => [f, 0])) as Record<
+    ScentFamily,
+    number
+  >;
+}
 
 export function calculateQuizResult(
   answers: Record<string, string>
 ): { family: ScentFamily; profile: (typeof familyProfiles)[ScentFamily] } {
-  const totals: Record<ScentFamily, number> = {
-    Woody: 0,
-    Floral: 0,
-    Citrus: 0,
-    Gourmand: 0,
-  };
+  const totals = emptyFamilyTotals();
 
   for (const question of quizQuestions) {
     const optionId = answers[question.id];
     const option = question.options.find((o) => o.id === optionId);
     if (!option) continue;
-    for (const [family, points] of Object.entries(option.scores) as [
-      ScentFamily,
-      number,
-    ][]) {
-      totals[family] += points;
+    for (const [family, points] of Object.entries(option.scores) as [ScentFamily, number][]) {
+      if (family in totals) totals[family] += points;
     }
   }
 

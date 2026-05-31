@@ -22,6 +22,14 @@ export function canDeleteProducts(role?: UserRole): boolean {
   return role === 'admin';
 }
 
+export function canManageJournal(role?: UserRole): boolean {
+  return role === 'admin' || role === 'marketing';
+}
+
+export function canDeleteJournal(role?: UserRole): boolean {
+  return role === 'admin';
+}
+
 export function canManageOrders(role?: UserRole): boolean {
   return role === 'admin';
 }

@@ -7,13 +7,14 @@ import { Input } from '@/components/Input';
 import { Edit, Trash2, Plus, Upload, X } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
 import { canManageProducts, canDeleteProducts } from '@/lib/admin-permissions';
+import { FRAGRANCE_FAMILIES } from '@/lib/fragrance-families';
 
 interface FormData {
   name: string;
   brand: string;
   price: number | '';
   category: 'male' | 'female' | 'unisex';
-  family: 'Woody' | 'Floral' | 'Citrus' | 'Gourmand';
+  family: Product['family'];
   intensity: 'EDT' | 'EDP' | 'EXTRAIT';
   volume: number | '';
   rating: number | '';
@@ -428,10 +429,11 @@ export default function AdminProductsPage() {
                 onChange={handleFormChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-600"
               >
-                <option value="Woody">Woody</option>
-                <option value="Floral">Floral</option>
-                <option value="Citrus">Citrus</option>
-                <option value="Gourmand">Gourmand</option>
+                {FRAGRANCE_FAMILIES.map((family) => (
+                  <option key={family} value={family}>
+                    {family}
+                  </option>
+                ))}
               </select>
             </div>
             <div>

@@ -6,7 +6,7 @@ export interface Product {
   image: string;
   description: string;
   category: 'male' | 'female' | 'unisex';
-  family: 'Woody' | 'Floral' | 'Citrus' | 'Gourmand';
+  family: 'Woody' | 'Floral' | 'Citrus' | 'Fresh' | 'Amber' | 'Gourmand' | 'Aromatic' | 'Leather';
   intensity: 'EDT' | 'EDP' | 'EXTRAIT';
   scent: string[];
   volume: number;

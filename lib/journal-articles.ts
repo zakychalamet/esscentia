@@ -124,3 +124,16 @@ export const journalArticles: JournalArticle[] = [
 export function getArticleBySlug(slug: string): JournalArticle | undefined {
   return journalArticles.find((a) => a.slug === slug);
 }
+
+export async function fetchJournalArticles(): Promise<JournalArticle[]> {
+  const response = await fetch('/api/journal');
+  if (!response.ok) throw new Error('Gagal mengambil artikel jurnal');
+  return response.json();
+}
+
+export async function fetchJournalArticleBySlug(slug: string): Promise<JournalArticle | null> {
+  const response = await fetch('/api/journal/' + slug);
+  if (response.status === 404) return null;
+  if (!response.ok) throw new Error('Gagal mengambil artikel');
+  return response.json();
+}
