@@ -829,8 +829,58 @@ export function searchProducts(query: string): Product[] {
   });
 }
 
-export function getSuggestedProducts(limit = 4): Product[] {
-  return [...products]
+export function getSuggestedProducts(list: Product[], limit = 4): Product[] {
+  return [...list]
     .sort((a, b) => (b.isBestseller ? 1 : 0) - (a.isBestseller ? 1 : 0) || b.rating - a.rating)
     .slice(0, limit);
+}
+
+export function searchProductsInList(query: string, list: Product[]): Product[] {
+  const q = query.trim().toLowerCase();
+  if (!q) return [];
+
+  const words = q.split(/\s+/).filter(Boolean);
+
+  return list.filter((p) => {
+    const haystack = [
+      p.name,
+      p.brand,
+      p.description,
+      p.family,
+      p.intensity,
+      p.category,
+      ...p.scent,
+    ]
+      .join(' ')
+      .toLowerCase();
+
+    return words.every((word) => haystack.includes(word));
+  });
+}
+
+export async function fetchProducts(): Promise<Product[]> {
+  const response = await fetch('/api/products');
+  if (!response.ok) throw new Error('Gagal mengambil produk');
+  const data = await response.json();
+  return data.map((p: Product) => ({
+    ...p,
+    id: String(p.id),
+    inStock: Boolean(p.inStock),
+    isBestseller: Boolean(p.isBestseller),
+    scent: Array.isArray(p.scent) ? p.scent : [],
+  }));
+}
+
+export async function fetchProductById(id: string): Promise<Product | null> {
+  const response = await fetch(`/api/products/${id}`);
+  if (response.status === 404) return null;
+  if (!response.ok) throw new Error('Gagal mengambil produk');
+  const p = await response.json();
+  return {
+    ...p,
+    id: String(p.id),
+    inStock: Boolean(p.inStock),
+    isBestseller: Boolean(p.isBestseller),
+    scent: Array.isArray(p.scent) ? p.scent : [],
+  };
 }

@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:init": "node init-db.mjs",
+    "db:seed": "npx tsx seed.ts",
+    "db:setup": "node init-db.mjs && npx tsx seed.ts"
   },
   "dependencies": {
     "class-variance-authority": "^0.7.1",

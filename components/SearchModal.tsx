@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Search, X, TrendingUp } from 'lucide-react';
-import { Product, searchProducts, getSuggestedProducts } from '@/lib/products';
+import { Product, fetchProducts, searchProductsInList, getSuggestedProducts } from '@/lib/products';
 
 const trendingSearches = [
   { label: 'fresh office scent', query: 'citrus fresh' },
@@ -42,9 +42,20 @@ export function SearchModal({ open, onClose }: SearchModalProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState('');
   const [highlightIndex, setHighlightIndex] = useState(0);
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
 
-  const results = useMemo(() => searchProducts(query), [query]);
-  const suggested = useMemo(() => getSuggestedProducts(4), []);
+  useEffect(() => {
+    if (!open || allProducts.length) return;
+    fetchProducts()
+      .then(setAllProducts)
+      .catch(console.error);
+  }, [open, allProducts.length]);
+
+  const results = useMemo(
+    () => searchProductsInList(query, allProducts),
+    [query, allProducts]
+  );
+  const suggested = useMemo(() => getSuggestedProducts(allProducts, 4), [allProducts]);
   const displayProducts = query.trim() ? results.slice(0, 6) : suggested.slice(0, 4);
 
   const close = useCallback(() => {

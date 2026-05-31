@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Product } from '@/lib/products';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
-import { Edit, Trash2, Plus } from 'lucide-react';
+import { Edit, Trash2, Plus, Upload, X } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
 import { canManageProducts, canDeleteProducts } from '@/lib/admin-permissions';
 
@@ -20,6 +20,9 @@ interface FormData {
   reviews: number | '';
   image: string;
   description: string;
+  noteTop: string;
+  noteHeart: string;
+  noteBase: string;
   inStock: boolean;
   isBestseller: boolean;
 }
@@ -36,9 +39,30 @@ const emptyForm: FormData = {
   reviews: '',
   image: '',
   description: '',
+  noteTop: '',
+  noteHeart: '',
+  noteBase: '',
   inStock: true,
   isBestseller: false,
 };
+
+async function uploadImage(file: File): Promise<string> {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const response = await fetch('/api/upload', {
+    method: 'POST',
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Gagal mengunggah gambar');
+  }
+
+  const data = await response.json();
+  return data.url as string;
+}
 
 export default function AdminProductsPage() {
   const { user } = useAuth();
@@ -49,9 +73,12 @@ export default function AdminProductsPage() {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<FormData>(emptyForm);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState('');
+  const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Fetch products
   useEffect(() => {
     fetchProducts();
   }, []);
@@ -62,11 +89,12 @@ export default function AdminProductsPage() {
       const response = await fetch('/api/products');
       const data = await response.json();
       setAllProducts(
-        data.map((p: any) => ({
+        data.map((p: Product) => ({
           ...p,
           id: String(p.id),
           inStock: Boolean(p.inStock),
           isBestseller: Boolean(p.isBestseller),
+          scent: Array.isArray(p.scent) ? p.scent : [],
         }))
       );
     } catch (error) {
@@ -75,6 +103,14 @@ export default function AdminProductsPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const resetForm = () => {
+    setFormData(emptyForm);
+    setImageFile(null);
+    setImagePreview('');
+    setEditingId(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   const filtered = allProducts.filter(
@@ -94,15 +130,29 @@ export default function AdminProductsPage() {
       [name]: isCheckbox
         ? (e.target as HTMLInputElement).checked
         : ['price', 'volume', 'rating', 'reviews'].includes(name)
-        ? value === ''
-          ? ''
-          : Number(value)
-        : value,
+          ? value === ''
+            ? ''
+            : Number(value)
+          : value,
     }));
   };
 
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+  };
+
+  const handleRemoveImage = () => {
+    setImageFile(null);
+    setImagePreview('');
+    setFormData((prev) => ({ ...prev, image: '' }));
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
   const handleSaveProduct = async () => {
-    // Validation
     if (!formData.name.trim()) {
       alert('Nama produk harus diisi!');
       return;
@@ -119,14 +169,42 @@ export default function AdminProductsPage() {
       alert('Volume harus diisi dengan benar!');
       return;
     }
+    if (!formData.description.trim()) {
+      alert('Deskripsi produk harus diisi!');
+      return;
+    }
+    if (!formData.noteTop.trim() || !formData.noteHeart.trim() || !formData.noteBase.trim()) {
+      alert('Catatan aroma Top, Heart, dan Base wajib diisi!');
+      return;
+    }
+    if (!editingId && !imageFile) {
+      alert('Gambar produk wajib diunggah!');
+      return;
+    }
+    if (editingId && !imageFile && !formData.image) {
+      alert('Gambar produk wajib ada!');
+      return;
+    }
 
     try {
+      setSaving(true);
+
+      let imageUrl = formData.image;
+      if (imageFile) {
+        imageUrl = await uploadImage(imageFile);
+      }
+
+      const payload = {
+        ...formData,
+        image: imageUrl,
+        scent: [formData.noteTop.trim(), formData.noteHeart.trim(), formData.noteBase.trim()],
+      };
+
       if (editingId) {
-        // Update existing product
         const response = await fetch(`/api/products/${editingId}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(formData),
+          body: JSON.stringify(payload),
         });
 
         if (!response.ok) {
@@ -136,11 +214,10 @@ export default function AdminProductsPage() {
 
         alert('Produk berhasil diperbarui!');
       } else {
-        // Add new product
         const response = await fetch('/api/products', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(formData),
+          body: JSON.stringify(payload),
         });
 
         if (!response.ok) {
@@ -153,11 +230,12 @@ export default function AdminProductsPage() {
 
       await fetchProducts();
       setShowForm(false);
-      setEditingId(null);
-      setFormData(emptyForm);
+      resetForm();
     } catch (error) {
       console.error('Error:', error);
       alert(error instanceof Error ? error.message : 'Terjadi kesalahan');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -174,11 +252,17 @@ export default function AdminProductsPage() {
       reviews: product.reviews,
       image: product.image,
       description: product.description,
+      noteTop: product.scent[0] ?? '',
+      noteHeart: product.scent[1] ?? '',
+      noteBase: product.scent[2] ?? '',
       inStock: product.inStock,
       isBestseller: product.isBestseller || false,
     });
+    setImageFile(null);
+    setImagePreview(product.image);
     setEditingId(product.id);
     setShowForm(true);
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   const handleDeleteProduct = async (id: string) => {
@@ -203,20 +287,18 @@ export default function AdminProductsPage() {
 
   return (
     <div className="space-y-8">
-      {/* Header */}
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-semibold text-slate-800 mb-2">Manajemen Produk</h1>
-          <p className="text-slate-500 text-sm">Kelola inventaris produk toko Anda</p>
+          <p className="text-slate-500 text-sm">
+            Kelola produk sesuai tampilan halaman detail toko
+          </p>
         </div>
         {canAdd && (
           <Button
             onClick={() => {
               setShowForm(!showForm);
-              if (!showForm) {
-                setFormData(emptyForm);
-                setEditingId(null);
-              }
+              if (!showForm) resetForm();
             }}
             className="flex items-center gap-2"
           >
@@ -225,50 +307,121 @@ export default function AdminProductsPage() {
         )}
       </div>
 
-      {/* Add/Edit Form */}
       {showForm && (
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <h2 className="text-2xl font-bold mb-6">
+          <h2 className="text-2xl font-bold mb-2">
             {editingId ? 'Edit Produk' : 'Produk Baru'}
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <p className="text-sm text-slate-500 mb-6">
+            Field di bawah ini sesuai dengan informasi yang ditampilkan di halaman detail produk.
+          </p>
+
+          {/* Informasi Utama */}
+          <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide mb-4">
+            Informasi Utama
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <Input
               label="Nama Produk"
-              placeholder="Masukkan nama produk"
+              placeholder="Contoh: Cedar & Silk"
               name="name"
               value={formData.name}
               onChange={handleFormChange}
             />
             <Input
-              label="Brand"
-              placeholder="Masukkan brand"
+              label="Brand / Merek"
+              placeholder="Contoh: Luxure Parfum"
               name="brand"
               value={formData.brand}
               onChange={handleFormChange}
             />
-            <Input
-              label="Harga"
-              type="number"
-              placeholder="Masukkan harga"
-              name="price"
-              value={formData.price}
-              onChange={handleFormChange}
-            />
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Deskripsi Produk
+              </label>
+              <textarea
+                name="description"
+                rows={4}
+                value={formData.description}
+                onChange={handleFormChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-600"
+                placeholder="Deskripsi yang tampil di halaman detail produk"
+              />
+            </div>
+          </div>
+
+          {/* Upload Gambar */}
+          <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide mb-4">
+            Foto Produk
+          </h3>
+          <div className="mb-6">
+            <div className="flex flex-col sm:flex-row gap-4 items-start">
+              {imagePreview ? (
+                <div className="relative w-40 h-48 rounded-lg overflow-hidden border border-gray-200">
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
+                    className="w-full h-full object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleRemoveImage}
+                    className="absolute top-2 right-2 p-1 bg-white/90 rounded-full text-red-600 hover:bg-white"
+                    aria-label="Hapus gambar"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+              ) : (
+                <div className="w-40 h-48 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 text-sm text-center px-2">
+                  Belum ada gambar
+                </div>
+              )}
+              <div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  onChange={handleImageSelect}
+                  className="hidden"
+                  id="product-image"
+                />
+                <label
+                  htmlFor="product-image"
+                  className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 text-sm font-medium text-gray-700"
+                >
+                  <Upload size={18} />
+                  {imagePreview ? 'Ganti Gambar' : 'Unggah Gambar'}
+                </label>
+                <p className="text-xs text-stone-500 mt-2">
+                  JPG, PNG, WEBP, atau GIF — maks. 5 MB
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Karakteristik Parfum */}
+          <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide mb-4">
+            Karakteristik Parfum
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Kategori</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Intensity</label>
               <select
-                name="category"
-                value={formData.category}
+                name="intensity"
+                value={formData.intensity}
                 onChange={handleFormChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-600"
               >
-                <option value="male">Pria</option>
-                <option value="female">Wanita</option>
-                <option value="unisex">Unisex</option>
+                <option value="EDT">Eau de Toilette (EDT)</option>
+                <option value="EDP">Eau de Parfum (EDP)</option>
+                <option value="EXTRAIT">Extrait de Parfum</option>
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Keluarga Parfum</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Keluarga Parfum
+              </label>
               <select
                 name="family"
                 value={formData.family}
@@ -282,51 +435,70 @@ export default function AdminProductsPage() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Intensity</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Kategori</label>
               <select
-                name="intensity"
-                value={formData.intensity}
+                name="category"
+                value={formData.category}
                 onChange={handleFormChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-600"
               >
-                <option value="EDT">Eau de Toilette</option>
-                <option value="EDP">Eau de Parfum</option>
-                <option value="EXTRAIT">Extrait de Parfum</option>
+                <option value="male">Pria</option>
+                <option value="female">Wanita</option>
+                <option value="unisex">Unisex</option>
               </select>
             </div>
             <Input
-              label="Kapasitas (ml)"
+              label="Kapasitas Default (ml)"
               type="number"
-              placeholder="50, 100, 200"
+              placeholder="50, 75, 100"
               name="volume"
               value={formData.volume}
               onChange={handleFormChange}
             />
+          </div>
+
+          {/* Olfactory Architecture */}
+          <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide mb-4">
+            Olfactory Architecture (Catatan Aroma)
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <Input
-              label="Rating"
+              label="Top Note"
+              placeholder="Contoh: Bergamot"
+              name="noteTop"
+              value={formData.noteTop}
+              onChange={handleFormChange}
+            />
+            <Input
+              label="Heart Note"
+              placeholder="Contoh: Rose Absolue"
+              name="noteHeart"
+              value={formData.noteHeart}
+              onChange={handleFormChange}
+            />
+            <Input
+              label="Base Note"
+              placeholder="Contoh: Sandalwood"
+              name="noteBase"
+              value={formData.noteBase}
+              onChange={handleFormChange}
+            />
+          </div>
+
+          {/* Harga & Stok */}
+          <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide mb-4">
+            Harga & Stok
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <Input
+              label="Harga (IDR)"
               type="number"
-              step="0.1"
-              placeholder="1-5"
-              name="rating"
-              value={formData.rating}
+              placeholder="450000"
+              name="price"
+              value={formData.price}
               onChange={handleFormChange}
             />
-            <Input
-              label="Jumlah Review"
-              type="number"
-              placeholder="0"
-              name="reviews"
-              value={formData.reviews}
-              onChange={handleFormChange}
-            />
-            <Input
-              label="Foto URL"
-              placeholder="https://..."
-              name="image"
-              value={formData.image}
-              onChange={handleFormChange}
-            />
-            <div className="flex items-center gap-4 md:col-span-1">
+            <div className="flex items-end gap-6 pb-1">
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
@@ -349,27 +521,42 @@ export default function AdminProductsPage() {
               </label>
             </div>
           </div>
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Deskripsi Produk
-            </label>
-            <textarea
-              name="description"
-              rows={4}
-              value={formData.description}
+
+          {/* Rating */}
+          <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide mb-4">
+            Rating & Ulasan
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <Input
+              label="Rating (1–5)"
+              type="number"
+              step="0.1"
+              min="0"
+              max="5"
+              placeholder="4.8"
+              name="rating"
+              value={formData.rating}
               onChange={handleFormChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-600"
-              placeholder="Masukkan deskripsi lengkap produk"
+            />
+            <Input
+              label="Jumlah Review"
+              type="number"
+              placeholder="0"
+              name="reviews"
+              value={formData.reviews}
+              onChange={handleFormChange}
             />
           </div>
+
           <div className="flex gap-3">
-            <Button onClick={handleSaveProduct}>Simpan Produk</Button>
+            <Button onClick={handleSaveProduct} disabled={saving}>
+              {saving ? 'Menyimpan...' : 'Simpan Produk'}
+            </Button>
             <Button
               variant="outline"
               onClick={() => {
                 setShowForm(false);
-                setEditingId(null);
-                setFormData(emptyForm);
+                resetForm();
               }}
             >
               Batal
@@ -378,7 +565,6 @@ export default function AdminProductsPage() {
         </div>
       )}
 
-      {/* Search */}
       <div className="flex gap-4">
         <Input
           placeholder="Cari produk..."
@@ -388,12 +574,10 @@ export default function AdminProductsPage() {
         />
       </div>
 
-      {/* Loading State */}
       {loading ? (
         <div className="text-center text-slate-500">Memuat produk...</div>
       ) : (
         <>
-          {/* Products Table */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full">
@@ -402,7 +586,7 @@ export default function AdminProductsPage() {
                     <th className="text-left py-3 px-4 font-semibold">Produk</th>
                     <th className="text-left py-3 px-4 font-semibold">Brand</th>
                     <th className="text-left py-3 px-4 font-semibold">Harga</th>
-                    <th className="text-left py-3 px-4 font-semibold">Kategori</th>
+                    <th className="text-left py-3 px-4 font-semibold">Intensity</th>
                     <th className="text-left py-3 px-4 font-semibold">Stok</th>
                     <th className="text-left py-3 px-4 font-semibold">Rating</th>
                     <th className="text-left py-3 px-4 font-semibold">Aksi</th>
@@ -418,12 +602,17 @@ export default function AdminProductsPage() {
                             alt={product.name}
                             className="w-10 h-10 object-cover rounded"
                           />
-                          <span className="font-medium">{product.name}</span>
+                          <div>
+                            <span className="font-medium block">{product.name}</span>
+                            <span className="text-xs text-stone-500">
+                              {product.scent.slice(0, 3).join(' · ') || '—'}
+                            </span>
+                          </div>
                         </div>
                       </td>
                       <td className="py-3 px-4">{product.brand}</td>
                       <td className="py-3 px-4">Rp {product.price.toLocaleString('id-ID')}</td>
-                      <td className="py-3 px-4">{product.category}</td>
+                      <td className="py-3 px-4">{product.intensity}</td>
                       <td className="py-3 px-4">
                         <span
                           className={`px-3 py-1 rounded-full text-sm font-medium ${
@@ -440,9 +629,7 @@ export default function AdminProductsPage() {
                         {canAdd && (
                           <div className="flex gap-2">
                             <button
-                              onClick={() => {
-                                handleEditProduct(product);
-                              }}
+                              onClick={() => handleEditProduct(product)}
                               className="p-2 hover:bg-[#EFEFE9] rounded-lg text-[#8C7355]"
                               aria-label="Edit"
                             >
@@ -467,7 +654,6 @@ export default function AdminProductsPage() {
             </div>
           </div>
 
-          {/* Stats */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
               <p className="text-gray-600 text-sm mb-2">Total Produk</p>

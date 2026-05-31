@@ -4,14 +4,18 @@ import { Suspense, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Minus, Plus, TreePine, Flower2, Citrus, Cake, ChevronRight, Search, X } from 'lucide-react';
-import { products, Product, searchProducts } from '@/lib/products';
+import {
+  Product,
+  fetchProducts,
+  searchProductsInList,
+} from '@/lib/products';
 import { CatalogNav, CatalogFooter } from '@/components/CatalogChrome';
 
 const ITEMS_PER_PAGE = 12;
 const FAMILIES = ['Woody', 'Floral', 'Citrus', 'Gourmand'] as const;
 
-const getAllBrands = () => {
-  const uniqueBrands = Array.from(new Set(products.map((p) => p.brand)));
+const getAllBrands = (list: Product[]) => {
+  const uniqueBrands = Array.from(new Set(list.map((p) => p.brand)));
   return uniqueBrands.sort();
 };
 
@@ -40,10 +44,7 @@ const sortOptions = [
 
 type SortValue = (typeof sortOptions)[number]['value'];
 
-const priceBounds = {
-  min: Math.min(...products.map((p) => p.price)),
-  max: Math.max(...products.map((p) => p.price)),
-};
+const defaultPriceBounds = { min: 0, max: 1000000 };
 
 function getFamilyTag(product: Product): string {
   return familyConfig[product.family].tag;
@@ -92,6 +93,24 @@ function ProductsContent() {
   const familyParam = searchParams.get('family');
   const queryParam = searchParams.get('q') ?? '';
 
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchProducts()
+      .then(setAllProducts)
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, []);
+
+  const priceBounds = useMemo(() => {
+    if (!allProducts.length) return defaultPriceBounds;
+    return {
+      min: Math.min(...allProducts.map((p) => p.price)),
+      max: Math.max(...allProducts.map((p) => p.price)),
+    };
+  }, [allProducts]);
+
   const [expandedFamily, setExpandedFamily] = useState<string | null>(
     familyParam && FAMILIES.includes(familyParam as (typeof FAMILIES)[number])
       ? familyParam
@@ -103,9 +122,15 @@ function ProductsContent() {
       : null
   );
   const [priceRange, setPriceRange] = useState<[number, number]>([
-    priceBounds.min,
-    priceBounds.max,
+    defaultPriceBounds.min,
+    defaultPriceBounds.max,
   ]);
+
+  useEffect(() => {
+    if (allProducts.length) {
+      setPriceRange([priceBounds.min, priceBounds.max]);
+    }
+  }, [allProducts, priceBounds.min, priceBounds.max]);
   const [selectedIntensity, setSelectedIntensity] = useState<Product['intensity'] | null>('EDP');
   const [sortBy, setSortBy] = useState<SortValue>('newest');
   const [currentPage, setCurrentPage] = useState(1);
@@ -119,10 +144,10 @@ function ProductsContent() {
   }, [queryParam]);
 
   const filteredProducts = useMemo(() => {
-    let result = [...products];
+    let result = [...allProducts];
 
     if (searchQuery.trim()) {
-      const ids = new Set(searchProducts(searchQuery).map((p) => p.id));
+      const ids = new Set(searchProductsInList(searchQuery, allProducts).map((p) => p.id));
       result = result.filter((p) => ids.has(p.id));
     }
 
@@ -154,7 +179,7 @@ function ProductsContent() {
     }
 
     return result;
-  }, [selectedFamily, selectedIntensity, priceRange, sortBy, searchQuery, selectedBrand]);
+  }, [allProducts, selectedFamily, selectedIntensity, priceRange, sortBy, searchQuery, selectedBrand]);
 
   const totalPages = Math.max(1, Math.ceil(filteredProducts.length / ITEMS_PER_PAGE));
   const safePage = Math.min(currentPage, totalPages);
@@ -340,7 +365,7 @@ function ProductsContent() {
                 </div>
               </div>
               <div className="max-h-48 overflow-y-auto space-y-2">
-                {getAllBrands()
+                {getAllBrands(allProducts)
                   .filter((brand) =>
                     brand
                       .toLowerCase()
@@ -364,7 +389,7 @@ function ProductsContent() {
                         {brand}
                       </span>
                       <span className="text-xs text-stone-400 ml-auto">
-                        ({products.filter((p) => p.brand === brand).length})
+                        ({allProducts.filter((p) => p.brand === brand).length})
                       </span>
                     </label>
                   ))}
@@ -412,7 +437,11 @@ function ProductsContent() {
               </div>
             </div>
 
-            {paginatedProducts.length === 0 ? (
+            {loading ? (
+              <div className="py-24 text-center text-stone-500 text-sm">
+                Memuat koleksi parfum…
+              </div>
+            ) : paginatedProducts.length === 0 ? (
               <div className="py-24 text-center text-stone-500">
                 <p className="font-serif text-xl text-[#4A3728] mb-2">No scents found</p>
                 <p className="text-sm">Try adjusting your filters to discover more fragrances.</p>

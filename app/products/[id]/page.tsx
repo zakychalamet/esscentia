@@ -2,9 +2,9 @@
 
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { ChevronDown, Star } from 'lucide-react';
-import { getProductById, Product } from '@/lib/products';
+import { fetchProductById, Product } from '@/lib/products';
 import {
   getReviewsForProduct,
   getRatingBreakdown,
@@ -262,15 +262,43 @@ function ReviewsSection({
 export default function ProductDetailPage() {
   const params = useParams();
   const productId = params.id as string;
-  const product = getProductById(productId);
+  const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState(true);
   const { addToCart } = useCart();
+
+  useEffect(() => {
+    setLoading(true);
+    fetchProductById(productId)
+      .then(setProduct)
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, [productId]);
 
   const volumeOptions = product ? getVolumeOptions(product) : [50, 100];
   const [selectedVolume, setSelectedVolume] = useState(volumeOptions[0]);
+
+  useEffect(() => {
+    if (product) {
+      setSelectedVolume(getVolumeOptions(product)[0]);
+    }
+  }, [product]);
+
   const reviews = useMemo(
     () => (product ? getReviewsForProduct(product.id) : []),
     [product]
   );
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#F9F7F2] flex flex-col">
+        <CatalogNav />
+        <div className="flex-1 flex items-center justify-center text-stone-500 text-sm">
+          Memuat produk…
+        </div>
+        <CatalogFooter variant="product" />
+      </div>
+    );
+  }
 
   if (!product) {
     return (
@@ -295,9 +323,9 @@ export default function ProductDetailPage() {
   const story = storyByFamily[product.family];
   const displayPrice = priceForVolume(product.price, product.volume, selectedVolume);
   const notes = {
-    top: product.scent[0] ?? 'Bergamot',
-    heart: product.scent[1] ?? 'Rose Absolue',
-    base: product.scent[2] ?? 'Sandalwood',
+    top: product.scent[0] || '—',
+    heart: product.scent[1] || '—',
+    base: product.scent[2] || '—',
   };
 
   const handleAddToCart = () => {
@@ -329,6 +357,9 @@ export default function ProductDetailPage() {
 
             {/* Details */}
             <div className="flex flex-col justify-center lg:py-8">
+              <p className="text-[10px] uppercase tracking-[0.25em] text-stone-500 mb-1">
+                {product.brand}
+              </p>
               <p className="text-[10px] uppercase tracking-[0.25em] text-stone-500 mb-3">
                 {intensityLabels[product.intensity]}
               </p>
@@ -336,8 +367,7 @@ export default function ProductDetailPage() {
                 {product.name}
               </h1>
               <p className="text-stone-600 leading-relaxed mb-8 max-w-md text-[15px]">
-                {product.description} A composition that unfolds slowly on the skin, revealing
-                layers of depth with every hour that passes.
+                {product.description}
               </p>
 
               {/* Olfactory architecture */}
@@ -416,9 +446,8 @@ export default function ProductDetailPage() {
               {/* Accordions */}
               <div>
                 <AccordionItem title="Ingredient Transparency">
-                  Our formulas disclose every note tier. {product.name} features{' '}
-                  {product.scent.join(', ')} — ethically sourced and free from phthalates and
-                  parabens.
+                  {product.name} features {product.scent.join(', ') || 'carefully selected notes'}{' '}
+                  — ethically sourced and free from phthalates and parabens.
                 </AccordionItem>
                 <AccordionItem title="Sustainable Packaging">
                   Bottles are refillable and housed in FSC-certified paper. We offset carbon for

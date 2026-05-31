@@ -183,15 +183,47 @@ export default function CheckoutPage() {
       return;
     }
 
-    setTimeout(() => {
-      alert(
-        'Pesanan berhasil dibuat! Nomor pesanan: #' +
-          Math.floor(100000 + Math.random() * 900000)
-      );
+    try {
+      const response = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user?.id ?? null,
+          subtotal: total,
+          shippingCost,
+          totalAmount: finalTotal,
+          shipMethod,
+          paymentMethod,
+          shippingName: formData.name,
+          shippingEmail: formData.email,
+          shippingPhone: formData.phone,
+          shippingAddress: formData.address,
+          shippingCity: formData.city,
+          shippingProvince: formData.province,
+          shippingPostalCode: formData.postalCode,
+          notes: formData.notes,
+          items: items.map((item) => ({
+            productId: item.product.id,
+            productName: item.product.name,
+            quantity: item.quantity,
+            price: item.product.price,
+          })),
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Gagal membuat pesanan');
+      }
+
+      alert(`Pesanan berhasil dibuat! Nomor pesanan: ${data.orderNumber}`);
       clearCart();
       router.push('/');
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'Gagal membuat pesanan');
+    } finally {
       setIsProcessing(false);
-    }, 2000);
+    }
   };
 
   if (items.length === 0) {

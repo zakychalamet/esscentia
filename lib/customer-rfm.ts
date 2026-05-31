@@ -220,10 +220,29 @@ function churnFromScores(r: number, f: number, m: number): ChurnRiskLevel {
 
 let cached: RfmAnalyticsResult | null = null;
 
-export function computeRfmAnalytics(): RfmAnalyticsResult {
-  if (cached) return cached;
+/** Hitung RFM + K-Means dari data transaksi nyata */
+export function buildRfmAnalytics(transactions: CustomerTransaction[]): RfmAnalyticsResult {
+  if (transactions.length === 0) {
+    return {
+      customers: [],
+      kpi: {
+        totalCliente: 0,
+        avgChurnRiskPct: 0,
+        topSegment: 'Loyal/Steady',
+        topSegmentRevenuePct: 0,
+        clienteleGrowthPct: 0,
+        churnTrendPct: 0,
+      },
+      churnPie: [
+        { name: 'Low Risk', level: 'low', value: 0, color: CHURN_COLORS.low },
+        { name: 'Medium Risk', level: 'medium', value: 0, color: CHURN_COLORS.medium },
+        { name: 'High Risk', level: 'high', value: 0, color: CHURN_COLORS.high },
+      ],
+      segmentShifts: [],
+      clusterCentroids: [],
+    };
+  }
 
-  const transactions = generateMockTransactions();
   const days = transactions.map((t) => t.lastOrderDaysAgo);
   const freqs = transactions.map((t) => t.orderCount);
   const spends = transactions.map((t) => t.totalSpend);
@@ -293,9 +312,10 @@ export function computeRfmAnalytics(): RfmAnalyticsResult {
   const totalRevenue = Object.values(segmentRevenue).reduce((a, b) => a + b, 0);
   const topSegment = (Object.entries(segmentRevenue).sort((a, b) => b[1] - a[1])[0]?.[0] ??
     'Champions') as RfmSegmentLabel;
-  const topSegmentRevenuePct = Math.round(
-    (segmentRevenue[topSegment] / totalRevenue) * 100
-  );
+  const topSegmentRevenuePct =
+    totalRevenue > 0
+      ? Math.round((segmentRevenue[topSegment] / totalRevenue) * 100)
+      : 0;
 
   const centroids = [0, 1, 2].map((c) => {
     const members = customers.filter((x) => x.cluster === c);
@@ -309,7 +329,30 @@ export function computeRfmAnalytics(): RfmAnalyticsResult {
     };
   });
 
-  const segmentShifts: SegmentShift[] = [
+  return {
+    customers,
+    kpi: {
+      totalCliente: transactions.length,
+      avgChurnRiskPct: highPct,
+      topSegment,
+      topSegmentRevenuePct,
+      clienteleGrowthPct: 0,
+      churnTrendPct: 0,
+    },
+    churnPie,
+    segmentShifts: [],
+    clusterCentroids: centroids,
+  };
+}
+
+/** @deprecated Gunakan buildRfmAnalytics dengan data nyata */
+export function computeRfmAnalytics(): RfmAnalyticsResult {
+  if (cached) return cached;
+  cached = buildRfmAnalytics(generateMockTransactions());
+  cached.kpi.totalCliente = 12458;
+  cached.kpi.clienteleGrowthPct = 4.2;
+  cached.kpi.churnTrendPct = -1.1;
+  cached.segmentShifts = [
     {
       id: '1',
       customerId: '#892',
@@ -324,36 +367,6 @@ export function computeRfmAnalytics(): RfmAnalyticsResult {
       direction: 'up',
       timeAgo: '5h ago',
     },
-    {
-      id: '3',
-      customerId: '#712',
-      message: "moved to 'At Risk' after 90d inactivity",
-      direction: 'down',
-      timeAgo: '1d ago',
-    },
-    {
-      id: '4',
-      customerId: '#203',
-      message: 'entered Loyal/Steady segment',
-      direction: 'up',
-      timeAgo: '2d ago',
-    },
   ];
-
-  cached = {
-    customers,
-    kpi: {
-      totalCliente: 12458,
-      avgChurnRiskPct: highPct,
-      topSegment,
-      topSegmentRevenuePct,
-      clienteleGrowthPct: 4.2,
-      churnTrendPct: -1.1,
-    },
-    churnPie,
-    segmentShifts,
-    clusterCentroids: centroids,
-  };
-
   return cached;
 }

@@ -1,19 +1,26 @@
 'use client';
 
-import { products } from '@/lib/products';
+import { useEffect, useState } from 'react';
+import { fetchProducts, Product, getSuggestedProducts } from '@/lib/products';
 import { useCart } from '@/lib/cart-context';
 import { Button } from '@/components/Button';
 import { ChevronRight } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
 import { CatalogNav } from '@/components/CatalogChrome';
 
 export default function HomePage() {
   const { addToCart } = useCart();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [email, setEmail] = useState('');
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
 
-  const bestsellerProducts = products.slice(0, 4);
+  useEffect(() => {
+    fetchProducts()
+      .then(setAllProducts)
+      .catch(console.error);
+  }, []);
+
+  const bestsellerProducts = getSuggestedProducts(allProducts, 4);
   const collections = [
     {
       id: 1,

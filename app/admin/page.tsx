@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import {
   Users,
@@ -13,7 +13,8 @@ import {
   Download,
   Calendar,
 } from 'lucide-react';
-import { computeRfmAnalytics, SEGMENT_COLORS } from '@/lib/customer-rfm';
+import type { RfmAnalyticsResult } from '@/lib/customer-rfm';
+import { SEGMENT_COLORS } from '@/lib/customer-rfm';
 import { RfmClusterChart } from '@/components/admin/RfmClusterChart';
 import { ChurnPieChart } from '@/components/admin/ChurnPieChart';
 import { useAuth } from '@/lib/auth-context';
@@ -21,7 +22,17 @@ import { canViewAnalytics } from '@/lib/admin-permissions';
 
 export default function AdminDashboard() {
   const { user } = useAuth();
-  const analytics = useMemo(() => computeRfmAnalytics(), []);
+  const [analytics, setAnalytics] = useState<RfmAnalyticsResult | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!canViewAnalytics(user?.role)) return;
+    fetch('/api/admin/rfm')
+      .then((res) => res.json())
+      .then(setAnalytics)
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, [user?.role]);
 
   if (!canViewAnalytics(user?.role)) {
     return (
@@ -41,6 +52,12 @@ export default function AdminDashboard() {
           Kelola Produk
         </Link>
       </div>
+    );
+  }
+
+  if (loading || !analytics) {
+    return (
+      <div className="py-16 text-center text-slate-500 text-sm">Memuat analitik RFM...</div>
     );
   }
 
