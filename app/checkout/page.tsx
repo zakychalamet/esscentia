@@ -211,9 +211,9 @@ export default function CheckoutPage() {
           notes: formData.notes,
           items: items.map((item) => ({
             productId: item.product.id,
-            productName: item.product.name,
+            productName: `${item.product.name} (${item.selectedVolume}ml)`,
             quantity: item.quantity,
-            price: item.product.price,
+            price: item.selectedPrice,
           })),
         }),
       });
@@ -456,7 +456,7 @@ export default function CheckoutPage() {
 
               <ul className="space-y-5 mb-6 max-h-56 overflow-y-auto pr-1">
                 {items.map((item) => (
-                  <li key={item.product.id} className="flex gap-3">
+                  <li key={`${item.product.id}-${item.selectedVolume}`} className="flex gap-3">
                     <div className="w-14 h-14 shrink-0 bg-stone-200 overflow-hidden">
                       <img
                         src={item.product.image}
@@ -467,12 +467,12 @@ export default function CheckoutPage() {
                     <div className="flex-1 min-w-0 flex justify-between gap-3 text-sm">
                       <div className="min-w-0">
                         <p className="font-medium text-[#4A3728] truncate">
-                          {item.product.name}
+                          {item.product.name} ({item.selectedVolume}ml)
                         </p>
                         <p className="text-stone-500 text-xs mt-0.5">x{item.quantity}</p>
                       </div>
                       <p className="font-medium text-[#4A3728] shrink-0 text-right">
-                        {formatPrice(item.product.price * item.quantity)}
+                        {formatPrice(item.selectedPrice * item.quantity)}
                       </p>
                     </div>
                   </li>

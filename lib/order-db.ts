@@ -51,6 +51,7 @@ export interface OrderRecord {
     productName: string;
     quantity: number;
     price: number;
+    productImage?: string | null;
   }[];
 }
 
@@ -103,7 +104,7 @@ export async function createOrder(input: CreateOrderInput): Promise<OrderRecord>
       (user_id, order_number, subtotal, shipping_cost, total_amount, status,
        ship_method, payment_method, shipping_name, shipping_email, shipping_phone,
        shipping_address, shipping_city, shipping_province, shipping_postal_code, notes)
-     VALUES (?, ?, ?, ?, ?, 'completed', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+     VALUES (?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       input.userId ?? null,
       orderNumber,
@@ -139,8 +140,12 @@ export async function createOrder(input: CreateOrderInput): Promise<OrderRecord>
 }
 
 async function getOrderItems(orderId: number) {
-  const [rows] = await pool.query<OrderItemRow[]>(
-    'SELECT * FROM order_items WHERE order_id = ? ORDER BY id',
+  const [rows] = await pool.query<any[]>(
+    `SELECT oi.*, p.image AS product_image 
+     FROM order_items oi
+     LEFT JOIN products p ON oi.product_id = p.id
+     WHERE oi.order_id = ? 
+     ORDER BY oi.id`,
     [orderId]
   );
   return rows.map((row) => ({
@@ -149,6 +154,7 @@ async function getOrderItems(orderId: number) {
     productName: row.product_name,
     quantity: row.quantity,
     price: Number(row.price),
+    productImage: row.product_image || null,
   }));
 }
 
@@ -219,3 +225,24 @@ export async function getUserOrderStats(): Promise<
   }
   return map;
 }
+
+export async function getAllOrders(): Promise<OrderRecord[]> {
+  const [rows] = await pool.query<OrderRow[]>(
+    'SELECT * FROM orders ORDER BY created_at DESC'
+  );
+  const orders: OrderRecord[] = [];
+  for (const row of rows) {
+    const items = await getOrderItems(row.id);
+    orders.push(mapOrder(row, items));
+  }
+  return orders;
+}
+
+export async function updateOrderStatus(orderId: string, status: string): Promise<boolean> {
+  const [result] = await pool.query<ResultSetHeader>(
+    'UPDATE orders SET status = ? WHERE id = ?',
+    [status, orderId]
+  );
+  return result.affectedRows > 0;
+}
+

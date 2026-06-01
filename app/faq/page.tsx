@@ -66,7 +66,7 @@ export default function FAQPage() {
               <div key={index} className="bg-white border border-gray-200 rounded-lg overflow-hidden">
                 <button
                   onClick={() => setOpenIndex(openIndex === index ? null : index)}
-                  className="w-full flex items-center justify-between p-6 hover:bg-purple-50 transition"
+                  className="w-full flex items-center justify-between p-6 hover:bg-[#EDEAE4]/40 transition"
                 >
                   <h3 className="font-bold text-lg text-left">{faq.question}</h3>
                   <ChevronDown
@@ -86,14 +86,14 @@ export default function FAQPage() {
             ))}
           </div>
 
-          <div className="mt-12 p-6 bg-purple-50 rounded-lg border border-purple-200">
+          <div className="mt-12 p-6 bg-amber-50/40 rounded-lg border border-[#8C7355]/20">
             <h3 className="font-bold text-lg mb-2">Tidak menemukan jawaban?</h3>
             <p className="text-gray-700 mb-4">
               Hubungi tim customer service kami untuk bantuan lebih lanjut.
             </p>
             <a
               href="/contact"
-              className="text-purple-600 font-semibold hover:underline"
+              className="text-[#8C7355] font-semibold hover:underline"
             >
               Hubungi Kami →
             </a>

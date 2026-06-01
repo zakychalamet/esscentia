@@ -68,7 +68,7 @@ export default function ContactPage() {
                     value={formData.message}
                     onChange={handleInputChange}
                     rows={6}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-600"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#8C7355]"
                     required
                   />
                 </div>

@@ -7,7 +7,18 @@ export interface CustomerTransaction {
   totalSpend: number;
 }
 
-export type RfmSegmentLabel = 'Champions' | 'Loyal/Steady' | 'At Risk';
+export type RfmSegmentLabel =
+  | 'Champions'
+  | 'Loyal Customers'
+  | 'Potential Loyalist'
+  | 'Recent Customers'
+  | 'Promising'
+  | 'Need Attention'
+  | 'About to Sleep'
+  | 'At Risk'
+  | "Can't Lose Them"
+  | 'Hibernating'
+  | 'Lost';
 
 export type ChurnRiskLevel = 'low' | 'medium' | 'high';
 
@@ -62,9 +73,17 @@ const CHURN_COLORS = {
 };
 
 const SEGMENT_COLORS: Record<RfmSegmentLabel, string> = {
-  Champions: '#6B4E9E',
-  'Loyal/Steady': '#8C8C8C',
-  'At Risk': '#B85C4A',
+  'Champions': '#6B4E9E',
+  'Loyal Customers': '#3B82F6',
+  'Potential Loyalist': '#10B981',
+  'Recent Customers': '#06B6D4',
+  'Promising': '#84CC16',
+  'Need Attention': '#F59E0B',
+  'About to Sleep': '#EC4899',
+  'At Risk': '#EF4444',
+  "Can't Lose Them": '#9333EA',
+  'Hibernating': '#64748B',
+  'Lost': '#94A3B8',
 };
 
 export { SEGMENT_COLORS, CHURN_COLORS };
@@ -190,25 +209,38 @@ function kMeans(features: Vec3[], k = 3, maxIter = 50): number[] {
   return assignments;
 }
 
-function mapClustersToSegments(
-  features: Vec3[],
-  assignments: number[]
-): Map<number, RfmSegmentLabel> {
-  const k = 3;
-  const clusterScores: { cluster: number; avg: number }[] = [];
-
-  for (let c = 0; c < k; c++) {
-    const members = features.filter((_, i) => assignments[i] === c);
-    const avg =
-      members.reduce((s, m) => s + m[0] + m[1] + m[2], 0) / (members.length * 3 || 1);
-    clusterScores.push({ cluster: c, avg });
+export function calculateRfmSegment(r: number, f: number, m: number): RfmSegmentLabel {
+  if (r >= 4 && f >= 4 && m >= 4) {
+    return 'Champions';
   }
-
-  clusterScores.sort((a, b) => b.avg - a.avg);
-  const labels: RfmSegmentLabel[] = ['Champions', 'Loyal/Steady', 'At Risk'];
-  const map = new Map<number, RfmSegmentLabel>();
-  clusterScores.forEach((cs, idx) => map.set(cs.cluster, labels[idx]));
-  return map;
+  if (r >= 3 && f >= 3 && m >= 3) {
+    return 'Loyal Customers';
+  }
+  if (r >= 3 && f >= 2) {
+    return 'Potential Loyalist';
+  }
+  if (r >= 4 && f === 1) {
+    return 'Recent Customers';
+  }
+  if (r === 3 && f === 1) {
+    return 'Promising';
+  }
+  if (r === 3 && f === 2) {
+    return 'Need Attention';
+  }
+  if (r === 2 && f <= 2) {
+    return 'About to Sleep';
+  }
+  if (r <= 2 && f >= 4) {
+    return "Can't Lose Them";
+  }
+  if (r <= 2 && f >= 2) {
+    return 'At Risk';
+  }
+  if (r <= 2 && f === 1 && m > 1) {
+    return 'Hibernating';
+  }
+  return 'Lost';
 }
 
 function churnFromScores(r: number, f: number, m: number): ChurnRiskLevel {
@@ -228,7 +260,7 @@ export function buildRfmAnalytics(transactions: CustomerTransaction[]): RfmAnaly
       kpi: {
         totalCliente: 0,
         avgChurnRiskPct: 0,
-        topSegment: 'Loyal/Steady',
+        topSegment: 'Loyal Customers',
         topSegmentRevenuePct: 0,
         clienteleGrowthPct: 0,
         churnTrendPct: 0,
@@ -254,7 +286,6 @@ export function buildRfmAnalytics(transactions: CustomerTransaction[]): RfmAnaly
   ]);
 
   const assignments = kMeans(features, 3);
-  const segmentMap = mapClustersToSegments(features, assignments);
 
   const customers: RfmCustomerPoint[] = transactions.map((t, i) => {
     const r = features[i][0];
@@ -270,7 +301,7 @@ export function buildRfmAnalytics(transactions: CustomerTransaction[]): RfmAnaly
       frequencyRaw: t.orderCount,
       monetaryRaw: t.totalSpend,
       cluster,
-      segment: segmentMap.get(cluster) ?? 'Loyal/Steady',
+      segment: calculateRfmSegment(r, f, m),
       churnRisk: churnFromScores(r, f, m),
       monetaryValue: t.totalSpend,
     };
@@ -302,9 +333,17 @@ export function buildRfmAnalytics(transactions: CustomerTransaction[]): RfmAnaly
 
   const highPct = churnPie.find((s) => s.level === 'high')?.value ?? 0;
   const segmentRevenue: Record<RfmSegmentLabel, number> = {
-    Champions: 0,
-    'Loyal/Steady': 0,
+    'Champions': 0,
+    'Loyal Customers': 0,
+    'Potential Loyalist': 0,
+    'Recent Customers': 0,
+    'Promising': 0,
+    'Need Attention': 0,
+    'About to Sleep': 0,
     'At Risk': 0,
+    "Can't Lose Them": 0,
+    'Hibernating': 0,
+    'Lost': 0,
   };
   customers.forEach((c) => {
     segmentRevenue[c.segment] += c.monetaryValue;
@@ -321,11 +360,19 @@ export function buildRfmAnalytics(transactions: CustomerTransaction[]): RfmAnaly
     const members = customers.filter((x) => x.cluster === c);
     const avg = (key: keyof RfmCustomerPoint) =>
       members.reduce((s, m) => s + (m[key] as number), 0) / (members.length || 1);
+    
+    // Hitung segmen mayoritas di cluster
+    const segmentCounts: Record<string, number> = {};
+    members.forEach((m) => {
+      segmentCounts[m.segment] = (segmentCounts[m.segment] || 0) + 1;
+    });
+    const topCentroidSegment = (Object.entries(segmentCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? 'Loyal Customers') as RfmSegmentLabel;
+
     return {
       recency: avg('recencyScore'),
       frequency: avg('frequencyScore'),
       monetary: avg('monetaryScore'),
-      segment: segmentMap.get(c) ?? ('Loyal/Steady' as RfmSegmentLabel),
+      segment: topCentroidSegment,
     };
   });
 
@@ -356,7 +403,7 @@ export function computeRfmAnalytics(): RfmAnalyticsResult {
     {
       id: '1',
       customerId: '#892',
-      message: "dropped from 'Loyal' to 'Hibernating'",
+      message: "dropped from 'Loyal Customers' to 'Hibernating'",
       direction: 'down',
       timeAgo: '2h ago',
     },

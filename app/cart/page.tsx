@@ -76,7 +76,7 @@ export default function CartPage() {
             <div className="min-w-0 order-2 lg:order-1 space-y-4">
               {items.map((item) => (
                 <article
-                  key={item.product.id}
+                  key={`${item.product.id}-${item.selectedVolume}`}
                   className="flex flex-col sm:flex-row gap-4 sm:gap-5 bg-white/50 border border-stone-200/80 p-4 sm:p-5"
                 >
                   <Link
@@ -101,10 +101,10 @@ export default function CartPage() {
                         {item.product.brand}
                       </p>
                       <p className="text-[10px] uppercase tracking-[0.12em] text-stone-400">
-                        {intensityLabels[item.product.intensity]} · {item.product.volume}ml
+                        {intensityLabels[item.product.intensity]} · {item.selectedVolume}ml
                       </p>
                       <p className="text-sm text-[#8D4F38] mt-2">
-                        {formatPrice(item.product.price)}
+                        {formatPrice(item.selectedPrice)}
                       </p>
                     </div>
 
@@ -113,7 +113,7 @@ export default function CartPage() {
                         <button
                           type="button"
                           onClick={() =>
-                            updateQuantity(item.product.id, Math.max(1, item.quantity - 1))
+                            updateQuantity(item.product.id, Math.max(1, item.quantity - 1), item.selectedVolume)
                           }
                           className="p-2.5 text-stone-600 hover:text-[#4A3728] hover:bg-stone-100 transition"
                           aria-label="Kurangi jumlah"
@@ -125,7 +125,7 @@ export default function CartPage() {
                         </span>
                         <button
                           type="button"
-                          onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
+                          onClick={() => updateQuantity(item.product.id, item.quantity + 1, item.selectedVolume)}
                           className="p-2.5 text-stone-600 hover:text-[#4A3728] hover:bg-stone-100 transition"
                           aria-label="Tambah jumlah"
                         >
@@ -138,13 +138,13 @@ export default function CartPage() {
                           Subtotal
                         </p>
                         <p className="font-medium text-[#4A3728] tabular-nums">
-                          {formatPrice(item.product.price * item.quantity)}
+                          {formatPrice(item.selectedPrice * item.quantity)}
                         </p>
                       </div>
 
                       <button
                         type="button"
-                        onClick={() => removeFromCart(item.product.id)}
+                        onClick={() => removeFromCart(item.product.id, item.selectedVolume)}
                         className="p-2 text-stone-400 hover:text-[#8D4F38] transition"
                         aria-label="Hapus item"
                       >

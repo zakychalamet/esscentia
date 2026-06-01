@@ -18,7 +18,7 @@ const exploreFamilies: { label: string; family: Product['family'] | 'all' }[] = 
   { label: 'Citrus', family: 'Citrus' },
   { label: 'Fresh', family: 'Fresh' },
   { label: 'Amber', family: 'Amber' },
-  { label: 'Gourmand', family: 'Gourmand' },
+  { label: 'Vanilla', family: 'Vanilla' },
   { label: 'Aromatic', family: 'Aromatic' },
   { label: 'Leather', family: 'Leather' },
 ];

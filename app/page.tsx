@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { fetchProducts, Product, getSuggestedProducts } from '@/lib/products';
 import { useCart } from '@/lib/cart-context';
@@ -18,6 +18,7 @@ export default function HomePage() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [email, setEmail] = useState('');
   const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const [bestsellerGender, setBestsellerGender] = useState<'male' | 'female'>('male');
 
   useEffect(() => {
     fetchProducts()
@@ -25,36 +26,41 @@ export default function HomePage() {
       .catch(console.error);
   }, []);
 
-  const bestsellerProducts = getSuggestedProducts(allProducts, 4);
+  const bestsellerProducts = useMemo(() => {
+    return allProducts
+      .filter((p) => p.category === bestsellerGender && p.isBestseller)
+      .sort((a, b) => Number(a.id) - Number(b.id))
+      .slice(0, 4);
+  }, [allProducts, bestsellerGender]);
   const collections = [
     {
       id: 1,
-      title: 'Saptians Saga',
-      image: 'https://images.unsplash.com/photo-1596081223915-b4dc8b5a0b19?w=500&h=500&fit=crop',
+      title: 'Creed',
+      image: '/images/creed.png',
       span: 'col-span-1 row-span-2',
     },
     {
       id: 2,
-      title: 'The Botanical Life',
-      image: 'https://images.unsplash.com/photo-1610710506818-403649c9b7e7?w=500&h=300&fit=crop',
+      title: 'Louis Vuitton',
+      image: '/images/lv.png',
       span: 'col-span-1',
     },
     {
       id: 3,
-      title: 'Herbal Scent',
-      image: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=500&h=300&fit=crop',
+      title: 'Yves Saint Laurent',
+      image: '/images/ysl.png',
       span: 'col-span-1',
     },
     {
       id: 4,
-      title: 'Sunset Bliss',
-      image: 'https://images.unsplash.com/photo-1574058652419-d8bdf8e6a3ae?w=500&h=300&fit=crop',
+      title: 'Chanel',
+      image: '/images/chanel.png',
       span: 'col-span-1',
     },
     {
       id: 5,
-      title: 'Natural Essence',
-      image: 'https://images.unsplash.com/photo-1608168895822-f1bd922bb235?w=500&h=300&fit=crop',
+      title: 'Jean Paul Gaultier',
+      image: '/images/jpg.png',
       span: 'col-span-1',
     },
   ];
@@ -87,7 +93,7 @@ export default function HomePage() {
               </div>
               <div className="relative h-96 md:h-full">
                 <img
-                  src="https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=600&h=600&fit=crop"
+                  src="/images/hero-perfume.jpg"
                   alt="Premium Perfume"
                   className="w-full h-full object-cover rounded-lg shadow-2xl"
                 />
@@ -107,9 +113,10 @@ export default function HomePage() {
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-6 auto-rows-[250px]">
               {collections.map((collection) => (
-                <div 
+                <Link 
+                  href={`/products?q=${encodeURIComponent(collection.title)}`}
                   key={collection.id} 
-                  className={`${collection.span} relative group overflow-hidden rounded-lg`}
+                  className={`${collection.span} relative group overflow-hidden rounded-lg block`}
                 >
                   <img
                     src={collection.image}
@@ -119,7 +126,7 @@ export default function HomePage() {
                   <div className="absolute inset-0 bg-gradient-to-t from-stone-900/60 to-transparent flex items-end p-6">
                     <h3 className="text-white text-lg font-serif">{collection.title}</h3>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           </div>
@@ -128,7 +135,29 @@ export default function HomePage() {
         {/* Bestsellers */}
         <section className="py-20 bg-stone-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="text-4xl font-serif text-stone-900 text-center mb-16">Bestsellers</h2>
+            <h2 className="text-4xl font-serif text-stone-900 text-center mb-6">Bestsellers</h2>
+            
+            {/* Gender Switch Tabs */}
+            <div className="flex justify-center gap-6 mb-12 border-b border-stone-200 pb-3 max-w-xs mx-auto">
+              {([
+                { id: 'male', label: 'Parfum Pria' },
+                { id: 'female', label: 'Parfum Wanita' },
+              ] as const).map((tab) => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setBestsellerGender(tab.id)}
+                  className={`text-xs tracking-widest uppercase pb-2 transition cursor-pointer font-serif ${
+                    bestsellerGender === tab.id
+                      ? 'text-amber-800 font-bold border-b-2 border-amber-800'
+                      : 'text-stone-400 hover:text-stone-700'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
               {bestsellerProducts.map((product) => (
                 <div key={product.id} className="bg-white p-6 rounded-lg hover:shadow-lg transition">
@@ -145,7 +174,6 @@ export default function HomePage() {
                   </Link>
                   <div className="flex items-center justify-between">
                     <p className="text-amber-900 font-semibold">Rp {product.price.toLocaleString('id-ID')}</p>
-                    <p className="text-sm text-gray-600">⭐ {product.rating}</p>
                   </div>
                   <button
                     onClick={() => {
@@ -172,7 +200,7 @@ export default function HomePage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
               <div className="h-96">
                 <img
-                  src="https://images.unsplash.com/photo-1608168895822-f1bd922bb235?w=600&h=600&fit=crop"
+                  src="/images/art-of-scent.jpg"
                   alt="The Art of Scent"
                   className="w-full h-full object-cover rounded-lg"
                 />

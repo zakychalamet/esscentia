@@ -41,8 +41,8 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-[#F1F3F7] text-slate-700">
-        <p className="font-medium">Loading...</p>
+      <div className="flex items-center justify-center min-h-screen bg-[#F9F7F2] text-[#4A3728]">
+        <p className="font-serif tracking-widest text-sm uppercase">Loading Esscentia...</p>
       </div>
     );
   }
@@ -68,7 +68,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           <Link href="/" className="block">
             <h1
               className={`font-serif text-[#4A3728] ${
-                sidebarOpen ? 'text-2xl' : 'text-xl text-center'
+                sidebarOpen ? 'text-2xl' : 'text-xl text-center font-semibold'
               }`}
             >
               {sidebarOpen ? 'Esscentia' : 'E'}
@@ -90,8 +90,8 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                 <span
                   className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition relative ${
                     active
-                      ? 'bg-[#EFEFE9] text-[#4A3728] font-medium'
-                      : 'text-stone-600 hover:bg-[#EFEFE9]/80 hover:text-[#4A3728]'
+                      ? 'bg-[#EDEAE4] text-[#4A3728] font-medium'
+                      : 'text-stone-600 hover:bg-[#EDEAE4]/50 hover:text-[#4A3728]'
                   }`}
                 >
                   {active && (
@@ -110,14 +110,14 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             <>
               <button
                 type="button"
-                className="w-full flex items-center gap-3 px-4 py-2 text-sm text-stone-500 hover:text-[#4A3728]"
+                className="w-full flex items-center gap-3 px-4 py-2 text-sm text-stone-500 hover:text-[#4A3728] text-left cursor-pointer"
               >
                 <HelpCircle size={16} />
                 Help Center
               </button>
               <button
                 type="button"
-                className="w-full flex items-center gap-3 px-4 py-2 text-sm text-stone-500 hover:text-[#4A3728] mb-2"
+                className="w-full flex items-center gap-3 px-4 py-2 text-sm text-stone-500 hover:text-[#4A3728] mb-2 text-left cursor-pointer"
               >
                 <FileText size={16} />
                 Documentation
@@ -128,7 +128,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             {sidebarOpen && (
               <>
                 <p className="text-xs text-stone-500 truncate">{user.email}</p>
-                <p className="text-[10px] uppercase tracking-wider text-[#8C7355] mt-0.5">
+                <p className="text-[10px] uppercase tracking-wider text-[#8C7355] mt-0.5 font-medium">
                   {adminRoleLabel(user.role)}
                 </p>
               </>
@@ -137,7 +137,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           <button
             type="button"
             onClick={logout}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm text-[#8D4F38] hover:bg-red-50/50 transition"
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm text-[#8D4F38] hover:bg-red-50/50 transition cursor-pointer"
           >
             <LogOut size={18} />
             {sidebarOpen && <span>Logout</span>}
@@ -145,13 +145,13 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         </div>
       </aside>
 
-      {/* Area konten — tema dashboard mockup (abu terang + ungu) */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden bg-[#F1F3F7] text-slate-800">
-        <header className="bg-white border-b border-slate-200/80 px-4 md:px-6 py-4 flex items-center gap-4 shrink-0">
+      {/* Area konten — tema Quiet Luxury */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden bg-[#FDFCF7] text-[#4A3728]">
+        <header className="bg-[#F9F7F2]/90 border-b border-[#E7E5E0] px-4 md:px-6 py-4 flex items-center gap-4 shrink-0 backdrop-blur-md">
           <button
             type="button"
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="p-2 hover:bg-slate-100 rounded-lg text-slate-600 shrink-0"
+            className="p-2 hover:bg-[#EDEAE4]/50 rounded-lg text-stone-600 shrink-0 cursor-pointer"
             aria-label="Toggle sidebar"
           >
             {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
@@ -161,12 +161,12 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             <div className="relative">
               <Search
                 size={16}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400"
               />
               <input
                 type="search"
-                placeholder="Search insights, segments, or clients..."
-                className="w-full pl-9 pr-4 py-2 text-sm bg-slate-50 border border-slate-200 rounded-full focus:outline-none focus:border-[#6B4E9E]/50 focus:ring-1 focus:ring-[#6B4E9E]/20"
+                placeholder="Cari insight, segmen, atau katalog..."
+                className="w-full pl-9 pr-4 py-2 text-sm bg-[#EDEAE4]/30 border border-[#E7E5E0] rounded-full focus:outline-none focus:border-[#8C7355]/50 focus:ring-1 focus:ring-[#8C7355]/20 text-[#4A3728] placeholder-stone-400"
               />
             </div>
           </div>
@@ -174,27 +174,27 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           <div className="flex items-center gap-3 ml-auto shrink-0">
             <button
               type="button"
-              className="p-2 text-slate-500 hover:text-slate-700 hidden sm:block"
+              className="p-2 text-stone-500 hover:text-[#4A3728] hidden sm:block cursor-pointer"
               aria-label="Refresh"
             >
               <RefreshCw size={18} />
             </button>
             <button
               type="button"
-              className="p-2 text-slate-500 hover:text-slate-700 relative"
+              className="p-2 text-stone-500 hover:text-[#4A3728] relative cursor-pointer"
               aria-label="Notifications"
             >
               <Bell size={18} />
             </button>
-            <div className="flex items-center gap-2 pl-2 border-l border-slate-200">
-              <div className="w-9 h-9 rounded-full bg-[#6B4E9E]/15 flex items-center justify-center text-sm font-medium text-[#6B4E9E]">
+            <div className="flex items-center gap-2 pl-2 border-l border-[#E7E5E0]">
+              <div className="w-9 h-9 rounded-full bg-[#8C7355]/15 flex items-center justify-center text-sm font-serif font-bold text-[#8C7355]">
                 {user.name.charAt(0)}
               </div>
               <div className="hidden md:block">
-                <p className="text-sm font-medium leading-tight text-slate-800">
+                <p className="text-sm font-serif font-semibold leading-tight text-[#4A3728]">
                   {user.name}
                 </p>
-                <p className="text-[10px] text-slate-500">
+                <p className="text-[10px] uppercase tracking-wider text-stone-500 mt-0.5">
                   {user.role === 'marketing' ? 'Marketing Desk' : 'Concierge Desk'}
                 </p>
               </div>
@@ -202,7 +202,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           </div>
         </header>
 
-        <main className="flex-1 overflow-auto p-4 md:p-6 lg:p-8">{children}</main>
+        <main className="flex-1 overflow-auto p-4 md:p-6 lg:p-8 bg-[#FDFCF7]">{children}</main>
       </div>
     </div>
   );

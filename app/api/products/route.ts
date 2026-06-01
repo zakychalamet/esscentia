@@ -6,6 +6,8 @@ import {
   normalizeProductInput,
 } from '@/lib/product-db';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     const products = await getAllProducts();

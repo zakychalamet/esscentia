@@ -19,92 +19,110 @@ export interface QuizQuestion {
 
 export const quizQuestions: QuizQuestion[] = [
   {
-    id: 'atmosphere',
-    question: 'Which atmosphere calls to you today?',
+    id: 'personality',
+    question: 'How would you describe your core personal aesthetic?',
     options: [
       {
+        id: 'classic',
+        label: 'Classic & Grounded',
+        description: 'Refined, tailored, timeless, and deeply intellectual.',
+        image: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&h=600&fit=crop',
+        scores: { Woody: 3, Leather: 2 },
+      },
+      {
+        id: 'romantic',
+        label: 'Romantic & Sensual',
+        description: 'Warm, emotional, artistic, and passionately intimate.',
+        image: 'https://images.unsplash.com/photo-1518895949257-762f457f584f?w=600&h=600&fit=crop',
+        scores: { Floral: 3, Amber: 2, Vanilla: 1 },
+      },
+      {
+        id: 'vibrant',
+        label: 'Vibrant & Clean',
+        description: 'Energizing, optimistic, active, and filled with crisp vitality.',
+        image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=600&fit=crop',
+        scores: { Citrus: 3, Fresh: 2, Aromatic: 1 },
+      },
+    ],
+  },
+  {
+    id: 'atmosphere',
+    question: 'Which dream atmosphere calls to your soul today?',
+    options: [
+      {
+        id: 'library',
+        label: 'Antique Library',
+        description: 'Aged paper, mahogany shelves, and worn leather armchairs.',
+        image: 'https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=600&h=600&fit=crop',
+        scores: { Leather: 4, Woody: 2 },
+      },
+      {
+        id: 'garden',
+        label: 'Herbal Garden',
+        description: 'Wild lavender, crushed mint, green leaves, and wet moss.',
+        image: 'https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?w=600&h=600&fit=crop',
+        scores: { Aromatic: 4, Fresh: 2, Floral: 1 },
+      },
+      {
         id: 'cozy',
-        label: 'Cozy',
-        description: 'Cashmere, amber, and fireplace embers',
-        image:
-          'https://images.unsplash.com/photo-1513694203232-719a280e20f0?w=600&h=600&fit=crop',
-        scores: { Gourmand: 3, Woody: 2 },
-      },
-      {
-        id: 'energetic',
-        label: 'Energetic',
-        description: 'Sunlit citrus, sea salt, and green tea',
-        image:
-          'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=600&fit=crop',
-        scores: { Citrus: 3, Fresh: 2 },
-      },
-      {
-        id: 'formal',
-        label: 'Formal',
-        description: 'Sandalwood, iris, and refined musk',
-        image:
-          'https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&h=600&fit=crop',
-        scores: { Woody: 3, Floral: 2 },
+        label: 'Cozy Cabin',
+        description: 'Crackling fireplace embers, wool blankets, and sweet vanilla pods.',
+        image: 'https://images.unsplash.com/photo-1513694203232-719a280e20f0?w=600&h=600&fit=crop',
+        scores: { Vanilla: 4, Amber: 3, Woody: 1 },
       },
     ],
   },
   {
     id: 'occasion',
-    question: 'When do you reach for fragrance most?',
+    question: 'When do you reach for a fragrance most?',
     options: [
       {
-        id: 'morning',
-        label: 'Morning Ritual',
-        description: 'Bright bergamot and soft florals',
-        image:
-          'https://images.unsplash.com/photo-1490750967868-88aa298bd6c0?w=600&h=600&fit=crop',
-        scores: { Citrus: 3, Floral: 2 },
+        id: 'formal',
+        label: 'Formal & Professional',
+        description: 'Executive meetings, high-stakes styling, and formal dinners.',
+        image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&h=600&fit=crop',
+        scores: { Woody: 3, Leather: 3, Aromatic: 2 },
       },
       {
-        id: 'evening',
-        label: 'Evening Out',
-        description: 'Deep oud, rose, and smoky vanilla',
-        image:
-          'https://images.unsplash.com/photo-1514938298603-c8148c4dae35?w=600&h=600&fit=crop',
-        scores: { Woody: 2, Gourmand: 3 },
+        id: 'casual',
+        label: 'Casual Getaway',
+        description: 'Weekend travels, sunlit coffee runs, and creative daily wear.',
+        image: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?w=600&h=600&fit=crop',
+        scores: { Citrus: 4, Fresh: 3, Aromatic: 1 },
       },
       {
-        id: 'anytime',
-        label: 'Anytime',
-        description: 'Versatile blends for every hour',
-        image:
-          'https://images.unsplash.com/photo-1596081223915-b4dc8b5a0b19?w=600&h=600&fit=crop',
-        scores: { Floral: 2, Citrus: 1, Woody: 1, Gourmand: 1 },
+        id: 'date',
+        label: 'Intimate Date Night',
+        description: 'Dim lights, close conversations, and unforgettable impressions.',
+        image: 'https://images.unsplash.com/photo-1514938298603-c8148c4dae35?w=600&h=600&fit=crop',
+        scores: { Amber: 4, Vanilla: 3, Floral: 2 },
       },
     ],
   },
   {
-    id: 'notes',
-    question: 'Which note family speaks to your soul?',
+    id: 'elements',
+    question: 'Which natural scent profile captivates you most?',
     options: [
       {
-        id: 'floral',
-        label: 'Floral',
-        description: 'Rose absolue, peony, and white petals',
-        image:
-          'https://images.unsplash.com/photo-1518895949257-762f457f584f?w=600&h=600&fit=crop',
-        scores: { Floral: 4 },
+        id: 'blooms',
+        label: 'Rich Blooms',
+        description: 'Petals of luxury rose, sweet jasmine, and fresh peony.',
+        image: 'https://images.unsplash.com/photo-1490750967868-88aa298bd6c0?w=600&h=600&fit=crop',
+        scores: { Floral: 4, Amber: 1 },
       },
       {
-        id: 'woody',
-        label: 'Woody',
-        description: 'Cedar, vetiver, and sacred sandalwood',
-        image:
-          'https://images.unsplash.com/photo-1602928322639-0a6860196d4b?w=600&h=600&fit=crop',
-        scores: { Woody: 4 },
+        id: 'resins',
+        label: 'Resins & Spices',
+        description: 'Cinnamon bark, sweet incense smoke, and golden amber oils.',
+        image: 'https://images.unsplash.com/photo-1547887537-6158d64c35b3?w=600&h=600&fit=crop',
+        scores: { Amber: 4, Vanilla: 2 },
       },
       {
-        id: 'fresh',
-        label: 'Fresh',
-        description: 'Lemon zest, neroli, and ocean breeze',
-        image:
-          'https://images.unsplash.com/photo-1571975414439-27d4b93f5f2d?w=600&h=600&fit=crop',
-        scores: { Citrus: 4, Fresh: 2 },
+        id: 'coastal',
+        label: 'Coastal Rain',
+        description: 'Salty ocean waves, pine needles, and clean ozone.',
+        image: 'https://images.unsplash.com/photo-1448375240586-882707db888b?w=600&h=600&fit=crop',
+        scores: { Fresh: 4, Aromatic: 2, Citrus: 1 },
       },
     ],
   },
@@ -144,11 +162,11 @@ const familyProfiles: Record<
       'Kehangatan resin dan amber membalut kulit Anda dengan sensualitas yang dalam. Aroma Anda rich, golden, dan memorable.',
     tagline: 'Amber & Warm',
   },
-  Gourmand: {
-    title: 'The Gourmand Dreamer',
+  Vanilla: {
+    title: 'The Vanilla Dreamer',
     description:
-      'Anda menyukai kehangatan vanilla, amber, dan rempah yang membalut seperti selimut. Aroma gourmand Anda intimate dan memorable.',
-    tagline: 'Gourmand & Sweet',
+      'Anda menyukai kehangatan vanilla, amber, dan rempah yang membalut seperti selimut. Aroma Vanilla Anda intimate dan memorable.',
+    tagline: 'Vanilla & Sweet',
   },
   Aromatic: {
     title: 'The Aromatic Artisan',

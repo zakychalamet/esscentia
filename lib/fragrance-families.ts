@@ -4,7 +4,7 @@ export const FRAGRANCE_FAMILIES = [
   'Citrus',
   'Fresh',
   'Amber',
-  'Gourmand',
+  'Vanilla',
   'Aromatic',
   'Leather',
 ] as const;
@@ -21,7 +21,7 @@ export const FRAGRANCE_FAMILY_TAGS: Record<FragranceFamily, string> = {
   Citrus: 'CITRUS',
   Fresh: 'FRESH & AQUATIC',
   Amber: 'AMBER & WARM',
-  Gourmand: 'GOURMAND',
+  Vanilla: 'VANILLA',
   Aromatic: 'AROMATIC & HERBAL',
   Leather: 'LEATHER & SMOKY',
 };

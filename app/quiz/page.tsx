@@ -1,12 +1,12 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   quizQuestions,
   calculateQuizResult,
-  getRecommendedProductsForFamily,
 } from '@/lib/fragrance-quiz';
+import { fetchProducts, Product } from '@/lib/products';
 import { CatalogNav, CatalogFooter } from '@/components/CatalogChrome';
 
 function formatPrice(amount: number) {
@@ -21,6 +21,13 @@ export default function FragranceQuizPage() {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [showResults, setShowResults] = useState(false);
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
+
+  useEffect(() => {
+    fetchProducts()
+      .then(setAllProducts)
+      .catch(console.error);
+  }, []);
 
   const totalSteps = quizQuestions.length;
   const currentQuestion = quizQuestions[step];
@@ -33,9 +40,12 @@ export default function FragranceQuizPage() {
   }, [showResults, answers]);
 
   const recommendations = useMemo(() => {
-    if (!result) return [];
-    return getRecommendedProductsForFamily(result.family, 3);
-  }, [result]);
+    if (!result || allProducts.length === 0) return [];
+    return allProducts
+      .filter((p) => p.family === result.family && p.inStock)
+      .sort((a, b) => (b.isBestseller ? 1 : 0) - (a.isBestseller ? 1 : 0))
+      .slice(0, 3);
+  }, [result, allProducts]);
 
   const selectOption = (questionId: string, optionId: string) => {
     setAnswers((prev) => ({ ...prev, [questionId]: optionId }));

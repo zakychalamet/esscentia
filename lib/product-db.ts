@@ -18,6 +18,10 @@ interface ProductRow extends RowDataPacket {
   reviews: number;
   inStock: number | boolean;
   isBestseller: number | boolean;
+  volume_prices: string | { volume: number; price: number }[] | null;
+  sillage: string | null;
+  projection: string | null;
+  longevity: string | null;
 }
 
 export interface ProductInput {
@@ -35,6 +39,10 @@ export interface ProductInput {
   inStock?: boolean;
   isBestseller?: boolean;
   scent: string[];
+  volume_prices: { volume: number; price: number }[];
+  sillage?: string;
+  projection?: string;
+  longevity?: string;
 }
 
 function parseScent(value: ProductRow['scent']): string[] {
@@ -42,6 +50,17 @@ function parseScent(value: ProductRow['scent']): string[] {
   if (Array.isArray(value)) return value;
   try {
     const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function parseVolumePrices(value: ProductRow['volume_prices']): { volume: number; price: number }[] {
+  if (!value) return [];
+  if (Array.isArray(value)) return value;
+  try {
+    const parsed = JSON.parse(value as string);
     return Array.isArray(parsed) ? parsed : [];
   } catch {
     return [];
@@ -63,10 +82,14 @@ export function rowToProduct(row: ProductRow): Product {
     intensity: row.intensity as Product['intensity'],
     scent: parseScent(row.scent),
     volume: row.volume,
-    rating: Number(row.rating) || 0,
+    rating: Number(row.rating) || 5,
     reviews: row.reviews || 0,
     inStock: Boolean(row.inStock),
     isBestseller: Boolean(row.isBestseller),
+    volume_prices: parseVolumePrices(row.volume_prices),
+    sillage: row.sillage || '',
+    projection: row.projection || '',
+    longevity: row.longevity || '',
   };
 }
 
@@ -89,8 +112,8 @@ export async function getProductByIdFromDb(id: string): Promise<Product | null> 
 export async function createProduct(input: ProductInput): Promise<Product> {
   const [result] = await pool.query<ResultSetHeader>(
     `INSERT INTO products
-      (name, brand, price, image, description, category, family, intensity, scent, volume, rating, reviews, inStock, isBestseller)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      (name, brand, price, image, description, category, family, intensity, scent, volume, rating, reviews, inStock, isBestseller, volume_prices, sillage, projection, longevity)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       input.name,
       input.brand,
@@ -102,10 +125,14 @@ export async function createProduct(input: ProductInput): Promise<Product> {
       input.intensity,
       JSON.stringify(input.scent || []),
       input.volume,
-      input.rating ?? 0,
+      input.rating ?? 5,
       input.reviews ?? 0,
       input.inStock ?? true,
       input.isBestseller ?? false,
+      JSON.stringify(input.volume_prices || []),
+      input.sillage || '',
+      input.projection || '',
+      input.longevity || '',
     ]
   );
 
@@ -122,7 +149,8 @@ export async function updateProduct(
     `UPDATE products SET
       name = ?, brand = ?, price = ?, image = ?, description = ?,
       category = ?, family = ?, intensity = ?, scent = ?, volume = ?,
-      rating = ?, reviews = ?, inStock = ?, isBestseller = ?
+      rating = ?, reviews = ?, inStock = ?, isBestseller = ?, volume_prices = ?,
+      sillage = ?, projection = ?, longevity = ?
      WHERE id = ?`,
     [
       input.name,
@@ -135,10 +163,14 @@ export async function updateProduct(
       input.intensity,
       JSON.stringify(input.scent || []),
       input.volume,
-      input.rating ?? 0,
+      input.rating ?? 5,
       input.reviews ?? 0,
       input.inStock ?? true,
       input.isBestseller ?? false,
+      JSON.stringify(input.volume_prices || []),
+      input.sillage || '',
+      input.projection || '',
+      input.longevity || '',
       id,
     ]
   );
@@ -177,6 +209,13 @@ export function normalizeProductInput(body: Record<string, unknown>): ProductInp
     return Number.isFinite(n) ? n : fallback;
   };
 
+  const volumePrices = Array.isArray(body.volume_prices) 
+    ? body.volume_prices.map((item: any) => ({
+        volume: Number(item.volume || 0),
+        price: Number(item.price || 0)
+      }))
+    : [];
+
   return {
     name: String(body.name ?? '').trim(),
     brand: String(body.brand ?? '').trim(),
@@ -185,13 +224,17 @@ export function normalizeProductInput(body: Record<string, unknown>): ProductInp
     family: (body.family as Product['family']) || 'Woody',
     intensity: (body.intensity as Product['intensity']) || 'EDP',
     volume: num(body.volume, 50),
-    rating: num(body.rating),
-    reviews: num(body.reviews),
+    rating: num(body.rating ?? 5),
+    reviews: num(body.reviews ?? 0),
     image: String(body.image ?? ''),
     description: String(body.description ?? ''),
     inStock: body.inStock !== false && body.inStock !== 0,
     isBestseller: Boolean(body.isBestseller),
     scent: normalizeScent(body),
+    volume_prices: volumePrices,
+    sillage: String(body.sillage ?? '').trim(),
+    projection: String(body.projection ?? '').trim(),
+    longevity: String(body.longevity ?? '').trim(),
   };
 }
 

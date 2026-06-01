@@ -1,84 +1,27 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Product } from '@/lib/products';
-import { Button } from '@/components/Button';
-import { Input } from '@/components/Input';
-import { Edit, Trash2, Plus, Upload, X } from 'lucide-react';
+import { Trash2, Plus, Search, Edit, RefreshCw } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
 import { canManageProducts, canDeleteProducts } from '@/lib/admin-permissions';
 import { FRAGRANCE_FAMILIES } from '@/lib/fragrance-families';
-
-interface FormData {
-  name: string;
-  brand: string;
-  price: number | '';
-  category: 'male' | 'female' | 'unisex';
-  family: Product['family'];
-  intensity: 'EDT' | 'EDP' | 'EXTRAIT';
-  volume: number | '';
-  rating: number | '';
-  reviews: number | '';
-  image: string;
-  description: string;
-  noteTop: string;
-  noteHeart: string;
-  noteBase: string;
-  inStock: boolean;
-  isBestseller: boolean;
-}
-
-const emptyForm: FormData = {
-  name: '',
-  brand: '',
-  price: '',
-  category: 'unisex',
-  family: 'Woody',
-  intensity: 'EDP',
-  volume: '',
-  rating: '',
-  reviews: '',
-  image: '',
-  description: '',
-  noteTop: '',
-  noteHeart: '',
-  noteBase: '',
-  inStock: true,
-  isBestseller: false,
-};
-
-async function uploadImage(file: File): Promise<string> {
-  const formData = new FormData();
-  formData.append('file', file);
-
-  const response = await fetch('/api/upload', {
-    method: 'POST',
-    body: formData,
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Gagal mengunggah gambar');
-  }
-
-  const data = await response.json();
-  return data.url as string;
-}
+import { Button } from '@/components/Button';
+import { Input } from '@/components/Input';
 
 export default function AdminProductsPage() {
   const { user } = useAuth();
+  const router = useRouter();
   const canAdd = canManageProducts(user?.role);
   const canDelete = canDeleteProducts(user?.role);
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [showForm, setShowForm] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [formData, setFormData] = useState<FormData>(emptyForm);
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState('');
-  const [saving, setSaving] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<'all' | 'male' | 'female' | 'unisex'>('all');
+  const [selectedFamily, setSelectedFamily] = useState<string>('all');
+  const [filterBestseller, setFilterBestseller] = useState<boolean>(false);
   const [loading, setLoading] = useState(true);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetchProducts();
@@ -88,7 +31,13 @@ export default function AdminProductsPage() {
     try {
       setLoading(true);
       const response = await fetch('/api/products');
+      if (!response.ok) {
+        throw new Error('Gagal mengambil data dari server');
+      }
       const data = await response.json();
+      if (!Array.isArray(data)) {
+        throw new Error('Format data produk tidak valid');
+      }
       setAllProducts(
         data.map((p: Product) => ({
           ...p,
@@ -96,6 +45,7 @@ export default function AdminProductsPage() {
           inStock: Boolean(p.inStock),
           isBestseller: Boolean(p.isBestseller),
           scent: Array.isArray(p.scent) ? p.scent : [],
+          volume_prices: Array.isArray(p.volume_prices) ? p.volume_prices : [],
         }))
       );
     } catch (error) {
@@ -104,166 +54,6 @@ export default function AdminProductsPage() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const resetForm = () => {
-    setFormData(emptyForm);
-    setImageFile(null);
-    setImagePreview('');
-    setEditingId(null);
-    if (fileInputRef.current) fileInputRef.current.value = '';
-  };
-
-  const filtered = allProducts.filter(
-    (p) =>
-      p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.brand.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const handleFormChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ) => {
-    const { name, value, type } = e.target;
-    const isCheckbox = type === 'checkbox';
-
-    setFormData((prev) => ({
-      ...prev,
-      [name]: isCheckbox
-        ? (e.target as HTMLInputElement).checked
-        : ['price', 'volume', 'rating', 'reviews'].includes(name)
-          ? value === ''
-            ? ''
-            : Number(value)
-          : value,
-    }));
-  };
-
-  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setImageFile(file);
-    setImagePreview(URL.createObjectURL(file));
-  };
-
-  const handleRemoveImage = () => {
-    setImageFile(null);
-    setImagePreview('');
-    setFormData((prev) => ({ ...prev, image: '' }));
-    if (fileInputRef.current) fileInputRef.current.value = '';
-  };
-
-  const handleSaveProduct = async () => {
-    if (!formData.name.trim()) {
-      alert('Nama produk harus diisi!');
-      return;
-    }
-    if (!formData.brand.trim()) {
-      alert('Brand harus diisi!');
-      return;
-    }
-    if (formData.price === '' || formData.price < 0) {
-      alert('Harga harus diisi dengan benar!');
-      return;
-    }
-    if (formData.volume === '' || formData.volume < 0) {
-      alert('Volume harus diisi dengan benar!');
-      return;
-    }
-    if (!formData.description.trim()) {
-      alert('Deskripsi produk harus diisi!');
-      return;
-    }
-    if (!formData.noteTop.trim() || !formData.noteHeart.trim() || !formData.noteBase.trim()) {
-      alert('Catatan aroma Top, Heart, dan Base wajib diisi!');
-      return;
-    }
-    if (!editingId && !imageFile) {
-      alert('Gambar produk wajib diunggah!');
-      return;
-    }
-    if (editingId && !imageFile && !formData.image) {
-      alert('Gambar produk wajib ada!');
-      return;
-    }
-
-    try {
-      setSaving(true);
-
-      let imageUrl = formData.image;
-      if (imageFile) {
-        imageUrl = await uploadImage(imageFile);
-      }
-
-      const payload = {
-        ...formData,
-        image: imageUrl,
-        scent: [formData.noteTop.trim(), formData.noteHeart.trim(), formData.noteBase.trim()],
-      };
-
-      if (editingId) {
-        const response = await fetch(`/api/products/${editingId}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
-
-        if (!response.ok) {
-          const error = await response.json();
-          throw new Error(error.error || 'Gagal memperbarui produk');
-        }
-
-        alert('Produk berhasil diperbarui!');
-      } else {
-        const response = await fetch('/api/products', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
-
-        if (!response.ok) {
-          const error = await response.json();
-          throw new Error(error.error || 'Gagal menambahkan produk');
-        }
-
-        alert('Produk berhasil ditambahkan!');
-      }
-
-      await fetchProducts();
-      setShowForm(false);
-      resetForm();
-    } catch (error) {
-      console.error('Error:', error);
-      alert(error instanceof Error ? error.message : 'Terjadi kesalahan');
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleEditProduct = (product: Product) => {
-    setFormData({
-      name: product.name,
-      brand: product.brand,
-      price: product.price,
-      category: product.category,
-      family: product.family,
-      intensity: product.intensity,
-      volume: product.volume,
-      rating: product.rating,
-      reviews: product.reviews,
-      image: product.image,
-      description: product.description,
-      noteTop: product.scent[0] ?? '',
-      noteHeart: product.scent[1] ?? '',
-      noteBase: product.scent[2] ?? '',
-      inStock: product.inStock,
-      isBestseller: product.isBestseller || false,
-    });
-    setImageFile(null);
-    setImagePreview(product.image);
-    setEditingId(product.id);
-    setShowForm(true);
-    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   const handleDeleteProduct = async (id: string) => {
@@ -286,395 +76,270 @@ export default function AdminProductsPage() {
     }
   };
 
+  const filtered = allProducts.filter((p) => {
+    const matchesSearch =
+      p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      p.brand.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory === 'all' || p.category === selectedCategory;
+    const matchesFamily = selectedFamily === 'all' || p.family === selectedFamily;
+    const matchesBestseller = !filterBestseller || p.isBestseller;
+    return matchesSearch && matchesCategory && matchesFamily && matchesBestseller;
+  });
+
+  const formatPrice = (amount: number) => {
+    return `Rp ${amount.toLocaleString('id-ID')}`;
+  };
+
   return (
-    <div className="space-y-8">
-      <div className="flex justify-between items-center">
+    <div className="space-y-8 max-w-7xl mx-auto px-1 font-sans">
+      {/* Header */}
+      <div className="flex justify-between items-center bg-white border border-[#E7E5E0] p-6 rounded-lg shadow-xs">
         <div>
-          <h1 className="text-3xl font-semibold text-slate-800 mb-2">Manajemen Produk</h1>
-          <p className="text-slate-500 text-sm">
-            Kelola produk sesuai tampilan halaman detail toko
-          </p>
+          <h1 className="text-3xl font-serif font-bold text-[#4A3728] mb-1">Manajemen Koleksi</h1>
+          <p className="text-stone-500 text-sm font-light">Kelola katalog parfum mewah dan kapasitas varian Esscentia</p>
         </div>
-        {canAdd && (
-          <Button
-            onClick={() => {
-              setShowForm(!showForm);
-              if (!showForm) resetForm();
-            }}
-            className="flex items-center gap-2"
+        <div className="flex gap-2">
+          <button
+            onClick={fetchProducts}
+            className="p-2.5 border border-stone-200 rounded-md hover:bg-stone-50 transition text-stone-500 flex items-center justify-center gap-2 text-xs font-medium"
+            title="Refresh Data"
           >
-            <Plus size={20} /> Tambah Produk
-          </Button>
-        )}
+            <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
+            Refresh
+          </button>
+          {canAdd && (
+            <Button
+              onClick={() => router.push('/admin/products/new')}
+              className="flex items-center gap-2 bg-[#4A3728] text-white hover:bg-[#8C7355] text-xs uppercase tracking-wider font-semibold py-2.5 px-4"
+            >
+              <Plus size={16} /> Tambah Fragrans
+            </Button>
+          )}
+        </div>
       </div>
 
-      {showForm && (
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <h2 className="text-2xl font-bold mb-2">
-            {editingId ? 'Edit Produk' : 'Produk Baru'}
-          </h2>
-          <p className="text-sm text-slate-500 mb-6">
-            Field di bawah ini sesuai dengan informasi yang ditampilkan di halaman detail produk.
+      {/* KPI Stats Directory */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-white p-6 border border-[#E7E5E0] rounded-lg shadow-xs space-y-1 relative overflow-hidden group hover:border-[#8C7355]/40 transition duration-300">
+          <p className="text-stone-500 text-[10px] uppercase tracking-[0.25em] mb-1 font-medium">Total Koleksi</p>
+          <p className="text-3xl font-serif font-bold text-[#4A3728]">{allProducts.length}</p>
+        </div>
+        <div className="bg-white p-6 border border-[#E7E5E0] rounded-lg shadow-xs space-y-1 relative overflow-hidden group hover:border-[#8C7355]/40 transition duration-300">
+          <p className="text-stone-500 text-[10px] uppercase tracking-[0.25em] mb-1 font-medium">Fragrans Tersedia</p>
+          <p className="text-3xl font-serif font-bold text-[#6B8F71]">
+            {allProducts.filter((p) => p.inStock).length}
           </p>
+        </div>
+        <div className="bg-white p-6 border border-[#E7E5E0] rounded-lg shadow-xs space-y-1 relative overflow-hidden group hover:border-[#8C7355]/40 transition duration-300">
+          <p className="text-stone-500 text-[10px] uppercase tracking-[0.25em] mb-1 font-medium">Nilai Portofolio</p>
+          <p className="text-3xl font-serif font-bold text-[#8D4F38] text-ellipsis overflow-hidden">
+            {formatPrice(allProducts.reduce((sum, p) => sum + (p.price || 0), 0))}
+          </p>
+        </div>
+      </div>
 
-          {/* Informasi Utama */}
-          <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide mb-4">
-            Informasi Utama
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      {/* Filter Panel */}
+      <div className="bg-white border border-[#E7E5E0] p-6 rounded-lg shadow-xs space-y-6">
+        <div className="flex flex-col lg:flex-row gap-4 justify-between items-stretch lg:items-center">
+          {/* Search bar */}
+          <div className="flex-1 max-w-lg">
             <Input
-              label="Nama Produk"
-              placeholder="Contoh: Cedar & Silk"
-              name="name"
-              value={formData.name}
-              onChange={handleFormChange}
+              placeholder="Cari fragrans berdasarkan nama atau brand..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              type="text"
+              className="border border-[#E7E5E0] bg-white rounded-md px-4 py-2 shadow-sm font-sans text-sm focus:ring-[#8C7355]/20 focus:border-[#8C7355]"
             />
-            <Input
-              label="Brand / Merek"
-              placeholder="Contoh: Luxure Parfum"
-              name="brand"
-              value={formData.brand}
-              onChange={handleFormChange}
-            />
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Deskripsi Produk
-              </label>
-              <textarea
-                name="description"
-                rows={4}
-                value={formData.description}
-                onChange={handleFormChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-600"
-                placeholder="Deskripsi yang tampil di halaman detail produk"
-              />
-            </div>
           </div>
 
-          {/* Upload Gambar */}
-          <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide mb-4">
-            Foto Produk
-          </h3>
-          <div className="mb-6">
-            <div className="flex flex-col sm:flex-row gap-4 items-start">
-              {imagePreview ? (
-                <div className="relative w-40 h-48 rounded-lg overflow-hidden border border-gray-200">
-                  <img
-                    src={imagePreview}
-                    alt="Preview"
-                    className="w-full h-full object-cover"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleRemoveImage}
-                    className="absolute top-2 right-2 p-1 bg-white/90 rounded-full text-red-600 hover:bg-white"
-                    aria-label="Hapus gambar"
-                  >
-                    <X size={16} />
-                  </button>
-                </div>
-              ) : (
-                <div className="w-40 h-48 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 text-sm text-center px-2">
-                  Belum ada gambar
-                </div>
-              )}
-              <div>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp,image/gif"
-                  onChange={handleImageSelect}
-                  className="hidden"
-                  id="product-image"
-                />
-                <label
-                  htmlFor="product-image"
-                  className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 text-sm font-medium text-gray-700"
-                >
-                  <Upload size={18} />
-                  {imagePreview ? 'Ganti Gambar' : 'Unggah Gambar'}
-                </label>
-                <p className="text-xs text-stone-500 mt-2">
-                  JPG, PNG, WEBP, atau GIF — maks. 5 MB
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Karakteristik Parfum */}
-          <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide mb-4">
-            Karakteristik Parfum
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Intensity</label>
-              <select
-                name="intensity"
-                value={formData.intensity}
-                onChange={handleFormChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-600"
+          {/* Gender Filter Tabs */}
+          <div className="flex bg-stone-50 p-1 border border-stone-200 rounded-md self-start lg:self-auto gap-1">
+            {([
+              { id: 'all', label: 'Semua Kategori' },
+              { id: 'male', label: 'Pria' },
+              { id: 'female', label: 'Wanita' },
+              { id: 'unisex', label: 'Unisex' },
+            ] as const).map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setSelectedCategory(tab.id)}
+                className={`px-3 py-1.5 text-[10px] uppercase tracking-wider transition rounded-sm cursor-pointer ${
+                  selectedCategory === tab.id
+                    ? 'bg-[#4A3728] text-white font-bold shadow-xs'
+                    : 'text-stone-500 hover:text-[#4A3728]'
+                }`}
               >
-                <option value="EDT">Eau de Toilette (EDT)</option>
-                <option value="EDP">Eau de Parfum (EDP)</option>
-                <option value="EXTRAIT">Extrait de Parfum</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Keluarga Parfum
-              </label>
-              <select
-                name="family"
-                value={formData.family}
-                onChange={handleFormChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-600"
-              >
-                {FRAGRANCE_FAMILIES.map((family) => (
-                  <option key={family} value={family}>
-                    {family}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Kategori</label>
-              <select
-                name="category"
-                value={formData.category}
-                onChange={handleFormChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-600"
-              >
-                <option value="male">Pria</option>
-                <option value="female">Wanita</option>
-                <option value="unisex">Unisex</option>
-              </select>
-            </div>
-            <Input
-              label="Kapasitas Default (ml)"
-              type="number"
-              placeholder="50, 75, 100"
-              name="volume"
-              value={formData.volume}
-              onChange={handleFormChange}
-            />
-          </div>
-
-          {/* Olfactory Architecture */}
-          <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide mb-4">
-            Olfactory Architecture (Catatan Aroma)
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <Input
-              label="Top Note"
-              placeholder="Contoh: Bergamot"
-              name="noteTop"
-              value={formData.noteTop}
-              onChange={handleFormChange}
-            />
-            <Input
-              label="Heart Note"
-              placeholder="Contoh: Rose Absolue"
-              name="noteHeart"
-              value={formData.noteHeart}
-              onChange={handleFormChange}
-            />
-            <Input
-              label="Base Note"
-              placeholder="Contoh: Sandalwood"
-              name="noteBase"
-              value={formData.noteBase}
-              onChange={handleFormChange}
-            />
-          </div>
-
-          {/* Harga & Stok */}
-          <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide mb-4">
-            Harga & Stok
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <Input
-              label="Harga (IDR)"
-              type="number"
-              placeholder="450000"
-              name="price"
-              value={formData.price}
-              onChange={handleFormChange}
-            />
-            <div className="flex items-end gap-6 pb-1">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  name="inStock"
-                  checked={formData.inStock}
-                  onChange={handleFormChange}
-                  className="w-4 h-4 rounded"
-                />
-                <span className="text-sm font-medium text-gray-700">Tersedia</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  name="isBestseller"
-                  checked={formData.isBestseller}
-                  onChange={handleFormChange}
-                  className="w-4 h-4 rounded"
-                />
-                <span className="text-sm font-medium text-gray-700">Bestseller</span>
-              </label>
-            </div>
-          </div>
-
-          {/* Rating */}
-          <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide mb-4">
-            Rating & Ulasan
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <Input
-              label="Rating (1–5)"
-              type="number"
-              step="0.1"
-              min="0"
-              max="5"
-              placeholder="4.8"
-              name="rating"
-              value={formData.rating}
-              onChange={handleFormChange}
-            />
-            <Input
-              label="Jumlah Review"
-              type="number"
-              placeholder="0"
-              name="reviews"
-              value={formData.reviews}
-              onChange={handleFormChange}
-            />
-          </div>
-
-          <div className="flex gap-3">
-            <Button onClick={handleSaveProduct} disabled={saving}>
-              {saving ? 'Menyimpan...' : 'Simpan Produk'}
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setShowForm(false);
-                resetForm();
-              }}
-            >
-              Batal
-            </Button>
+                {tab.label}
+              </button>
+            ))}
           </div>
         </div>
-      )}
 
-      <div className="flex gap-4">
-        <Input
-          placeholder="Cari produk..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          type="text"
-        />
+        <div className="flex flex-wrap items-center gap-6 pt-4 border-t border-stone-100">
+          {/* Scent Family Filter */}
+          <div className="flex items-center gap-3">
+            <span className="text-[10px] uppercase tracking-[0.2em] text-stone-400 font-bold">Keluarga Aroma:</span>
+            <select
+              value={selectedFamily}
+              onChange={(e) => setSelectedFamily(e.target.value)}
+              className="bg-white border border-[#E7E5E0] text-xs px-3 py-2 rounded-md text-stone-700 font-medium focus:outline-none focus:border-[#8C7355] cursor-pointer"
+            >
+              <option value="all">Semua Scent Family</option>
+              {FRAGRANCE_FAMILIES.map((family) => (
+                <option key={family} value={family}>
+                  {family}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Bestseller Filter Toggle */}
+          <label className="flex items-center gap-3 cursor-pointer group select-none">
+            <input
+              type="checkbox"
+              checked={filterBestseller}
+              onChange={(e) => setFilterBestseller(e.target.checked)}
+              className="w-4 h-4 accent-[#4A3728] cursor-pointer rounded border-[#E7E5E0]"
+            />
+            <span className="text-[10px] uppercase tracking-[0.2em] text-stone-500 group-hover:text-[#4A3728] transition font-bold">
+              Hanya Produk Bestseller
+            </span>
+          </label>
+
+          {/* Reset Filters Button */}
+          {(searchTerm || selectedCategory !== 'all' || selectedFamily !== 'all' || filterBestseller) && (
+            <button
+              onClick={() => {
+                setSearchTerm('');
+                setSelectedCategory('all');
+                setSelectedFamily('all');
+                setFilterBestseller(false);
+              }}
+              className="ml-auto text-[10px] uppercase tracking-[0.2em] text-[#8D4F38] hover:text-[#4A3728] transition cursor-pointer font-bold flex items-center gap-1.5"
+            >
+              Reset Filter
+            </button>
+          )}
+        </div>
       </div>
 
+      {/* Catalog Table */}
       {loading ? (
-        <div className="text-center text-slate-500">Memuat produk...</div>
+        <div className="py-20 text-center text-stone-500">
+          <div className="w-8 h-8 border-2 border-[#8C7355] border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+          Memuat data koleksi…
+        </div>
       ) : (
-        <>
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50 border-b border-gray-200">
-                  <tr>
-                    <th className="text-left py-3 px-4 font-semibold">Produk</th>
-                    <th className="text-left py-3 px-4 font-semibold">Brand</th>
-                    <th className="text-left py-3 px-4 font-semibold">Harga</th>
-                    <th className="text-left py-3 px-4 font-semibold">Intensity</th>
-                    <th className="text-left py-3 px-4 font-semibold">Stok</th>
-                    <th className="text-left py-3 px-4 font-semibold">Rating</th>
-                    <th className="text-left py-3 px-4 font-semibold">Aksi</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filtered.map((product) => (
-                    <tr key={product.id} className="border-b border-gray-200 hover:bg-gray-50">
-                      <td className="py-3 px-4">
-                        <div className="flex items-center gap-3">
-                          <img
-                            src={product.image}
-                            alt={product.name}
-                            className="w-10 h-10 object-cover rounded"
-                          />
-                          <div>
-                            <span className="font-medium block">{product.name}</span>
-                            <span className="text-xs text-stone-500">
-                              {product.scent.slice(0, 3).join(' · ') || '—'}
-                            </span>
+        <div className="bg-white rounded-lg shadow-xs border border-[#E7E5E0] overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-stone-50 border-b border-stone-200">
+                <tr className="text-stone-500 uppercase text-[10px] tracking-wider font-semibold">
+                  <th className="text-left py-4 px-5">Fragrans</th>
+                  <th className="text-left py-4 px-5">Brand</th>
+                  <th className="text-left py-4 px-5">Kapasitas (Varian)</th>
+                  <th className="text-left py-4 px-5 whitespace-nowrap">Harga</th>
+                  <th className="text-left py-4 px-5">Intensity</th>
+                  <th className="text-left py-4 px-5">Status</th>
+                  <th className="text-center py-4 px-5">Aksi</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-stone-100">
+                {filtered.length > 0 ? (
+                  filtered.map((product) => {
+                    const priceList = Array.isArray(product.volume_prices) && product.volume_prices.length > 0
+                      ? product.volume_prices
+                      : [{ volume: product.volume, price: product.price }];
+                    const minPrice = Math.min(...priceList.map((v) => v.price));
+
+                    return (
+                      <tr
+                        key={product.id}
+                        className="hover:bg-stone-50/50 transition cursor-pointer"
+                        onClick={() => router.push(`/admin/products/${product.id}/edit`)}
+                      >
+                        <td className="py-4 px-5">
+                          <div className="flex items-center gap-4">
+                            <img
+                              src={product.image}
+                              alt={product.name}
+                              className="w-14 h-11 object-cover rounded bg-[#EDEAE4] border border-stone-200/40 shrink-0"
+                            />
+                            <div>
+                              <span className="font-semibold block text-[#4A3728] line-clamp-1">{product.name}</span>
+                              <span className="text-[9px] text-stone-400 font-mono tracking-tight">
+                                {product.scent.slice(0, 3).join(' · ') || '—'}
+                              </span>
+                            </div>
                           </div>
-                        </div>
-                      </td>
-                      <td className="py-3 px-4">{product.brand}</td>
-                      <td className="py-3 px-4">Rp {product.price.toLocaleString('id-ID')}</td>
-                      <td className="py-3 px-4">{product.intensity}</td>
-                      <td className="py-3 px-4">
-                        <span
-                          className={`px-3 py-1 rounded-full text-sm font-medium ${
-                            product.inStock
-                              ? 'bg-green-100 text-green-800'
-                              : 'bg-red-100 text-red-800'
-                          }`}
-                        >
-                          {product.inStock ? 'Tersedia' : 'Habis'}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4">⭐ {product.rating}</td>
-                      <td className="py-3 px-4">
-                        {canAdd && (
-                          <div className="flex gap-2">
-                            <button
-                              onClick={() => handleEditProduct(product)}
-                              className="p-2 hover:bg-[#EFEFE9] rounded-lg text-[#8C7355]"
-                              aria-label="Edit"
+                        </td>
+                        <td className="py-4 px-5 text-[#4A3728] font-medium">{product.brand}</td>
+                        <td className="py-4 px-5">
+                          <div className="flex gap-1.5 flex-wrap">
+                            {priceList.map((vp, i) => (
+                              <span
+                                key={i}
+                                className="text-[9px] font-bold bg-amber-50 text-[#8C7355] border border-[#8C7355]/20 px-2 py-0.5 rounded-full uppercase tracking-wider"
+                              >
+                                {vp.volume}ml
+                              </span>
+                            ))}
+                          </div>
+                        </td>
+                        <td className="py-4 px-5 font-mono text-[#8D4F38] font-semibold whitespace-nowrap">
+                          {formatPrice(minPrice)}
+                        </td>
+                        <td className="py-4 px-5">
+                          <span className="inline-block bg-stone-100 text-stone-700 text-[10px] px-2 py-0.5 rounded font-bold uppercase tracking-wider">
+                            {product.intensity}
+                          </span>
+                        </td>
+                        <td className="py-4 px-5">
+                          <span
+                            className={`inline-block px-2.5 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider border ${
+                              product.inStock
+                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200/50'
+                                : 'bg-red-50 text-[#8D4F38] border-red-200/50'
+                            }`}
+                          >
+                            {product.inStock ? 'Tersedia' : 'Habis'}
+                          </span>
+                        </td>
+                        <td className="py-4 px-5 text-center" onClick={(e) => e.stopPropagation()}>
+                          <div className="flex gap-1.5 justify-center">
+                            <Link
+                              href={`/admin/products/${product.id}/edit`}
+                              className="p-1.5 hover:bg-[#EFEFE9] rounded text-[#8C7355] transition inline-flex items-center"
+                              aria-label="Edit Produk"
                             >
-                              <Edit size={18} />
-                            </button>
+                              <Edit size={16} />
+                            </Link>
                             {canDelete && (
                               <button
                                 onClick={() => handleDeleteProduct(product.id)}
-                                className="p-2 hover:bg-red-50 rounded-lg text-[#8D4F38]"
-                                aria-label="Hapus"
+                                className="p-1.5 hover:bg-red-50 rounded text-[#8D4F38] transition cursor-pointer"
+                                aria-label="Hapus Produk"
                               >
-                                <Trash2 size={18} />
+                                <Trash2 size={16} />
                               </button>
                             )}
                           </div>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                        </td>
+                      </tr>
+                    );
+                  })
+                ) : (
+                  <tr>
+                    <td colSpan={7} className="py-20 text-center text-stone-400 font-light">
+                      Belum ada fragrans yang sesuai atau terdaftar di katalog.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-              <p className="text-gray-600 text-sm mb-2">Total Produk</p>
-              <p className="text-3xl font-bold">{allProducts.length}</p>
-            </div>
-            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-              <p className="text-gray-600 text-sm mb-2">Produk Tersedia</p>
-              <p className="text-3xl font-bold">
-                {allProducts.filter((p) => p.inStock).length}
-              </p>
-            </div>
-            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-              <p className="text-gray-600 text-sm mb-2">Nilai Inventaris</p>
-              <p className="text-3xl font-bold">
-                Rp {allProducts.reduce((sum, p) => sum + p.price, 0).toLocaleString('id-ID')}
-              </p>
-            </div>
-          </div>
-        </>
+        </div>
       )}
     </div>
   );

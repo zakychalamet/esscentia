@@ -46,9 +46,17 @@ export interface CustomerDetail extends CustomerListItem {
 }
 
 const SEGMENT_BADGE: Record<RfmSegmentLabel, string> = {
-  Champions: 'bg-emerald-100 text-emerald-700',
-  'Loyal/Steady': 'bg-indigo-100 text-indigo-700',
-  'At Risk': 'bg-red-100 text-red-700',
+  'Champions': 'bg-purple-100 text-purple-700 border border-purple-200',
+  'Loyal Customers': 'bg-blue-100 text-blue-700 border border-blue-200',
+  'Potential Loyalist': 'bg-emerald-100 text-emerald-700 border border-emerald-200',
+  'Recent Customers': 'bg-cyan-100 text-cyan-700 border border-cyan-200',
+  'Promising': 'bg-lime-100 text-lime-700 border border-lime-200',
+  'Need Attention': 'bg-amber-100 text-amber-700 border border-amber-200',
+  'About to Sleep': 'bg-pink-100 text-pink-700 border border-pink-200',
+  'At Risk': 'bg-red-100 text-red-700 border border-red-200',
+  "Can't Lose Them": 'bg-indigo-100 text-indigo-700 border border-indigo-200',
+  'Hibernating': 'bg-slate-100 text-slate-700 border border-slate-200',
+  'Lost': 'bg-stone-100 text-stone-600 border border-stone-200',
 };
 
 function getInitials(name: string): string {
@@ -219,6 +227,12 @@ export async function getAdminRfmAnalytics(): Promise<RfmAnalyticsResult> {
       clienteleGrowthPct: users.length > 0 ? Math.min(users.length, 15) : 0,
     },
   };
+}
+
+export async function getUserSegment(userId: string): Promise<RfmSegmentLabel> {
+  const customers = await getCustomerDirectory();
+  const customer = customers.find((c) => c.id === userId);
+  return customer ? customer.segment : 'Recent Customers';
 }
 
 export { SEGMENT_BADGE };

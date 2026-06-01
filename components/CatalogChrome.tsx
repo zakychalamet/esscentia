@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import {
   ShoppingBag,
   User,
@@ -11,6 +11,9 @@ import {
   Video,
   Camera,
   ArrowRight,
+  Bell,
+  Inbox,
+  Send,
 } from 'lucide-react';
 import { SearchModal } from '@/components/SearchModal';
 import { useAuth } from '@/lib/auth-context';
@@ -54,6 +57,74 @@ export function CatalogNav() {
   const active = getActiveNav(pathname);
   const [searchOpen, setSearchOpen] = useState(false);
   const { user } = useAuth();
+
+  // Notifications State
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [userSegment, setUserSegment] = useState<string>('');
+  const [readIds, setReadIds] = useState<number[]>([]);
+  const [notifDropdownOpen, setNotifDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Fetch notifications
+  useEffect(() => {
+    // Load read notifications from localStorage
+    try {
+      const stored = localStorage.getItem('esscentia_read_notifications');
+      if (stored) {
+        setReadIds(JSON.parse(stored));
+      }
+    } catch (e) {
+      console.error('Failed to load read notifications:', e);
+    }
+
+    const fetchNotifications = async () => {
+      try {
+        const url = user ? `/api/notifications?userId=${user.id}` : `/api/notifications`;
+        const res = await fetch(url);
+        if (res.ok) {
+          const data = await res.json();
+          setNotifications(data.notifications || []);
+          setUserSegment(data.segment || 'Guest');
+        }
+      } catch (e) {
+        console.error('Failed to fetch notifications:', e);
+      }
+    };
+
+    fetchNotifications();
+    // Poll notifications every 30 seconds
+    const interval = setInterval(fetchNotifications, 30000);
+
+    return () => clearInterval(interval);
+  }, [user]);
+
+  // Click outside to close dropdown
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setNotifDropdownOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const unreadCount = useMemo(() => {
+    return notifications.filter((n) => !readIds.includes(n.id)).length;
+  }, [notifications, readIds]);
+
+  const handleMarkAsRead = (id: number) => {
+    if (readIds.includes(id)) return;
+    const nextRead = [...readIds, id];
+    setReadIds(nextRead);
+    localStorage.setItem('esscentia_read_notifications', JSON.stringify(nextRead));
+  };
+
+  const handleMarkAllAsRead = () => {
+    const allIds = notifications.map((n) => n.id);
+    setReadIds(allIds);
+    localStorage.setItem('esscentia_read_notifications', JSON.stringify(allIds));
+  };
 
   return (
     <>
@@ -106,6 +177,34 @@ export function CatalogNav() {
             >
               <ShoppingBag size={20} strokeWidth={1.5} />
             </Link>
+
+            <Link
+              href="/orders/track"
+              className={`transition ${
+                pathname === '/orders/track'
+                  ? 'text-[#4A3728]'
+                  : 'text-[#4A3728] hover:text-[#8C7355]'
+              }`}
+              aria-label="Lacak Pesanan"
+            >
+              <Send size={20} strokeWidth={1.5} />
+            </Link>
+
+
+            {/* Notification Bell Icon - Disebelah kiri profil */}
+            <Link 
+              href="/notifications"
+              className="text-[#4A3728] hover:text-[#8C7355] transition relative flex items-center justify-center p-1"
+              aria-label="Notifikasi"
+            >
+              <Bell size={20} strokeWidth={1.5} className={unreadCount > 0 ? "text-[#8C7355] animate-pulse" : "text-[#4A3728]"} />
+              {unreadCount > 0 && (
+                <span className="absolute top-0 right-0 bg-[#8C7355] text-white text-[8px] rounded-full w-3.5 h-3.5 flex items-center justify-center font-bold">
+                  {unreadCount}
+                </span>
+              )}
+            </Link>
+
             {user ? (
               <Link
                 href="/profile"

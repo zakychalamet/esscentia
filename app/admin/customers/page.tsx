@@ -75,8 +75,16 @@ export default function CustomersPage() {
             >
               <option value="all">Semua Segmen</option>
               <option value="Champions">Champions</option>
-              <option value="Loyal/Steady">Loyal/Steady</option>
+              <option value="Loyal Customers">Loyal Customers</option>
+              <option value="Potential Loyalist">Potential Loyalist</option>
+              <option value="Recent Customers">Recent Customers</option>
+              <option value="Promising">Promising</option>
+              <option value="Need Attention">Need Attention</option>
+              <option value="About to Sleep">About to Sleep</option>
               <option value="At Risk">At Risk</option>
+              <option value="Can't Lose Them">Can't Lose Them</option>
+              <option value="Hibernating">Hibernating</option>
+              <option value="Lost">Lost</option>
             </select>
             <button className="flex items-center gap-2 border border-slate-200 rounded-lg px-4 py-2 text-sm bg-white hover:bg-slate-50 transition-colors">
               <Filter size={16} /> Filter

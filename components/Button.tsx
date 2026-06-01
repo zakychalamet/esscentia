@@ -16,9 +16,9 @@ export function Button({
     'font-semibold rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed';
 
   const variants = {
-    primary: 'bg-purple-600 text-white hover:bg-purple-700',
+    primary: 'bg-[#4A3728] text-white hover:bg-[#8C7355]',
     secondary: 'bg-gray-200 text-gray-900 hover:bg-gray-300',
-    outline: 'border-2 border-purple-600 text-purple-600 hover:bg-purple-50',
+    outline: 'border-2 border-[#4A3728] text-[#4A3728] hover:bg-[#4A3728]/5',
     danger: 'bg-red-600 text-white hover:bg-red-700',
   };
 

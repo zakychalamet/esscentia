@@ -42,7 +42,7 @@ const familyConfig: Record<
   Citrus: { label: 'Citrus', icon: Citrus, tag: 'CITRUS' },
   Fresh: { label: 'Fresh', icon: Wind, tag: 'FRESH & AQUATIC' },
   Amber: { label: 'Amber', icon: Flame, tag: 'AMBER & WARM' },
-  Gourmand: { label: 'Gourmand', icon: Cake, tag: 'GOURMAND' },
+  Vanilla: { label: 'Vanilla', icon: Cake, tag: 'VANILLA' },
   Aromatic: { label: 'Aromatic', icon: Leaf, tag: 'AROMATIC & HERBAL' },
   Leather: { label: 'Leather', icon: Briefcase, tag: 'LEATHER & SMOKY' },
 };
@@ -131,6 +131,7 @@ function ProductsContent() {
     isFragranceFamily(familyParam) ? familyParam : null
   );
   const [selectedIntensity, setSelectedIntensity] = useState<Product['intensity'] | null>(null);
+  const [selectedGender, setSelectedGender] = useState<Product['category'] | null>(null);
   const [sortBy, setSortBy] = useState<SortValue>('newest');
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState(queryParam);
@@ -156,6 +157,9 @@ function ProductsContent() {
     if (selectedIntensity) {
       result = result.filter((p) => p.intensity === selectedIntensity);
     }
+    if (selectedGender) {
+      result = result.filter((p) => p.category === selectedGender);
+    }
     if (selectedBrand) {
       result = result.filter((p) => p.brand === selectedBrand);
     }
@@ -175,7 +179,7 @@ function ProductsContent() {
     }
 
     return result;
-  }, [allProducts, selectedFamily, selectedIntensity, sortBy, searchQuery, selectedBrand]);
+  }, [allProducts, selectedFamily, selectedIntensity, selectedGender, sortBy, searchQuery, selectedBrand]);
 
   const totalPages = Math.max(1, Math.ceil(filteredProducts.length / ITEMS_PER_PAGE));
   const safePage = Math.min(currentPage, totalPages);
@@ -299,6 +303,37 @@ function ProductsContent() {
                     }`}
                   >
                     {intensity}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-10">
+              <p className="text-[10px] uppercase tracking-[0.2em] text-stone-500 mb-4">
+                Gender
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {([
+                  { value: 'male', label: 'Pria' },
+                  { value: 'female', label: 'Wanita' },
+                  { value: 'unisex', label: 'Unisex' },
+                ] as const).map((gender) => (
+                  <button
+                    key={gender.value}
+                    type="button"
+                    onClick={() => {
+                      setSelectedGender((prev) =>
+                        prev === gender.value ? null : gender.value
+                      );
+                      setCurrentPage(1);
+                    }}
+                    className={`px-4 py-1.5 text-xs uppercase tracking-wider rounded-full border transition ${
+                      selectedGender === gender.value
+                        ? 'bg-[#4A3728] text-[#F9F7F2] border-[#4A3728]'
+                        : 'border-stone-300 text-stone-600 hover:border-[#8C7355]'
+                    }`}
+                  >
+                    {gender.label}
                   </button>
                 ))}
               </div>

@@ -157,6 +157,7 @@ export function normalizeJournalInput(body: Record<string, unknown>): JournalInp
   const title = String(body.title ?? '').trim();
   const slugRaw = String(body.slug ?? '').trim();
 
+  const rawReadTime = String(body.readTime ?? '').trim();
   return {
     slug: slugRaw || slugify(title),
     title,
@@ -164,7 +165,7 @@ export function normalizeJournalInput(body: Record<string, unknown>): JournalInp
     content,
     category: String(body.category ?? 'Edukasi').trim(),
     date: String(body.date ?? '').trim(),
-    readTime: String(body.readTime ?? '5 menit').trim(),
+    readTime: rawReadTime || estimateReadTime(content),
     image: String(body.image ?? ''),
     author: String(body.author ?? 'Tim Esscentia').trim(),
     isFeatured: Boolean(body.isFeatured),

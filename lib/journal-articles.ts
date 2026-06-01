@@ -78,7 +78,7 @@ export const journalArticles: JournalArticle[] = [
     author: 'Daniel Wijaya',
     content: [
       'Layering bukan sekadar menyemprot dua parfum secara berurutan. Ini adalah seni menciptakan harmoni — di mana satu aroma melengkapi yang lain tanpa saling menenggelamkan.',
-      'Aturan emas: mulai dengan aroma yang lebih ringan (citrus atau floral), lalu tambahkan lapisan yang lebih dalam (woody atau gourmand). Semprotkan yang lebih ringan di pergelangan tangan, yang lebih berat di leher atau dada.',
+      'Aturan emas: mulai dengan aroma yang lebih ringan (citrus atau floral), lalu tambahkan lapisan yang lebih dalam (woody atau vanilla). Semprotkan yang lebih ringan di pergelangan tangan, yang lebih berat di leher atau dada.',
       'Kombinasi populer di Esscentia: floral + woody untuk keseimbangan feminin-maskulin, atau citrus + amber untuk kesegaran yang berkelanjutan sepanjang hari.',
       'Eksperimen di hari libur ketika Anda tidak terburu-buru — catat kombinasi yang berhasil. Signature scent sejati lahir dari eksplorasi pribadi, bukan mengikuti tren semata.',
     ],
@@ -115,7 +115,7 @@ export const journalArticles: JournalArticle[] = [
     content: [
       'Pagi hari memanggil kesegaran: citrus dan floral ringan dalam formulasi Eau de Toilette yang tidak overwhelming di ruang kerja ber-AC.',
       'Siang hingga sore, pertimbangkan floral yang lebih kaya atau woody ringan — Eau de Parfum memberikan longevity tanpa proyeksi berlebihan.',
-      'Malam adalah waktu untuk eksplorasi: amber, oud, vanilla, atau kombinasi gourmand dalam Extrait de Parfum yang meninggalkan jejak memorabel.',
+      'Malam adalah waktu untuk eksplorasi: amber, oud, vanilla, atau kombinasi vanilla dalam Extrait de Parfum yang meninggalkan jejak memorabel.',
       'Bangun koleksi rotasi — tiga parfum untuk tiga mood berbeda lebih bernilai daripada satu botol besar yang jarang mencerminkan siapa Anda hari itu.',
     ],
   },

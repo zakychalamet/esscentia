@@ -170,7 +170,19 @@ export default function AdminDashboard() {
           </div>
           <RfmClusterChart customers={customers} />
           <div className="flex flex-wrap gap-4 mt-4 pt-4 border-t border-slate-200">
-            {(['Champions', 'Loyal/Steady', 'At Risk'] as const).map((seg) => (
+            {([
+              'Champions',
+              'Loyal Customers',
+              'Potential Loyalist',
+              'Recent Customers',
+              'Promising',
+              'Need Attention',
+              'About to Sleep',
+              'At Risk',
+              "Can't Lose Them",
+              'Hibernating',
+              'Lost',
+            ] as const).map((seg) => (
               <span key={seg} className="flex items-center gap-2 text-xs text-slate-600">
                 <span
                   className="w-3 h-3 rounded-full"

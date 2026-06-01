@@ -6,7 +6,7 @@ export interface Product {
   image: string;
   description: string;
   category: 'male' | 'female' | 'unisex';
-  family: 'Woody' | 'Floral' | 'Citrus' | 'Fresh' | 'Amber' | 'Gourmand' | 'Aromatic' | 'Leather';
+  family: 'Woody' | 'Floral' | 'Citrus' | 'Fresh' | 'Amber' | 'Vanilla' | 'Aromatic' | 'Leather';
   intensity: 'EDT' | 'EDP' | 'EXTRAIT';
   scent: string[];
   volume: number;
@@ -14,6 +14,10 @@ export interface Product {
   reviews: number;
   inStock: boolean;
   isBestseller?: boolean;
+  volume_prices?: { volume: number; price: number }[];
+  sillage?: string;
+  projection?: string;
+  longevity?: string;
 }
 
 export const products: Product[] = [
@@ -58,7 +62,7 @@ export const products: Product[] = [
     image: 'https://images.unsplash.com/photo-1506755855726-85d82b8b34ec?w=500&h=500&fit=crop',
     description: 'Kesegaran laut dengan sentuhan lemon dan garam laut yang menyegarkan.',
     category: 'unisex',
-    family: 'Gourmand',
+    family: 'Vanilla',
     intensity: 'EDT',
     scent: ['Amber', 'Sandalwood', 'Vanilla'],
     volume: 100,
@@ -107,7 +111,7 @@ export const products: Product[] = [
     image: 'https://images.unsplash.com/photo-1590894903068-b0c9f1299c0c?w=500&h=500&fit=crop',
     description: 'Manis dan hangat dengan notes vanilla cream dan caramel.',
     category: 'unisex',
-    family: 'Gourmand',
+    family: 'Vanilla',
     intensity: 'EDP',
     scent: ['Cinnamon', 'Vanilla', 'Caramel'],
     volume: 50,
@@ -187,7 +191,7 @@ export const products: Product[] = [
     image: 'https://images.unsplash.com/photo-1506755855726-85d82b8b34ec?w=500&h=500&fit=crop',
     description: 'Manis dan nyaman dengan madu dan vanila.',
     category: 'female',
-    family: 'Gourmand',
+    family: 'Vanilla',
     intensity: 'EDP',
     scent: ['Honey', 'Vanilla', 'Caramel'],
     volume: 75,
@@ -269,7 +273,7 @@ export const products: Product[] = [
     image: 'https://images.unsplash.com/photo-1599499810694-b5ac4dd26d3f?w=500&h=500&fit=crop',
     description: 'Indulgent cokelat dengan vanila dan nougat.',
     category: 'unisex',
-    family: 'Gourmand',
+    family: 'Vanilla',
     intensity: 'EDP',
     scent: ['Chocolate', 'Vanilla', 'Nougat'],
     volume: 50,
@@ -350,7 +354,7 @@ export const products: Product[] = [
     image: 'https://images.unsplash.com/photo-1508737763-95b3d2e8c6b3?w=500&h=500&fit=crop',
     description: 'Manis seperti karamel toast dengan butter.',
     category: 'unisex',
-    family: 'Gourmand',
+    family: 'Vanilla',
     intensity: 'EDP',
     scent: ['Caramel', 'Butter', 'Vanilla'],
     volume: 50,
@@ -414,7 +418,7 @@ export const products: Product[] = [
     image: 'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=500&h=500&fit=crop',
     description: 'Jahe pedas dengan lada dan musk.',
     category: 'male',
-    family: 'Gourmand',
+    family: 'Vanilla',
     intensity: 'EDP',
     scent: ['Ginger', 'Pepper', 'Cardamom'],
     volume: 100,
@@ -511,7 +515,7 @@ export const products: Product[] = [
     image: 'https://images.unsplash.com/photo-1607112202415-ef6b0f7f18e2?w=500&h=500&fit=crop',
     description: 'Kopi dan cokelat untuk pagi yang sempurna.',
     category: 'male',
-    family: 'Gourmand',
+    family: 'Vanilla',
     intensity: 'EDP',
     scent: ['Coffee', 'Cocoa', 'Vanilla'],
     volume: 100,
@@ -560,7 +564,7 @@ export const products: Product[] = [
     image: 'https://images.unsplash.com/photo-1571975414439-27d4b93f5f2d?w=500&h=500&fit=crop',
     description: 'Amber hangat dengan kayu.',
     category: 'female',
-    family: 'Gourmand',
+    family: 'Vanilla',
     intensity: 'EDP',
     scent: ['Amber', 'Wood', 'Vanilla'],
     volume: 75,
@@ -626,7 +630,7 @@ export const products: Product[] = [
     image: 'https://images.unsplash.com/photo-1590894903068-b0c9f1299c0c?w=500&h=500&fit=crop',
     description: 'Kayu manis pedas dengan vanila.',
     category: 'male',
-    family: 'Gourmand',
+    family: 'Vanilla',
     intensity: 'EDP',
     scent: ['Cinnamon', 'Vanilla', 'Wood'],
     volume: 100,
@@ -674,7 +678,7 @@ export const products: Product[] = [
     image: 'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=500&h=500&fit=crop',
     description: 'Butterscotch manis dengan vanilla.',
     category: 'unisex',
-    family: 'Gourmand',
+    family: 'Vanilla',
     intensity: 'EDP',
     scent: ['Butterscotch', 'Vanilla', 'Caramel'],
     volume: 50,
@@ -722,7 +726,7 @@ export const products: Product[] = [
     image: 'https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=500&h=500&fit=crop',
     description: 'Hazelnut lezat dengan cokelat.',
     category: 'male',
-    family: 'Gourmand',
+    family: 'Vanilla',
     intensity: 'EDP',
     scent: ['Hazelnut', 'Cocoa', 'Vanilla'],
     volume: 100,
@@ -859,7 +863,7 @@ export function searchProductsInList(query: string, list: Product[]): Product[] 
 }
 
 export async function fetchProducts(): Promise<Product[]> {
-  const response = await fetch('/api/products');
+  const response = await fetch('/api/products', { cache: 'no-store' });
   if (!response.ok) throw new Error('Gagal mengambil produk');
   const data = await response.json();
   return data.map((p: Product) => ({

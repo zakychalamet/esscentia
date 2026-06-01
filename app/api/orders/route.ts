@@ -1,5 +1,22 @@
 import { NextResponse } from 'next/server';
-import { createOrder } from '@/lib/order-db';
+import { createOrder, getOrdersByUserId } from '@/lib/order-db';
+
+export async function GET(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get('userId');
+
+    if (!userId) {
+      return NextResponse.json({ error: 'User ID dibutuhkan' }, { status: 400 });
+    }
+
+    const orders = await getOrdersByUserId(userId);
+    return NextResponse.json(orders);
+  } catch (error) {
+    console.error('GET /api/orders error:', error);
+    return NextResponse.json({ error: 'Gagal mengambil data pesanan' }, { status: 500 });
+  }
+}
 
 export async function POST(request: Request) {
   try {
@@ -43,3 +60,4 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Gagal membuat pesanan' }, { status: 500 });
   }
 }
+

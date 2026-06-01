@@ -23,6 +23,9 @@ async function init() {
       intensity VARCHAR(50) NOT NULL DEFAULT 'EDP',
       scent JSON,
       volume INT NOT NULL DEFAULT 50,
+      sillage VARCHAR(255) NULL,
+      projection VARCHAR(255) NULL,
+      longevity VARCHAR(255) NULL,
       rating DECIMAL(3, 2) DEFAULT 0,
       reviews INT DEFAULT 0,
       inStock BOOLEAN DEFAULT true,
@@ -98,6 +101,17 @@ async function init() {
     );
   `);
 
+  await connection.query(`
+    CREATE TABLE IF NOT EXISTS campaign_notifications (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      title VARCHAR(255) NOT NULL,
+      message TEXT NOT NULL,
+      segment VARCHAR(100) NOT NULL,
+      promo_type VARCHAR(100) DEFAULT 'Private Collection Access',
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
+
   // Migrate users table
   const userMigrations = [
     ['login_count', 'ALTER TABLE users ADD COLUMN login_count INT DEFAULT 0'],
@@ -138,6 +152,28 @@ async function init() {
   ) {
     await connection.query('ALTER TABLE products MODIFY COLUMN image TEXT');
     console.log('Expanded image column to TEXT');
+  }
+
+  const [volPricesCol] = await connection.query(
+    `SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+     WHERE TABLE_SCHEMA = 'parfum' AND TABLE_NAME = 'products' AND COLUMN_NAME = 'volume_prices'`
+  );
+  if (!Array.isArray(volPricesCol) || volPricesCol.length === 0) {
+    await connection.query('ALTER TABLE products ADD COLUMN volume_prices JSON AFTER scent');
+    console.log('Added volume_prices column to products table');
+  }
+
+  const perfCols = ['sillage', 'projection', 'longevity'];
+  for (const col of perfCols) {
+    const [exists] = await connection.query(
+      `SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+       WHERE TABLE_SCHEMA = 'parfum' AND TABLE_NAME = 'products' AND COLUMN_NAME = ?`,
+      [col]
+    );
+    if (!Array.isArray(exists) || exists.length === 0) {
+      await connection.query(`ALTER TABLE products ADD COLUMN ${col} VARCHAR(255) NULL AFTER volume_prices`);
+      console.log(`Added ${col} column to products table`);
+    }
   }
 
   console.log('Database parfum and tables created successfully');
