@@ -254,39 +254,41 @@ export default function HomePage() {
         </section>
 
         {/* Footer */}
-        <footer className="bg-stone-900 text-stone-100 py-16">
+        <footer className="bg-[#E8E6E1] text-[#4A3728] py-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
               <div>
                 <h3 className="text-2xl font-serif mb-4">Esscentia</h3>
-                <p className="text-sm text-stone-400">A curation of artisanal fragrances for the modern luxe space.</p>
+                <p className="text-sm text-stone-600 leading-relaxed max-w-xs">
+                  A curation of artisanal fragrances for the modern soul, crafted with intention and sustainably sourced botanical essences.
+                </p>
               </div>
               <div>
-                <h4 className="text-sm uppercase tracking-widest mb-4 font-semibold">Shop</h4>
-                <ul className="space-y-2 text-sm text-stone-400">
-                  <li><Link href="/products" className="hover:text-stone-200">All Products</Link></li>
-                  <li><Link href="/products" className="hover:text-stone-200">New Arrivals</Link></li>
-                  <li><Link href="/products" className="hover:text-stone-200">Gift Sets</Link></li>
+                <h4 className="text-xs uppercase tracking-[0.2em] mb-4 font-medium text-stone-500">Shop</h4>
+                <ul className="space-y-2.5 text-sm text-stone-600">
+                  <li><Link href="/products" className="hover:text-[#4A3728] transition">All Products</Link></li>
+                  <li><Link href="/products" className="hover:text-[#4A3728] transition">New Arrivals</Link></li>
+                  <li><Link href="/products" className="hover:text-[#4A3728] transition">Gift Sets</Link></li>
                 </ul>
               </div>
               <div>
-                <h4 className="text-sm uppercase tracking-widest mb-4 font-semibold">Assistance</h4>
-                <ul className="space-y-2 text-sm text-stone-400">
-                  <li><Link href="/contact" className="hover:text-stone-200">Contact Us</Link></li>
-                  <li><Link href="/faq" className="hover:text-stone-200">FAQs</Link></li>
-                  <li><Link href="/privacy" className="hover:text-stone-200">Privacy Policy</Link></li>
+                <h4 className="text-xs uppercase tracking-[0.2em] mb-4 font-medium text-stone-500">Assistance</h4>
+                <ul className="space-y-2.5 text-sm text-stone-600">
+                  <li><Link href="/contact" className="hover:text-[#4A3728] transition">Contact Us</Link></li>
+                  <li><Link href="/faq" className="hover:text-[#4A3728] transition">FAQs</Link></li>
+                  <li><Link href="/privacy" className="hover:text-[#4A3728] transition">Privacy Policy</Link></li>
                 </ul>
               </div>
               <div>
-                <h4 className="text-sm uppercase tracking-widest mb-4 font-semibold">Connect</h4>
-                <div className="flex space-x-4 text-sm text-stone-400">
-                  <a href="#" className="hover:text-stone-200">Instagram</a>
-                  <a href="#" className="hover:text-stone-200">Facebook</a>
-                  <a href="#" className="hover:text-stone-200">Twitter</a>
-                </div>
+                <h4 className="text-xs uppercase tracking-[0.2em] mb-4 font-medium text-stone-500">Connect</h4>
+                <ul className="space-y-2.5 text-sm text-stone-600">
+                  <li><a href="#" className="hover:text-[#4A3728] transition">Instagram</a></li>
+                  <li><a href="#" className="hover:text-[#4A3728] transition">Facebook</a></li>
+                  <li><a href="#" className="hover:text-[#4A3728] transition">Twitter</a></li>
+                </ul>
               </div>
             </div>
-            <div className="border-t border-stone-800 pt-8 text-center text-sm text-stone-400">
+            <div className="border-t border-stone-300/60 pt-8 text-center text-xs text-stone-500 tracking-wide">
               <p>© 2024 Esscentia. All rights reserved.</p>
             </div>
           </div>

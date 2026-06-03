@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { SearchModal } from '@/components/SearchModal';
 import { useAuth } from '@/lib/auth-context';
+import { useCart } from '@/lib/cart-context';
 import { getLoginUrl } from '@/lib/auth-guard';
 
 type NavKey = 'shop' | 'discovery' | 'quiz' | 'journal' | 'story';
@@ -57,6 +58,37 @@ export function CatalogNav() {
   const active = getActiveNav(pathname);
   const [searchOpen, setSearchOpen] = useState(false);
   const { user } = useAuth();
+  const { itemCount } = useCart();
+  const [orders, setOrders] = useState<any[]>([]);
+
+  // Fetch orders count for delivery badge
+  useEffect(() => {
+    if (!user) {
+      setOrders([]);
+      return;
+    }
+    const fetchOrders = async () => {
+      try {
+        const res = await fetch(`/api/orders?userId=${user.id}`);
+        if (res.ok) {
+          const data = await res.json();
+          setOrders(data || []);
+        }
+      } catch (e) {
+        console.error('Failed to fetch orders:', e);
+      }
+    };
+    fetchOrders();
+    // Poll orders every 30 seconds to keep delivery count updated
+    const interval = setInterval(fetchOrders, 30000);
+    return () => clearInterval(interval);
+  }, [user]);
+
+  const activeOrdersCount = useMemo(() => {
+    return orders.filter(
+      (o) => o && o.status && ['pending', 'processing', 'shipped'].includes(o.status.toLowerCase())
+    ).length;
+  }, [orders]);
 
   // Notifications State
   const [notifications, setNotifications] = useState<any[]>([]);
@@ -168,7 +200,7 @@ export function CatalogNav() {
             </button>
             <Link
               href="/cart"
-              className={`transition ${
+              className={`transition relative flex items-center justify-center p-1 ${
                 pathname === '/cart'
                   ? 'text-[#4A3728]'
                   : 'text-[#4A3728] hover:text-[#8C7355]'
@@ -176,11 +208,16 @@ export function CatalogNav() {
               aria-label="Keranjang"
             >
               <ShoppingBag size={20} strokeWidth={1.5} />
+              {itemCount > 0 && (
+                <span className="absolute top-0 right-0 bg-[#8C7355] text-white text-[8px] rounded-full w-3.5 h-3.5 flex items-center justify-center font-bold">
+                  {itemCount}
+                </span>
+              )}
             </Link>
 
             <Link
               href="/orders/track"
-              className={`transition ${
+              className={`transition relative flex items-center justify-center p-1 ${
                 pathname === '/orders/track'
                   ? 'text-[#4A3728]'
                   : 'text-[#4A3728] hover:text-[#8C7355]'
@@ -188,6 +225,11 @@ export function CatalogNav() {
               aria-label="Lacak Pesanan"
             >
               <Send size={20} strokeWidth={1.5} />
+              {activeOrdersCount > 0 && (
+                <span className="absolute top-0 right-0 bg-[#8C7355] text-white text-[8px] rounded-full w-3.5 h-3.5 flex items-center justify-center font-bold">
+                  {activeOrdersCount}
+                </span>
+              )}
             </Link>
 
 
@@ -245,8 +287,6 @@ export function CatalogNav() {
 }
 
 export function CatalogFooter({ variant = 'catalog' }: { variant?: 'catalog' | 'product' }) {
-  const [email, setEmail] = useState('');
-
   return (
     <footer className="bg-[#E8E6E1] text-[#4A3728]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -254,123 +294,35 @@ export function CatalogFooter({ variant = 'catalog' }: { variant?: 'catalog' | '
           <div>
             <h3 className="text-2xl font-serif mb-4">Esscentia</h3>
             <p className="text-sm text-stone-600 leading-relaxed max-w-xs">
-              A curation of artisanal fragrances for the modern soul, crafted with intention and
-              sustainably sourced botanical essences.
+              A curation of artisanal fragrances for the modern soul, crafted with intention and sustainably sourced botanical essences.
             </p>
           </div>
           <div>
-            <h4 className="text-xs uppercase tracking-[0.2em] mb-4 font-medium text-stone-500">
-              Explore
-            </h4>
+            <h4 className="text-xs uppercase tracking-[0.2em] mb-4 font-medium text-stone-500">Shop</h4>
             <ul className="space-y-2.5 text-sm text-stone-600">
-              {variant === 'product' ? (
-                <>
-                  <li>
-                    <Link href="/products" className="hover:text-[#4A3728] transition">
-                      Fragrances
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/products" className="hover:text-[#4A3728] transition">
-                      Candles
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/products" className="hover:text-[#4A3728] transition">
-                      Bath &amp; Body
-                    </Link>
-                  </li>
-                </>
-              ) : (
-                <>
-                  <li>
-                    <Link href="/about" className="hover:text-[#4A3728] transition">
-                      Sustainability
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/faq" className="hover:text-[#4A3728] transition">
-                      Shipping &amp; Returns
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/privacy" className="hover:text-[#4A3728] transition">
-                      Privacy Policy
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/contact" className="hover:text-[#4A3728] transition">
-                      Store Locator
-                    </Link>
-                  </li>
-                </>
-              )}
+              <li><Link href="/products" className="hover:text-[#4A3728] transition">All Products</Link></li>
+              <li><Link href="/products" className="hover:text-[#4A3728] transition">New Arrivals</Link></li>
+              <li><Link href="/products" className="hover:text-[#4A3728] transition">Gift Sets</Link></li>
             </ul>
           </div>
           <div>
-            <h4 className="text-xs uppercase tracking-[0.2em] mb-4 font-medium text-stone-500">
-              {variant === 'product' ? 'Policy' : 'Follow'}
-            </h4>
-            {variant === 'product' ? (
-              <ul className="space-y-2.5 text-sm text-stone-600">
-                <li>
-                  <Link href="/about" className="hover:text-[#4A3728] transition">
-                    Sustainability
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/faq" className="hover:text-[#4A3728] transition">
-                    Shipping &amp; Returns
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/privacy" className="hover:text-[#4A3728] transition">
-                    Privacy Policy
-                  </Link>
-                </li>
-              </ul>
-            ) : (
-              <div className="flex gap-4 text-stone-600">
-                <a href="#" className="hover:text-[#4A3728] transition" aria-label="Website">
-                  <Globe size={20} strokeWidth={1.5} />
-                </a>
-                <a href="#" className="hover:text-[#4A3728] transition" aria-label="Instagram">
-                  <Camera size={20} strokeWidth={1.5} />
-                </a>
-                <a href="#" className="hover:text-[#4A3728] transition" aria-label="YouTube">
-                  <Video size={20} strokeWidth={1.5} />
-                </a>
-              </div>
-            )}
+            <h4 className="text-xs uppercase tracking-[0.2em] mb-4 font-medium text-stone-500">Assistance</h4>
+            <ul className="space-y-2.5 text-sm text-stone-600">
+              <li><Link href="/contact" className="hover:text-[#4A3728] transition">Contact Us</Link></li>
+              <li><Link href="/faq" className="hover:text-[#4A3728] transition">FAQs</Link></li>
+              <li><Link href="/privacy" className="hover:text-[#4A3728] transition">Privacy Policy</Link></li>
+            </ul>
           </div>
           <div>
-            <h4 className="text-xs uppercase tracking-[0.2em] mb-4 font-medium text-stone-500">
-              Newsletter
-            </h4>
-            <p className="text-sm text-stone-600 mb-4 leading-relaxed">
-              {variant === 'product'
-                ? 'Receive notes from the lab — early access and olfactory stories.'
-                : 'Join our list for early access to new collections and exclusive offers.'}
-            </p>
-            <div className="flex border-b border-stone-400/60">
-              <input
-                type="email"
-                placeholder="Email Address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="flex-1 bg-transparent py-2 text-sm text-[#4A3728] placeholder:text-stone-400 focus:outline-none"
-              />
-              <button
-                type="button"
-                className="px-2 text-[#4A3728] hover:text-[#8C7355] transition"
-                aria-label="Subscribe"
-              >
-                <ArrowRight size={18} strokeWidth={1.5} />
-              </button>
-            </div>
+            <h4 className="text-xs uppercase tracking-[0.2em] mb-4 font-medium text-stone-500">Connect</h4>
+            <ul className="space-y-2.5 text-sm text-stone-600">
+              <li><a href="#" className="hover:text-[#4A3728] transition">Instagram</a></li>
+              <li><a href="#" className="hover:text-[#4A3728] transition">Facebook</a></li>
+              <li><a href="#" className="hover:text-[#4A3728] transition">Twitter</a></li>
+            </ul>
           </div>
         </div>
-        <p className="text-center text-xs text-stone-500 tracking-wide">
+        <p className="text-center text-xs text-stone-500 tracking-wide pt-8 border-t border-stone-300/40">
           © 2024 Esscentia. All Rights Reserved.
         </p>
       </div>

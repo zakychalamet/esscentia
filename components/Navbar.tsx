@@ -12,6 +12,36 @@ export function Navbar() {
   const { itemCount } = useCart();
   const { user, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [orders, setOrders] = useState<any[]>([]);
+
+  // Fetch orders count for delivery badge
+  useEffect(() => {
+    if (!user) {
+      setOrders([]);
+      return;
+    }
+    const fetchOrders = async () => {
+      try {
+        const res = await fetch(`/api/orders?userId=${user.id}`);
+        if (res.ok) {
+          const data = await res.json();
+          setOrders(data || []);
+        }
+      } catch (e) {
+        console.error('Failed to fetch orders:', e);
+      }
+    };
+    fetchOrders();
+    // Poll orders every 30 seconds to keep delivery count updated
+    const interval = setInterval(fetchOrders, 30000);
+    return () => clearInterval(interval);
+  }, [user]);
+
+  const activeOrdersCount = useMemo(() => {
+    return orders.filter(
+      (o) => o && o.status && ['pending', 'processing', 'shipped'].includes(o.status.toLowerCase())
+    ).length;
+  }, [orders]);
 
   // Notifications State
   const [notifications, setNotifications] = useState<any[]>([]);
@@ -123,6 +153,11 @@ export function Navbar() {
             <Link href="/orders/track" className="relative">
               <Button variant="outline" size="sm" className="flex items-center justify-center p-2 text-gray-700 hover:text-[#8C7355]" aria-label="Lacak Pesanan">
                 <Send size={18} />
+                {activeOrdersCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                    {activeOrdersCount}
+                  </span>
+                )}
               </Button>
             </Link>
 

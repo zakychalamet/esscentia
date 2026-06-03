@@ -22,10 +22,17 @@ export default function AdminProductsPage() {
   const [selectedFamily, setSelectedFamily] = useState<string>('all');
   const [filterBestseller, setFilterBestseller] = useState<boolean>(false);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
 
   useEffect(() => {
     fetchProducts();
   }, []);
+
+  // Reset page to 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, selectedCategory, selectedFamily, filterBestseller]);
 
   const fetchProducts = async () => {
     try {
@@ -85,6 +92,13 @@ export default function AdminProductsPage() {
     const matchesBestseller = !filterBestseller || p.isBestseller;
     return matchesSearch && matchesCategory && matchesFamily && matchesBestseller;
   });
+
+  const totalPages = Math.ceil(filtered.length / itemsPerPage);
+
+  const paginatedProducts = filtered.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   const formatPrice = (amount: number) => {
     return `Rp ${amount.toLocaleString('id-ID')}`;
@@ -246,8 +260,8 @@ export default function AdminProductsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-stone-100">
-                {filtered.length > 0 ? (
-                  filtered.map((product) => {
+                {paginatedProducts.length > 0 ? (
+                  paginatedProducts.map((product) => {
                     const priceList = Array.isArray(product.volume_prices) && product.volume_prices.length > 0
                       ? product.volume_prices
                       : [{ volume: product.volume, price: product.price }];
@@ -339,6 +353,48 @@ export default function AdminProductsPage() {
               </tbody>
             </table>
           </div>
+
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="bg-stone-50/40 px-5 py-4 border-t border-stone-200/60 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="text-xs text-stone-500 font-light">
+                Menampilkan <span className="font-semibold">{Math.min(filtered.length, (currentPage - 1) * itemsPerPage + 1)}</span> sampai <span className="font-semibold">{Math.min(filtered.length, currentPage * itemsPerPage)}</span> dari <span className="font-semibold">{filtered.length}</span> parfum
+              </div>
+              <div className="flex gap-1 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden max-w-full">
+                <button
+                  type="button"
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  className="px-3 py-1.5 border border-stone-200 rounded text-stone-600 hover:bg-stone-50 transition text-xs font-semibold disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed bg-white"
+                >
+                  Sebelumnya
+                </button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <button
+                    key={page}
+                    type="button"
+                    onClick={() => setCurrentPage(page)}
+                    className={`px-3 py-1.5 border text-xs font-bold rounded transition cursor-pointer ${
+                      currentPage === page
+                        ? 'bg-[#4A3728] text-white border-[#4A3728]'
+                        : 'bg-white border-stone-200 text-stone-600 hover:bg-stone-50'
+                    }`}
+                  >
+                    {page}
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  className="px-3 py-1.5 border border-stone-200 rounded text-stone-600 hover:bg-stone-50 transition text-xs font-semibold disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed bg-white"
+                >
+                  Berikutnya
+                </button>
+              </div>
+            </div>
+          )}
+
         </div>
       )}
     </div>

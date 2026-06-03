@@ -157,6 +157,15 @@ export default function ProductDetailPage() {
     alert(`${product.name} (${selectedVolume}ml) ditambahkan ke keranjang!`);
   };
 
+  const handleBuyNow = () => {
+    if (!user) {
+      router.push(getLoginUrl(`/products/${productId}`));
+      return;
+    }
+    addToCart(product, 1, selectedVolume, displayPrice);
+    router.push('/checkout');
+  };
+
   return (
     <div className="min-h-screen bg-[#F9F7F2] text-[#4A3728] flex flex-col">
       <CatalogNav />
@@ -267,14 +276,24 @@ export default function ProductDetailPage() {
                 </div>
               </div>
 
-              <button
-                type="button"
-                onClick={handleAddToCart}
-                disabled={!product.inStock}
-                className="w-full py-4 bg-[#4A3728] text-[#F9F7F2] text-xs uppercase tracking-[0.2em] hover:bg-[#8C7355] transition disabled:opacity-50 disabled:cursor-not-allowed mb-6 cursor-pointer"
-              >
-                Add to Bag — {formatPrice(displayPrice)}
-              </button>
+              <div className="flex flex-col sm:flex-row gap-4 mb-6">
+                <button
+                  type="button"
+                  onClick={handleAddToCart}
+                  disabled={!product.inStock}
+                  className="flex-1 py-4 bg-[#4A3728] text-[#F9F7F2] text-xs uppercase tracking-[0.2em] hover:bg-[#8C7355] transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer font-semibold"
+                >
+                  Add to Bag
+                </button>
+                <button
+                  type="button"
+                  onClick={handleBuyNow}
+                  disabled={!product.inStock}
+                  className="flex-1 py-4 bg-[#8D4F38] text-[#F9F7F2] text-xs uppercase tracking-[0.2em] hover:bg-[#7a4532] transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer font-semibold"
+                >
+                  Buy Now — {formatPrice(displayPrice)}
+                </button>
+              </div>
 
               {/* Accordions */}
               <div>
