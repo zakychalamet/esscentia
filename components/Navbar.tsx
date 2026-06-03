@@ -6,6 +6,7 @@ import { useAuth } from '@/lib/auth-context';
 import { ShoppingCart, User, LogOut, Menu, Bell, Inbox, Send } from 'lucide-react';
 import { Button } from './Button';
 import { useState, useEffect, useMemo, useRef } from 'react';
+import { canAccessAdmin, adminRoleLabel } from '@/lib/admin-permissions';
 
 
 export function Navbar() {
@@ -183,11 +184,11 @@ export function Navbar() {
               <div className="hidden sm:flex items-center gap-2">
                 <Link href="/profile" className="text-right hover:opacity-80 transition">
                   <p className="text-sm font-semibold text-gray-900">{user.name}</p>
-                  {user.role === 'admin' && (
-                    <p className="text-xs text-[#8C7355]">Admin</p>
+                  {canAccessAdmin(user.role) && (
+                    <p className="text-xs text-[#8C7355]">{adminRoleLabel(user.role)}</p>
                   )}
                 </Link>
-                {user.role === 'admin' && (
+                {canAccessAdmin(user.role) && (
                   <Link href="/admin">
                     <Button variant="primary" size="sm">
                       Admin Panel

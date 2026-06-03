@@ -25,6 +25,7 @@ import {
   CheckCircle2
 } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
+import { canManageCampaigns, adminRoleLabel } from '@/lib/admin-permissions';
 import type { RfmAnalyticsResult, RfmSegmentLabel } from '@/lib/customer-rfm';
 
 interface CampaignHistoryItem {
@@ -130,6 +131,7 @@ const DEFAULT_MESSAGES: Record<string, string> = {
 
 export default function CampaignManagerPage() {
   const { user } = useAuth();
+  const canManage = canManageCampaigns(user?.role);
   const [analytics, setAnalytics] = useState<RfmAnalyticsResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [history, setHistory] = useState<CampaignHistoryItem[]>([]);
@@ -362,7 +364,8 @@ export default function CampaignManagerPage() {
           </p>
         </div>
 
-        <form onSubmit={handleLaunchCampaign} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 lg:p-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {canManage ? (
+          <form onSubmit={handleLaunchCampaign} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 lg:p-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-6">
             
             {/* Target Audience Dropdown */}
@@ -513,6 +516,17 @@ export default function CampaignManagerPage() {
             </div>
           </div>
         </form>
+        ) : (
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 text-center text-slate-500 max-w-2xl mx-auto flex flex-col items-center">
+            <div className="p-3 bg-[#EDEAE4]/50 rounded-full w-fit mb-3">
+              <ShieldAlert className="text-[#8C7355]" size={24} />
+            </div>
+            <p className="font-serif font-bold text-sm text-[#4A3728]">Mode Lihat Saja (Read Only)</p>
+            <p className="text-xs text-stone-500 mt-1 max-w-md leading-relaxed">
+              Anda masuk sebagai <span className="font-semibold">{adminRoleLabel(user?.role)}</span>. Anda hanya diizinkan untuk melihat segmentasi dan riwayat campaign, tidak dapat meluncurkan campaign baru.
+            </p>
+          </div>
+        )}
       </section>
 
       {/* Campaign History Log */}

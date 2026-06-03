@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { JournalArticle } from '@/lib/journal-articles';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
-import { Edit, Trash2, Plus, ExternalLink, RefreshCw } from 'lucide-react';
+import { Edit, Trash2, Plus, ExternalLink, RefreshCw, Eye } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
 import { canManageJournal, canDeleteJournal } from '@/lib/admin-permissions';
 import Link from 'next/link';
@@ -151,25 +151,21 @@ export default function AdminJournalPage() {
                           >
                             <ExternalLink size={16} />
                           </Link>
-                          {canAdd && (
-                            <>
-                              <button
-                                onClick={() => router.push(`/admin/journal/${article.slug}/edit`)}
-                                className="p-1.5 hover:bg-[#EFEFE9] rounded text-[#8C7355] transition"
-                                aria-label="Edit Artikel"
-                              >
-                                <Edit size={16} />
-                              </button>
-                              {canDelete && (
-                                <button
-                                  onClick={() => handleDelete(article.slug)}
-                                  className="p-1.5 hover:bg-red-50 rounded text-[#8D4F38] transition"
-                                  aria-label="Hapus Artikel"
-                                >
-                                  <Trash2 size={16} />
-                                </button>
-                              )}
-                            </>
+                          <button
+                            onClick={() => router.push(`/admin/journal/${article.slug}/edit`)}
+                            className="p-1.5 hover:bg-[#EFEFE9] rounded text-[#8C7355] transition"
+                            aria-label={canAdd ? "Edit Artikel" : "Lihat Rincian Artikel"}
+                          >
+                            {canAdd ? <Edit size={16} /> : <Eye size={16} />}
+                          </button>
+                          {canDelete && (
+                            <button
+                              onClick={() => handleDelete(article.slug)}
+                              className="p-1.5 hover:bg-red-50 rounded text-[#8D4F38] transition"
+                              aria-label="Hapus Artikel"
+                            >
+                              <Trash2 size={16} />
+                            </button>
                           )}
                         </div>
                       </td>

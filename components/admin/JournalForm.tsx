@@ -3,8 +3,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
-import { Upload, X, ArrowLeft, Save, Sparkles } from 'lucide-react';
+import { Upload, X, ArrowLeft, Save, Sparkles, Info } from 'lucide-react';
 import { JournalArticle } from '@/lib/journal-articles';
+import { useAuth } from '@/lib/auth-context';
+import { canManageJournal, adminRoleLabel } from '@/lib/admin-permissions';
 
 interface JournalFormProps {
   initialData?: JournalArticle | null;
@@ -63,6 +65,8 @@ async function uploadImage(file: File): Promise<string> {
 }
 
 export function JournalForm({ initialData, onSuccess, onCancel }: JournalFormProps) {
+  const { user } = useAuth();
+  const isReadOnly = !canManageJournal(user?.role);
   const [formData, setFormData] = useState<FormData>(emptyForm);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState('');
@@ -198,11 +202,20 @@ export function JournalForm({ initialData, onSuccess, onCancel }: JournalFormPro
 
   return (
     <form onSubmit={handleSave} className="space-y-8 max-w-5xl mx-auto font-sans">
-      <div className="bg-white border border-[#E7E5E0] p-6 sm:p-8 rounded-lg shadow-sm space-y-6">
-        <h3 className="text-sm font-bold uppercase tracking-wider text-[#4A3728] pb-3 border-b border-stone-100 flex items-center gap-2">
-          <Sparkles size={16} className="text-[#8C7355]" />
-          Informasi Artikel Jurnal
-        </h3>
+      {isReadOnly && (
+        <div className="p-4 border border-amber-200/80 bg-amber-50/50 text-stone-700 text-xs flex items-center gap-3 rounded-lg animate-fade-in">
+          <Info size={16} className="text-amber-600 shrink-0" />
+          <span>
+            <strong>Mode Lihat Saja (Read Only):</strong> Anda masuk sebagai <span className="font-semibold">{adminRoleLabel(user?.role)}</span>. Anda hanya diizinkan untuk melihat detail artikel ini dan tidak dapat melakukan perubahan.
+          </span>
+        </div>
+      )}
+      <fieldset disabled={isReadOnly} className="contents">
+        <div className="bg-white border border-[#E7E5E0] p-6 sm:p-8 rounded-lg shadow-sm space-y-6">
+          <h3 className="text-sm font-bold uppercase tracking-wider text-[#4A3728] pb-3 border-b border-stone-100 flex items-center gap-2">
+            <Sparkles size={16} className="text-[#8C7355]" />
+            Informasi Artikel Jurnal
+          </h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
@@ -301,13 +314,15 @@ export function JournalForm({ initialData, onSuccess, onCancel }: JournalFormPro
             {imagePreview ? (
               <div className="relative w-64 h-40 rounded-lg overflow-hidden border border-[#E7E5E0] shadow-sm shrink-0 bg-stone-50">
                 <img src={imagePreview} alt="Cover Preview" className="w-full h-full object-cover" />
-                <button
-                  type="button"
-                  onClick={handleRemoveImage}
-                  className="absolute top-2.5 right-2.5 p-1.5 bg-white/90 hover:bg-red-50 rounded-full text-red-600 transition shadow-xs"
-                >
-                  <X size={16} />
-                </button>
+                {!isReadOnly && (
+                  <button
+                    type="button"
+                    onClick={handleRemoveImage}
+                    className="absolute top-2.5 right-2.5 p-1.5 bg-white/90 hover:bg-red-50 rounded-full text-red-600 transition shadow-xs"
+                  >
+                    <X size={16} />
+                  </button>
+                )}
               </div>
             ) : (
               <div className="w-64 h-40 rounded-lg border-2 border-dashed border-[#E7E5E0] flex flex-col items-center justify-center text-stone-400 text-xs font-light gap-2 shrink-0 bg-stone-50">
@@ -319,18 +334,21 @@ export function JournalForm({ initialData, onSuccess, onCancel }: JournalFormPro
               <input
                 ref={fileInputRef}
                 type="file"
+                disabled={isReadOnly}
                 accept="image/jpeg,image/png,image/webp,image/gif"
                 onChange={handleImageSelect}
                 className="hidden"
                 id="journal-image-file"
               />
-              <label
-                htmlFor="journal-image-file"
-                className="inline-flex items-center gap-2 px-4 py-2.5 border border-[#E7E5E0] rounded-md cursor-pointer hover:bg-stone-50 text-xs uppercase tracking-wider font-semibold transition text-stone-600 shadow-sm"
-              >
-                <Upload size={14} />
-                {imagePreview ? 'Ganti Cover' : 'Unggah Cover'}
-              </label>
+              {!isReadOnly && (
+                <label
+                  htmlFor="journal-image-file"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 border border-[#E7E5E0] rounded-md cursor-pointer hover:bg-stone-50 text-xs uppercase tracking-wider font-semibold transition text-stone-600 shadow-sm"
+                >
+                  <Upload size={14} />
+                  {imagePreview ? 'Ganti Cover' : 'Unggah Cover'}
+                </label>
+              )}
               <p className="text-[10px] text-stone-400 leading-relaxed font-light max-w-sm">
                 Gunakan gambar berasio 8:5 atau lanskap dengan resolusi tajam agar sampul artikel terlihat memukau di halaman Jurnal.
               </p>
@@ -338,6 +356,7 @@ export function JournalForm({ initialData, onSuccess, onCancel }: JournalFormPro
           </div>
         </div>
       </div>
+      </fieldset>
 
       <div className="flex gap-3 justify-end">
         <Button
@@ -346,16 +365,18 @@ export function JournalForm({ initialData, onSuccess, onCancel }: JournalFormPro
           onClick={onCancel}
           className="border-stone-200 text-stone-600 hover:bg-stone-50 text-xs uppercase tracking-wider font-semibold py-2.5 px-6"
         >
-          <ArrowLeft size={14} className="mr-1.5 inline" /> Batal
+          <ArrowLeft size={14} className="mr-1.5 inline" /> {isReadOnly ? 'Kembali' : 'Batal'}
         </Button>
-        <Button
-          type="submit"
-          disabled={saving}
-          className="bg-[#4A3728] text-white hover:bg-[#8C7355] text-xs uppercase tracking-wider font-semibold py-2.5 px-8 shadow-sm flex items-center gap-2 disabled:opacity-50"
-        >
-          <Save size={14} />
-          {saving ? 'Menyimpan...' : 'Simpan Artikel'}
-        </Button>
+        {!isReadOnly && (
+          <Button
+            type="submit"
+            disabled={saving}
+            className="bg-[#4A3728] text-white hover:bg-[#8C7355] text-xs uppercase tracking-wider font-semibold py-2.5 px-8 shadow-sm flex items-center gap-2 disabled:opacity-50"
+          >
+            <Save size={14} />
+            {saving ? 'Menyimpan...' : 'Simpan Artikel'}
+          </Button>
+        )}
       </div>
     </form>
   );

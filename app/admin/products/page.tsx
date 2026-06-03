@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Product } from '@/lib/products';
-import { Trash2, Plus, Search, Edit, RefreshCw } from 'lucide-react';
+import { Trash2, Plus, Search, Edit, RefreshCw, Eye } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
 import { canManageProducts, canDeleteProducts } from '@/lib/admin-permissions';
 import { FRAGRANCE_FAMILIES } from '@/lib/fragrance-families';
@@ -325,9 +325,9 @@ export default function AdminProductsPage() {
                             <Link
                               href={`/admin/products/${product.id}/edit`}
                               className="p-1.5 hover:bg-[#EFEFE9] rounded text-[#8C7355] transition inline-flex items-center"
-                              aria-label="Edit Produk"
+                              aria-label={canAdd ? "Edit Produk" : "Lihat Rincian"}
                             >
-                              <Edit size={16} />
+                              {canAdd ? <Edit size={16} /> : <Eye size={16} />}
                             </Link>
                             {canDelete && (
                               <button

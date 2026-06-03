@@ -18,7 +18,7 @@ import { canAccessAdmin, adminRoleLabel } from '@/lib/admin-permissions';
 import {
   adminNavItems,
   filterNavForRole,
-  isMarketingPathAllowed,
+  isPathAllowedForRole,
 } from '@/lib/admin-nav';
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
@@ -34,8 +34,10 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   }, [user, isLoading, router]);
 
   useEffect(() => {
-    if (!isLoading && user?.role === 'marketing' && !isMarketingPathAllowed(pathname)) {
-      router.replace('/admin/products');
+    if (!isLoading && user?.role && !isPathAllowedForRole(pathname, user.role)) {
+      const allowedNav = filterNavForRole(adminNavItems, user.role);
+      const fallbackPath = allowedNav.length > 0 ? allowedNav[0].href : '/';
+      router.replace(fallbackPath);
     }
   }, [user, isLoading, pathname, router]);
 
@@ -194,8 +196,8 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                 <p className="text-sm font-serif font-semibold leading-tight text-[#4A3728]">
                   {user.name}
                 </p>
-                <p className="text-[10px] uppercase tracking-wider text-stone-500 mt-0.5">
-                  {user.role === 'marketing' ? 'Marketing Desk' : 'Concierge Desk'}
+                <p className="text-[10px] uppercase tracking-wider text-[#8C7355] mt-0.5 font-medium">
+                  {adminRoleLabel(user.role)}
                 </p>
               </div>
             </div>

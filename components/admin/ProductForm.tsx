@@ -6,6 +6,8 @@ import { Trash2, Plus, Upload, X, ArrowLeft, Save, Sparkles, Info, Image, Layers
 import { FRAGRANCE_FAMILIES } from '@/lib/fragrance-families';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
+import { useAuth } from '@/lib/auth-context';
+import { canManageProducts, adminRoleLabel } from '@/lib/admin-permissions';
 
 interface FormData {
   name: string;
@@ -104,6 +106,8 @@ interface ProductFormProps {
 }
 
 export function ProductForm({ productId, onSuccess, onCancel }: ProductFormProps) {
+  const { user } = useAuth();
+  const isReadOnly = !canManageProducts(user?.role);
   const [formData, setFormData] = useState<FormData>(emptyForm);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState('');
@@ -329,7 +333,16 @@ export function ProductForm({ productId, onSuccess, onCancel }: ProductFormProps
 
   return (
     <form onSubmit={(e) => { e.preventDefault(); handleSaveProduct(); }} className="space-y-8 max-w-5xl mx-auto font-sans">
-      <div className="bg-white border border-[#E7E5E0] p-6 sm:p-8 rounded-lg shadow-sm space-y-8">
+      {isReadOnly && (
+        <div className="p-4 border border-amber-200/80 bg-amber-50/50 text-stone-700 text-xs flex items-center gap-3 rounded-lg">
+          <Info size={16} className="text-amber-600 shrink-0" />
+          <span>
+            <strong>Mode Lihat Saja (Read Only):</strong> Anda masuk sebagai <span className="font-semibold">{adminRoleLabel(user?.role)}</span>. Anda hanya diizinkan untuk melihat detail koleksi ini dan tidak dapat melakukan perubahan.
+          </span>
+        </div>
+      )}
+      <fieldset disabled={isReadOnly} className="contents">
+        <div className="bg-white border border-[#E7E5E0] p-6 sm:p-8 rounded-lg shadow-sm space-y-8">
         <h3 className="text-sm font-bold uppercase tracking-wider text-[#4A3728] pb-3 border-b border-stone-100 flex items-center gap-2">
           <Sparkles size={16} className="text-[#8C7355]" />
           Informasi Detail Fragrans
@@ -654,6 +667,8 @@ export function ProductForm({ productId, onSuccess, onCancel }: ProductFormProps
         </div>
       </div>
 
+      </fieldset>
+
       {/* Footer Actions */}
       <div className="flex gap-3 justify-end">
         <Button
@@ -662,16 +677,18 @@ export function ProductForm({ productId, onSuccess, onCancel }: ProductFormProps
           onClick={onCancel}
           className="border-stone-200 text-stone-600 hover:bg-stone-50 text-xs uppercase tracking-wider font-semibold py-2.5 px-6"
         >
-          <ArrowLeft size={14} className="mr-1.5 inline" /> Batal
+          <ArrowLeft size={14} className="mr-1.5 inline" /> {isReadOnly ? 'Kembali' : 'Batal'}
         </Button>
-        <Button
-          type="submit"
-          disabled={saving}
-          className="bg-[#4A3728] text-white hover:bg-[#8C7355] text-xs uppercase tracking-wider font-semibold py-2.5 px-8 shadow-sm flex items-center gap-2 disabled:opacity-50"
-        >
-          <Save size={14} />
-          {saving ? 'Menyimpan...' : 'Simpan Produk'}
-        </Button>
+        {!isReadOnly && (
+          <Button
+            type="submit"
+            disabled={saving}
+            className="bg-[#4A3728] text-white hover:bg-[#8C7355] text-xs uppercase tracking-wider font-semibold py-2.5 px-8 shadow-sm flex items-center gap-2 disabled:opacity-50"
+          >
+            <Save size={14} />
+            {saving ? 'Menyimpan...' : 'Simpan Produk'}
+          </Button>
+        )}
       </div>
     </form>
   );

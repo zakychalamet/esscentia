@@ -14,10 +14,11 @@ import {
 import { useAuth } from '@/lib/auth-context';
 import { useCart } from '@/lib/cart-context';
 import { CatalogNav, CatalogFooter } from '@/components/CatalogChrome';
+import { canAccessAdmin, adminRoleLabel } from '@/lib/admin-permissions';
 
 export default function ProfilePage() {
-  const { user, isLoading, logout, isAdmin, isMarketingAdmin } = useAuth();
-  const hasAdminAccess = isAdmin || isMarketingAdmin;
+  const { user, isLoading, logout } = useAuth();
+  const hasAdminAccess = canAccessAdmin(user?.role);
   const { itemCount } = useCart();
   const router = useRouter();
 
@@ -104,11 +105,7 @@ export default function ProfilePage() {
                     : 'bg-stone-100 text-stone-600'
                 }`}
               >
-                {isAdmin
-                  ? 'Administrator'
-                  : isMarketingAdmin
-                    ? 'Marketing Admin'
-                    : 'Member'}
+                {user.role === 'user' ? 'Member' : adminRoleLabel(user.role)}
               </span>
             </div>
             <button
@@ -162,7 +159,7 @@ export default function ProfilePage() {
 
           {hasAdminAccess && (
             <Link
-              href={isMarketingAdmin ? '/admin/products' : '/admin'}
+              href="/admin"
               className="flex items-center gap-4 p-5 bg-white/40 border border-stone-200/60 hover:border-[#8C7355]/40 transition group"
             >
               <Shield
@@ -173,9 +170,7 @@ export default function ProfilePage() {
               <div className="flex-1">
                 <p className="font-medium text-[#4A3728]">Admin Panel</p>
                 <p className="text-xs text-stone-500">
-                  {isMarketingAdmin
-                    ? 'Kelola katalog produk'
-                    : 'Kelola produk dan pesanan'}
+                  Akses panel manajemen intelijen Esscentia
                 </p>
               </div>
             </Link>

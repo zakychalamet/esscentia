@@ -5,13 +5,18 @@ import { useRouter, useParams } from 'next/navigation';
 import { JournalForm } from '@/components/admin/JournalForm';
 import { ChevronLeft } from 'lucide-react';
 import { JournalArticle } from '@/lib/journal-articles';
+import { useAuth } from '@/lib/auth-context';
+import { canManageJournal } from '@/lib/admin-permissions';
 
 export default function EditJournalArticlePage() {
   const router = useRouter();
+  const { user } = useAuth();
   const params = useParams();
   const slug = params.slug as string;
   const [article, setArticle] = useState<JournalArticle | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const canEdit = canManageJournal(user?.role);
 
   useEffect(() => {
     if (slug) {
@@ -54,10 +59,12 @@ export default function EditJournalArticlePage() {
         </button>
         <div>
           <h1 className="text-3xl sm:text-4xl font-serif text-[#4A3728] tracking-tight font-semibold">
-            Edit Artikel Jurnal
+            {canEdit ? 'Edit Artikel Jurnal' : 'Detail Artikel Jurnal (Read Only)'}
           </h1>
           <p className="text-stone-500 text-xs uppercase tracking-widest mt-2">
-            Perbarui konten wawasan, kategori, sampul, atau detail artikel di The Journal
+            {canEdit
+              ? 'Perbarui konten wawasan, kategori, sampul, atau detail artikel di The Journal'
+              : 'Lihat konten wawasan, kategori, sampul, atau detail artikel di The Journal'}
           </p>
         </div>
       </div>

@@ -108,12 +108,31 @@ function LoginContent() {
               ← Kembali ke Profil
             </Link>
 
-            <div className="mt-10 p-5 bg-[#EDEAE4]/60 border border-stone-200/80">
-              <p className="text-[10px] uppercase tracking-[0.15em] text-stone-500 mb-2">
-                Demo Account (Admin)
-              </p>
-              <p className="text-sm text-[#4A3728]">admin@esscentia.com</p>
-              <p className="text-sm text-stone-600">admin123</p>
+            <div className="mt-10 p-5 bg-[#EDEAE4]/60 border border-stone-200/80 space-y-4">
+              <div>
+                <p className="text-[10px] uppercase tracking-[0.15em] text-stone-500 mb-1 font-bold">
+                  Demo Account (Super Admin)
+                </p>
+                <p className="text-sm text-[#4A3728]">admin@esscentia.com <span className="text-xs text-stone-500">(PW: admin123)</span></p>
+              </div>
+              <div className="border-t border-stone-300/40 pt-2">
+                <p className="text-[10px] uppercase tracking-[0.15em] text-stone-500 mb-1 font-bold">
+                  Demo Account (Marketing Desk)
+                </p>
+                <p className="text-sm text-[#4A3728]">marketing@esscentia.com <span className="text-xs text-stone-500">(PW: marketing123)</span></p>
+              </div>
+              <div className="border-t border-stone-300/40 pt-2">
+                <p className="text-[10px] uppercase tracking-[0.15em] text-stone-500 mb-1 font-bold">
+                  Demo Account (CRM Manager / Analyst)
+                </p>
+                <p className="text-sm text-[#4A3728]">crm@esscentia.com <span className="text-xs text-stone-500">(PW: crm123)</span></p>
+              </div>
+              <div className="border-t border-stone-300/40 pt-2">
+                <p className="text-[10px] uppercase tracking-[0.15em] text-stone-500 mb-1 font-bold">
+                  Demo Account (Executive / C-Level)
+                </p>
+                <p className="text-sm text-[#4A3728]">executive@esscentia.com <span className="text-xs text-stone-500">(PW: executive123)</span></p>
+              </div>
             </div>
           </div>
         </div>

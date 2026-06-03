@@ -3,11 +3,15 @@
 import { useRouter, useParams } from 'next/navigation';
 import { ProductForm } from '@/components/admin/ProductForm';
 import { ChevronLeft } from 'lucide-react';
+import { useAuth } from '@/lib/auth-context';
+import { canManageProducts } from '@/lib/admin-permissions';
 
 export default function EditProductPage() {
   const router = useRouter();
   const params = useParams();
   const id = params.id as string;
+  const { user } = useAuth();
+  const isReadOnly = !canManageProducts(user?.role);
 
   const handleBack = () => {
     router.push('/admin/products');
@@ -16,7 +20,7 @@ export default function EditProductPage() {
   if (!id) {
     return (
       <div className="py-20 text-center text-stone-500 font-serif text-sm">
-        Mempersiapkan penyuntingan wewangian...
+        {isReadOnly ? 'Mempersiapkan peninjauan wewangian...' : 'Mempersiapkan penyuntingan wewangian...'}
       </div>
     );
   }
@@ -33,10 +37,12 @@ export default function EditProductPage() {
         </button>
         <div>
           <h1 className="text-3xl sm:text-4xl font-serif text-[#4A3728] tracking-tight font-semibold">
-            Edit Rincian Fragrans
+            {isReadOnly ? 'Detail Koleksi Fragrans' : 'Edit Rincian Fragrans'}
           </h1>
           <p className="text-stone-500 text-xs uppercase tracking-widest mt-2">
-            Perbarui karakteristik, varian harga, atau media visual produk terpilih
+            {isReadOnly
+              ? 'Tinjau karakteristik, varian kapasitas, dan detail wewangian terpilih'
+              : 'Perbarui karakteristik, varian harga, atau media visual produk terpilih'}
           </p>
         </div>
       </div>

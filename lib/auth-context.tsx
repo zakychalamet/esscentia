@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-export type UserRole = 'user' | 'admin' | 'marketing';
+export type UserRole = 'user' | 'admin' | 'marketing' | 'crm' | 'executive';
 
 export interface User {
   id: string;
@@ -27,7 +27,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 function normalizeStoredUser(raw: User): User {
-  if (raw.role === 'admin' || raw.role === 'marketing') {
+  if (raw.role === 'admin' || raw.role === 'marketing' || raw.role === 'crm' || raw.role === 'executive') {
     return { ...raw, isAdmin: raw.role === 'admin' };
   }
   if (raw.isAdmin && raw.role === 'user') {

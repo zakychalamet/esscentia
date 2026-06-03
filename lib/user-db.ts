@@ -118,6 +118,8 @@ export async function ensureSeedUsers(): Promise<void> {
   const seeds = [
     { name: 'Admin User', email: 'admin@esscentia.com', password: 'admin123', role: 'admin' as UserRole },
     { name: 'Marketing Admin', email: 'marketing@esscentia.com', password: 'marketing123', role: 'marketing' as UserRole },
+    { name: 'CRM Manager', email: 'crm@esscentia.com', password: 'crm123', role: 'crm' as UserRole },
+    { name: 'Executive Officer', email: 'executive@esscentia.com', password: 'executive123', role: 'executive' as UserRole },
   ];
 
   for (const seed of seeds) {
