@@ -194,38 +194,75 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* The Art of Scent */}
+        {/* Discovery Decants Promotion */}
         <section className="py-20 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
               <div className="h-96">
                 <img
-                  src="/images/art-of-scent.jpg"
-                  alt="The Art of Scent"
-                  className="w-full h-full object-cover rounded-lg"
+                  src="/images/decant_promo.png"
+                  alt="Discovery Decants"
+                  className="w-full h-full object-cover rounded-lg shadow-sm"
                 />
               </div>
               <div>
-                <p className="text-xs text-amber-900 uppercase tracking-widest mb-4">Our Philosophy</p>
-                <h2 className="text-4xl font-serif text-stone-900 mb-8">The Art of Scent</h2>
-                <p className="text-gray-700 text-lg mb-8 leading-relaxed">
-                  At Esscentia, we believe a fragrance is more than a product. It is an invisible thread that connects you to your most cherished memories. Our master perfumers blend ancient traditions with modern creativity.
+                <p className="text-xs text-[#8D4F38] uppercase tracking-widest mb-4 font-semibold">Discovery Decants</p>
+                <h2 className="text-4xl font-serif text-stone-900 mb-6 leading-tight">Hesitant to Buy Expensive Perfumes?</h2>
+                <p className="text-stone-600 text-[15px] mb-8 leading-relaxed">
+                  Try a decant first. Esscentia provides premium decants in 1ml, 2ml, 5ml, and 10ml sizes, decanted directly from official original bottles to help you discover your signature scent before committing to a full bottle.
                 </p>
                 <div className="grid grid-cols-2 gap-8">
                   <div>
-                    <h3 className="text-sm uppercase tracking-widest text-amber-900 font-semibold mb-2">Sustainably Sourced</h3>
-                    <p className="text-sm text-gray-600">Ethically harvested ingredients from global partners</p>
+                    <h3 className="text-xs uppercase tracking-[0.15em] text-[#4A3728] font-bold mb-2">100% Authentic</h3>
+                    <p className="text-xs text-stone-500 leading-relaxed">Pure, unaltered fragrance decanted in sterile conditions directly from official retail bottles.</p>
                   </div>
                   <div>
-                    <h3 className="text-sm uppercase tracking-widest text-amber-900 font-semibold mb-2">Small Batches</h3>
-                    <p className="text-sm text-gray-600">Hand crafted in limited quantities</p>
+                    <h3 className="text-xs uppercase tracking-[0.15em] text-[#4A3728] font-bold mb-2">Smart Exploration</h3>
+                    <p className="text-xs text-stone-500 leading-relaxed">Explore a wide range of luxury scents without having to invest in a full-sized bottle upfront.</p>
                   </div>
                 </div>
-                <Link href="/about">
-                  <button className="mt-8 px-8 py-3 bg-amber-800 text-white text-sm uppercase tracking-widest hover:bg-amber-900 transition">
-                    Read Our Stories
+                <Link href="/decants">
+                  <button className="mt-8 px-8 py-3 bg-[#4A3728] hover:bg-[#8C7355] text-white text-xs uppercase tracking-widest transition font-semibold">
+                    Explore Decants
                   </button>
                 </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Fragrance Quiz Promotion */}
+        <section className="py-20 bg-[#EDEAE4] border-t border-stone-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+              <div className="order-2 md:order-1">
+                <p className="text-xs text-[#8D4F38] uppercase tracking-widest mb-4 font-semibold">Scent Profiler</p>
+                <h2 className="text-4xl font-serif text-stone-900 mb-6 leading-tight">Find Your Olfactory Signature</h2>
+                <p className="text-stone-600 text-[15px] mb-8 leading-relaxed">
+                  Struggling to find the perfume that truly represents you? Take our 2-minute fragrance personality quiz. Discover your unique scent family and receive custom-curated recommendations from our master collections.
+                </p>
+                <div className="grid grid-cols-2 gap-8">
+                  <div>
+                    <h3 className="text-xs uppercase tracking-[0.15em] text-[#4A3728] font-bold mb-2">Tailored Matching</h3>
+                    <p className="text-xs text-stone-500 leading-relaxed">Get paired with specific notes matching your sensory preferences and personality.</p>
+                  </div>
+                  <div>
+                    <h3 className="text-xs uppercase tracking-[0.15em] text-[#4A3728] font-bold mb-2">All 8 Families</h3>
+                    <p className="text-xs text-stone-500 leading-relaxed">Discover which of the 8 signature olfactory groups matches your unique aesthetic.</p>
+                  </div>
+                </div>
+                <Link href="/quiz">
+                  <button className="mt-8 px-8 py-3 bg-[#4A3728] hover:bg-[#8C7355] text-white text-xs uppercase tracking-widest transition font-semibold">
+                    Take the Quiz
+                  </button>
+                </Link>
+              </div>
+              <div className="h-96 order-1 md:order-2">
+                <img
+                  src="/images/quiz_promo.png"
+                  alt="Fragrance Quiz"
+                  className="w-full h-full object-cover rounded-lg shadow-sm"
+                />
               </div>
             </div>
           </div>
@@ -268,7 +305,7 @@ export default function HomePage() {
                 <ul className="space-y-2.5 text-sm text-stone-600">
                   <li><Link href="/products" className="hover:text-[#4A3728] transition">All Products</Link></li>
                   <li><Link href="/products" className="hover:text-[#4A3728] transition">New Arrivals</Link></li>
-                  <li><Link href="/products" className="hover:text-[#4A3728] transition">Gift Sets</Link></li>
+                  <li><Link href="/decants" className="hover:text-[#4A3728] transition">Decant</Link></li>
                 </ul>
               </div>
               <div>
@@ -289,7 +326,7 @@ export default function HomePage() {
               </div>
             </div>
             <div className="border-t border-stone-300/60 pt-8 text-center text-xs text-stone-500 tracking-wide">
-              <p>© 2024 Esscentia. All rights reserved.</p>
+              <p>© 2026 Esscentia. All rights reserved.</p>
             </div>
           </div>
         </footer>

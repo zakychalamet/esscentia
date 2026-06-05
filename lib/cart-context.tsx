@@ -8,6 +8,7 @@ export interface CartItem {
   selectedVolume: number;
   selectedPrice: number;
   quantity: number;
+  isDecant?: boolean;
 }
 
 interface CartContextType {
@@ -16,10 +17,11 @@ interface CartContextType {
     product: Product,
     quantity: number,
     selectedVolume?: number,
-    selectedPrice?: number
+    selectedPrice?: number,
+    isDecant?: boolean
   ) => void;
-  removeFromCart: (productId: string, selectedVolume?: number) => void;
-  updateQuantity: (productId: string, quantity: number, selectedVolume?: number) => void;
+  removeFromCart: (productId: string, selectedVolume?: number, isDecant?: boolean) => void;
+  updateQuantity: (productId: string, quantity: number, selectedVolume?: number, isDecant?: boolean) => void;
   clearCart: () => void;
   total: number;
   itemCount: number;
@@ -41,6 +43,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             ...item,
             selectedVolume: Number(item.selectedVolume ?? item.product?.volume ?? 50),
             selectedPrice: Number(item.selectedPrice ?? item.product?.price ?? 0),
+            isDecant: Boolean(item.isDecant),
           }));
           setItems(migrated);
         }
@@ -61,47 +64,63 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     product: Product,
     quantity: number,
     selectedVolume?: number,
-    selectedPrice?: number
+    selectedPrice?: number,
+    isDecant?: boolean
   ) => {
     const vol = Number(selectedVolume ?? product.volume);
     const price = Number(selectedPrice ?? product.price);
+    const dec = !!isDecant;
 
     setItems((prevItems) => {
       const existing = prevItems.find(
-        (item) => item.product.id === product.id && item.selectedVolume === vol
+        (item) =>
+          item.product.id === product.id &&
+          item.selectedVolume === vol &&
+          !!item.isDecant === dec
       );
       if (existing) {
         return prevItems.map((item) =>
-          item.product.id === product.id && item.selectedVolume === vol
+          item.product.id === product.id &&
+          item.selectedVolume === vol &&
+          !!item.isDecant === dec
             ? { ...item, quantity: item.quantity + quantity }
             : item
         );
       }
-      return [...prevItems, { product, selectedVolume: vol, selectedPrice: price, quantity }];
+      return [...prevItems, { product, selectedVolume: vol, selectedPrice: price, quantity, isDecant: dec }];
     });
   };
 
-  const removeFromCart = (productId: string, selectedVolume?: number) => {
+  const removeFromCart = (productId: string, selectedVolume?: number, isDecant?: boolean) => {
+    const dec = isDecant !== undefined ? !!isDecant : undefined;
     setItems((prevItems) =>
       prevItems.filter(
         (item) =>
           !(
             item.product.id === productId &&
-            (selectedVolume === undefined || item.selectedVolume === selectedVolume)
+            (selectedVolume === undefined || item.selectedVolume === selectedVolume) &&
+            (dec === undefined || !!item.isDecant === dec)
           )
       )
     );
   };
 
-  const updateQuantity = (productId: string, quantity: number, selectedVolume?: number) => {
+  const updateQuantity = (
+    productId: string,
+    quantity: number,
+    selectedVolume?: number,
+    isDecant?: boolean
+  ) => {
+    const dec = isDecant !== undefined ? !!isDecant : undefined;
     if (quantity <= 0) {
-      removeFromCart(productId, selectedVolume);
+      removeFromCart(productId, selectedVolume, isDecant);
       return;
     }
     setItems((prevItems) =>
       prevItems.map((item) =>
         item.product.id === productId &&
-        (selectedVolume === undefined || item.selectedVolume === selectedVolume)
+        (selectedVolume === undefined || item.selectedVolume === selectedVolume) &&
+        (dec === undefined || !!item.isDecant === dec)
           ? { ...item, quantity }
           : item
       )

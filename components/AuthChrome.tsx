@@ -24,7 +24,7 @@ export function AuthFooter() {
     <footer className="bg-[#E8E6E1] text-[#4A3728] mt-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <p className="text-center text-xs text-stone-500 tracking-wide">
-          © 2024 Esscentia. All Rights Reserved.
+          © 2026 Esscentia. All Rights Reserved.
         </p>
       </div>
     </footer>

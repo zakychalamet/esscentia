@@ -9,6 +9,7 @@ import {
   Package,
   ShoppingCart,
   BookOpen,
+  Droplet,
 } from 'lucide-react';
 
 export interface AdminNavItem {
@@ -24,6 +25,7 @@ export const adminNavItems: AdminNavItem[] = [
   { href: '/admin/campaigns', label: 'Campaign Manager', icon: Megaphone },
   { href: '/admin/customers', label: 'Customers', icon: Users },
   { href: '/admin/products', label: 'Produk', icon: Package },
+  { href: '/admin/decants', label: 'Decant', icon: Droplet },
   { href: '/admin/journal', label: 'Jurnal', icon: BookOpen },
   { href: '/admin/orders', label: 'Pesanan', icon: ShoppingCart },
   { href: '/admin/settings', label: 'Settings', icon: Settings },
@@ -37,6 +39,7 @@ export const roleAllowedPaths: Record<string, string[]> = {
     '/admin/campaigns',
     '/admin/customers',
     '/admin/products',
+    '/admin/decants',
     '/admin/journal',
     '/admin/orders',
     '/admin/settings',
@@ -47,6 +50,7 @@ export const roleAllowedPaths: Record<string, string[]> = {
     '/admin/journal',
     '/admin/customers',
     '/admin/products',
+    '/admin/decants',
     '/admin/settings',
   ],
   crm: [
@@ -61,6 +65,7 @@ export const roleAllowedPaths: Record<string, string[]> = {
     '/admin/analytics',
     '/admin/orders',
     '/admin/products',
+    '/admin/decants',
     '/admin/customers',
     '/admin/journal',
     '/admin/settings',

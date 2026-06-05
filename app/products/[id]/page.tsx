@@ -164,6 +164,17 @@ export default function ProductDetailPage() {
     }
     localStorage.removeItem('cartPromoCode');
     localStorage.removeItem('checkoutSource');
+
+    // Store only this specific item for checkout
+    const tempCheckoutItem = {
+      product,
+      selectedVolume,
+      selectedPrice: displayPrice,
+      quantity: 1,
+      isDecant: false
+    };
+    localStorage.setItem('checkoutItems', JSON.stringify([tempCheckoutItem]));
+
     addToCart(product, 1, selectedVolume, displayPrice);
     router.push('/checkout');
   };

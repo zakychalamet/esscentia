@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Shield, Truck, Heart } from 'lucide-react';
@@ -94,7 +94,7 @@ function CheckoutFooter() {
             <ul className="space-y-2.5 text-sm text-stone-600">
               <li><Link href="/products" className="hover:text-[#4A3728] transition">All Products</Link></li>
               <li><Link href="/products" className="hover:text-[#4A3728] transition">New Arrivals</Link></li>
-              <li><Link href="/products" className="hover:text-[#4A3728] transition">Gift Sets</Link></li>
+              <li><Link href="/decants" className="hover:text-[#4A3728] transition">Decant</Link></li>
             </ul>
           </div>
           <div>
@@ -115,7 +115,7 @@ function CheckoutFooter() {
           </div>
         </div>
         <p className="text-center text-xs text-stone-500 tracking-wide pt-8 border-t border-stone-300/40">
-          © 2024 Esscentia. All rights reserved.
+          © 2026 Esscentia. All rights reserved.
         </p>
       </div>
     </footer>
@@ -123,9 +123,28 @@ function CheckoutFooter() {
 }
 
 export default function CheckoutPage() {
-  const { items, total, clearCart } = useCart();
+  const { items: cartItems, total: cartTotal, removeFromCart, clearCart } = useCart();
   const { user, isLoading } = useAuth();
   const router = useRouter();
+  const [items, setItems] = useState<any[]>([]);
+
+  useEffect(() => {
+    const stored = localStorage.getItem('checkoutItems');
+    if (stored) {
+      try {
+        setItems(JSON.parse(stored));
+      } catch (e) {
+        console.error(e);
+        setItems(cartItems);
+      }
+    } else {
+      setItems(cartItems);
+    }
+  }, [cartItems]);
+
+  const total = useMemo(() => {
+    return items.reduce((sum, item) => sum + item.selectedPrice * item.quantity, 0);
+  }, [items]);
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -230,7 +249,7 @@ export default function CheckoutPage() {
     localStorage.removeItem('checkoutSource');
   };
 
-  const baseShipping = total > 500000 ? 0 : 50000;
+  const baseShipping = cartTotal > 500000 ? 0 : 50000;
   const shippingCost =
     shipMethod === 'express'
       ? baseShipping + 50000
@@ -283,7 +302,7 @@ export default function CheckoutPage() {
           notes: formData.notes,
           items: items.map((item) => ({
             productId: item.product.id,
-            productName: `${item.product.name} (${item.selectedVolume}ml)`,
+            productName: `${item.product.name} (${item.isDecant ? 'Decant ' : ''}${item.selectedVolume}ml)`,
             quantity: item.quantity,
             price: item.selectedPrice,
           })),
@@ -296,7 +315,12 @@ export default function CheckoutPage() {
       }
 
       alert(`Pesanan berhasil dibuat! Nomor pesanan: ${data.orderNumber}`);
-      clearCart();
+      
+      // Remove only the checked out items from the cart
+      items.forEach((item) => {
+        removeFromCart(item.product.id, item.selectedVolume, item.isDecant);
+      });
+      localStorage.removeItem('checkoutItems');
       localStorage.removeItem('cartPromoCode');
       localStorage.removeItem('checkoutSource');
       router.push('/');
@@ -530,7 +554,7 @@ export default function CheckoutPage() {
 
               <ul className="space-y-5 mb-6 max-h-56 overflow-y-auto pr-1">
                 {items.map((item) => (
-                  <li key={`${item.product.id}-${item.selectedVolume}`} className="flex gap-3">
+                  <li key={`${item.product.id}-${item.selectedVolume}-${item.isDecant ? 'decant' : 'bottle'}`} className="flex gap-3">
                     <div className="w-14 h-14 shrink-0 bg-stone-200 overflow-hidden">
                       <img
                         src={item.product.image}
@@ -541,7 +565,7 @@ export default function CheckoutPage() {
                     <div className="flex-1 min-w-0 flex justify-between gap-3 text-sm">
                       <div className="min-w-0">
                         <p className="font-medium text-[#4A3728] truncate">
-                          {item.product.name} ({item.selectedVolume}ml)
+                          {item.product.name} ({item.isDecant ? 'Decant ' : ''}{item.selectedVolume}ml)
                         </p>
                         <p className="text-stone-500 text-xs mt-0.5">x{item.quantity}</p>
                       </div>

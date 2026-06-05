@@ -115,6 +115,23 @@ async function init() {
     );
   `);
 
+  await connection.query(`
+    CREATE TABLE IF NOT EXISTS decants (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      product_id INT UNIQUE NOT NULL,
+      price_1ml DECIMAL(10, 2) NOT NULL DEFAULT 0,
+      price_2ml DECIMAL(10, 2) NOT NULL DEFAULT 0,
+      price_5ml DECIMAL(10, 2) NOT NULL DEFAULT 0,
+      price_10ml DECIMAL(10, 2) NOT NULL DEFAULT 0,
+      in_stock_1ml BOOLEAN DEFAULT true,
+      in_stock_2ml BOOLEAN DEFAULT true,
+      in_stock_5ml BOOLEAN DEFAULT true,
+      in_stock_10ml BOOLEAN DEFAULT true,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+    );
+  `);
+
   // Migrate users table
   const userMigrations = [
     ['login_count', 'ALTER TABLE users ADD COLUMN login_count INT DEFAULT 0'],

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Trash2, Plus, Minus, ShoppingBag } from 'lucide-react';
@@ -30,10 +30,41 @@ function formatPrice(amount: number) {
 
 export default function CartPage() {
   const router = useRouter();
-  const { items, removeFromCart, updateQuantity, total, clearCart } = useCart();
+  const { items, removeFromCart, updateQuantity, total: cartTotal, clearCart } = useCart();
   const { user } = useAuth();
   const [promoCode, setPromoCode] = useState('');
   const [appliedPromo, setAppliedPromo] = useState<string | null>(null);
+
+  const [checkedKeys, setCheckedKeys] = useState<Record<string, boolean>>({});
+
+  // Sync keys whenever items change
+  useEffect(() => {
+    if (items.length > 0) {
+      setCheckedKeys((prev) => {
+        const next = { ...prev };
+        let updated = false;
+        items.forEach((item) => {
+          const key = `${item.product.id}-${item.selectedVolume}-${item.isDecant ? 'decant' : 'bottle'}`;
+          if (next[key] === undefined) {
+            next[key] = true; // default checked
+            updated = true;
+          }
+        });
+        return updated ? next : prev;
+      });
+    }
+  }, [items]);
+
+  const checkedItems = useMemo(() => {
+    return items.filter((item) => {
+      const key = `${item.product.id}-${item.selectedVolume}-${item.isDecant ? 'decant' : 'bottle'}`;
+      return !!checkedKeys[key];
+    });
+  }, [items, checkedKeys]);
+
+  const total = useMemo(() => {
+    return checkedItems.reduce((sum, item) => sum + item.selectedPrice * item.quantity, 0);
+  }, [checkedItems]);
 
   const discount = useMemo(() => {
     if (!appliedPromo) return 0;
@@ -50,7 +81,7 @@ export default function CartPage() {
     return calculatedDiscount > total ? total : calculatedDiscount;
   }, [appliedPromo, total]);
 
-  const shippingEstimate = total > 500000 ? 0 : 50000;
+  const shippingEstimate = cartTotal > 500000 ? 0 : 50000;
   const finalTotal = Math.max(0, total - discount + shippingEstimate);
 
   const handlePromoCode = () => {
@@ -69,6 +100,14 @@ export default function CartPage() {
   };
 
   const handleCheckout = () => {
+    if (checkedItems.length === 0) {
+      alert('Silakan pilih minimal satu produk untuk melanjutkan checkout.');
+      return;
+    }
+
+    // Save only checked items to checkoutItems
+    localStorage.setItem('checkoutItems', JSON.stringify(checkedItems));
+
     if (appliedPromo) {
       localStorage.setItem('cartPromoCode', appliedPromo);
       localStorage.setItem('checkoutSource', 'cart');
@@ -108,86 +147,131 @@ export default function CartPage() {
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] xl:grid-cols-[1fr_400px] gap-8 lg:gap-10 xl:gap-12 items-start">
             {/* Daftar produk */}
             <div className="min-w-0 order-2 lg:order-1 space-y-4">
-              {items.map((item) => (
-                <article
-                  key={`${item.product.id}-${item.selectedVolume}`}
-                  className="flex flex-col sm:flex-row gap-4 sm:gap-5 bg-white/50 border border-stone-200/80 p-4 sm:p-5"
-                >
-                  <Link
-                    href={`/products/${item.product.id}`}
-                    className="w-full sm:w-28 h-36 sm:h-28 shrink-0 bg-stone-100 overflow-hidden"
+              {/* Select All Checkbox */}
+              <div className="flex items-center gap-3 px-5 py-4 bg-white/30 border border-stone-200/60 text-sm">
+                <input
+                  type="checkbox"
+                  checked={items.length > 0 && items.every((item) => {
+                    const key = `${item.product.id}-${item.selectedVolume}-${item.isDecant ? 'decant' : 'bottle'}`;
+                    return !!checkedKeys[key];
+                  })}
+                  onChange={(e) => {
+                    const val = e.target.checked;
+                    const next: Record<string, boolean> = {};
+                    items.forEach((item) => {
+                      const key = `${item.product.id}-${item.selectedVolume}-${item.isDecant ? 'decant' : 'bottle'}`;
+                      next[key] = val;
+                    });
+                    setCheckedKeys(next);
+                  }}
+                  className="w-4 h-4 text-[#8D4F38] border-stone-300 rounded focus:ring-[#8D4F38] accent-[#8D4F38] cursor-pointer"
+                  id="select-all-cart"
+                />
+                <label htmlFor="select-all-cart" className="text-stone-700 cursor-pointer select-none font-medium">
+                  Pilih Semua Produk
+                </label>
+              </div>
+
+              {items.map((item) => {
+                const itemKey = `${item.product.id}-${item.selectedVolume}-${item.isDecant ? 'decant' : 'bottle'}`;
+                return (
+                  <article
+                    key={itemKey}
+                    className="flex gap-4 sm:gap-5 bg-white/50 border border-stone-200/80 p-4 sm:p-5 items-start sm:items-center"
                   >
-                    <img
-                      src={item.product.image}
-                      alt={item.product.name}
-                      className="w-full h-full object-cover hover:scale-[1.03] transition-transform duration-300"
-                    />
-                  </Link>
-
-                  <div className="flex-1 min-w-0 flex flex-col sm:flex-row sm:items-center gap-4">
-                    <div className="flex-1 min-w-0">
-                      <Link href={`/products/${item.product.id}`}>
-                        <h3 className="font-serif text-lg text-[#4A3728] hover:text-[#8D4F38] transition mb-1">
-                          {item.product.name}
-                        </h3>
-                      </Link>
-                      <p className="text-xs text-stone-500 uppercase tracking-wider mb-1">
-                        {item.product.brand}
-                      </p>
-                      <p className="text-[10px] uppercase tracking-[0.12em] text-stone-400">
-                        {intensityLabels[item.product.intensity]} · {item.selectedVolume}ml
-                      </p>
-                      <p className="text-sm text-[#8D4F38] mt-2">
-                        {formatPrice(item.selectedPrice)}
-                      </p>
+                    {/* Checkbox */}
+                    <div className="flex items-center justify-center shrink-0 pt-1.5 sm:pt-0">
+                      <input
+                        type="checkbox"
+                        checked={!!checkedKeys[itemKey]}
+                        onChange={(e) => {
+                          setCheckedKeys((prev) => ({
+                            ...prev,
+                            [itemKey]: e.target.checked,
+                          }));
+                        }}
+                        className="w-4.5 h-4.5 text-[#8D4F38] border-stone-300 rounded focus:ring-[#8D4F38] accent-[#8D4F38] cursor-pointer"
+                      />
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-4 sm:gap-6">
-                      <div className="flex items-center border border-stone-300">
-                        <button
-                          type="button"
-                          onClick={() =>
-                            updateQuantity(item.product.id, Math.max(1, item.quantity - 1), item.selectedVolume)
-                          }
-                          className="p-2.5 text-stone-600 hover:text-[#4A3728] hover:bg-stone-100 transition"
-                          aria-label="Kurangi jumlah"
-                        >
-                          <Minus size={14} strokeWidth={1.5} />
-                        </button>
-                        <span className="w-10 text-center text-sm border-x border-stone-300 py-2">
-                          {item.quantity}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => updateQuantity(item.product.id, item.quantity + 1, item.selectedVolume)}
-                          className="p-2.5 text-stone-600 hover:text-[#4A3728] hover:bg-stone-100 transition"
-                          aria-label="Tambah jumlah"
-                        >
-                          <Plus size={14} strokeWidth={1.5} />
-                        </button>
-                      </div>
-
-                      <div className="text-right min-w-[5.5rem]">
-                        <p className="text-[10px] uppercase tracking-wider text-stone-500 mb-0.5">
-                          Subtotal
-                        </p>
-                        <p className="font-medium text-[#4A3728] tabular-nums">
-                          {formatPrice(item.selectedPrice * item.quantity)}
-                        </p>
-                      </div>
-
-                      <button
-                        type="button"
-                        onClick={() => removeFromCart(item.product.id, item.selectedVolume)}
-                        className="p-2 text-stone-400 hover:text-[#8D4F38] transition"
-                        aria-label="Hapus item"
+                    <div className="flex-1 flex flex-col sm:flex-row gap-4 sm:gap-5 min-w-0">
+                      <Link
+                        href={`/products/${item.product.id}`}
+                        className="w-full sm:w-28 h-36 sm:h-28 shrink-0 bg-stone-100 overflow-hidden"
                       >
-                        <Trash2 size={18} strokeWidth={1.5} />
-                      </button>
+                        <img
+                          src={item.product.image}
+                          alt={item.product.name}
+                          className="w-full h-full object-cover hover:scale-[1.03] transition-transform duration-300"
+                        />
+                      </Link>
+
+                      <div className="flex-1 min-w-0 flex flex-col sm:flex-row sm:items-center gap-4">
+                        <div className="flex-1 min-w-0">
+                          <Link href={`/products/${item.product.id}`}>
+                            <h3 className="font-serif text-lg text-[#4A3728] hover:text-[#8D4F38] transition mb-1">
+                              {item.product.name}
+                            </h3>
+                          </Link>
+                          <p className="text-xs text-stone-500 uppercase tracking-wider mb-1">
+                            {item.product.brand}
+                          </p>
+                          <p className="text-[10px] uppercase tracking-[0.12em] text-stone-400">
+                            {item.isDecant ? 'Decant' : intensityLabels[item.product.intensity]} · {item.selectedVolume}ml
+                          </p>
+                          <p className="text-sm text-[#8D4F38] mt-2">
+                            {formatPrice(item.selectedPrice)}
+                          </p>
+                        </div>
+
+                        <div className="flex flex-wrap items-center gap-4 sm:gap-6">
+                          <div className="flex items-center border border-stone-300">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                updateQuantity(item.product.id, Math.max(1, item.quantity - 1), item.selectedVolume, item.isDecant)
+                              }
+                              className="p-2.5 text-stone-600 hover:text-[#4A3728] hover:bg-stone-100 transition"
+                              aria-label="Kurangi jumlah"
+                            >
+                              <Minus size={14} strokeWidth={1.5} />
+                            </button>
+                            <span className="w-10 text-center text-sm border-x border-stone-300 py-2">
+                              {item.quantity}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => updateQuantity(item.product.id, item.quantity + 1, item.selectedVolume, item.isDecant)}
+                              className="p-2.5 text-stone-600 hover:text-[#4A3728] hover:bg-stone-100 transition"
+                              aria-label="Tambah jumlah"
+                            >
+                              <Plus size={14} strokeWidth={1.5} />
+                            </button>
+                          </div>
+
+                          <div className="text-right min-w-[5.5rem]">
+                            <p className="text-[10px] uppercase tracking-wider text-stone-500 mb-0.5">
+                              Subtotal
+                            </p>
+                            <p className="font-medium text-[#4A3728] tabular-nums">
+                              {formatPrice(item.selectedPrice * item.quantity)}
+                            </p>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => removeFromCart(item.product.id, item.selectedVolume, item.isDecant)}
+                            className="p-2 text-stone-400 hover:text-[#8D4F38] transition"
+                            aria-label="Hapus item"
+                          >
+                            <Trash2 size={18} strokeWidth={1.5} />
+                          </button>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </article>
-              ))}
+                  </article>
+                );
+              })}
 
               <Link
                 href="/products"

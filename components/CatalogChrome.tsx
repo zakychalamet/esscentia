@@ -20,11 +20,11 @@ import { useAuth } from '@/lib/auth-context';
 import { useCart } from '@/lib/cart-context';
 import { getLoginUrl } from '@/lib/auth-guard';
 
-type NavKey = 'shop' | 'discovery' | 'quiz' | 'journal' | 'story';
+type NavKey = 'shop' | 'decants' | 'quiz' | 'journal' | 'story';
 
 const navItems: { key: NavKey; label: string; href: string }[] = [
   { key: 'shop', label: 'Shop', href: '/products' },
-  { key: 'discovery', label: 'Discovery Sets', href: '/products' },
+  { key: 'decants', label: 'Decant', href: '/decants' },
   { key: 'quiz', label: 'Fragrance Quiz', href: '/quiz' },
   { key: 'journal', label: 'The Journal', href: '/journal' },
   { key: 'story', label: 'Our Story', href: '/about' },
@@ -33,6 +33,7 @@ const navItems: { key: NavKey; label: string; href: string }[] = [
 function getActiveNav(pathname: string): NavKey | null {
   if (pathname.startsWith('/quiz')) return 'quiz';
   if (pathname.startsWith('/journal')) return 'journal';
+  if (pathname.startsWith('/decants')) return 'decants';
   if (pathname === '/about') return 'story';
   if (
     pathname.startsWith('/products') ||
@@ -310,7 +311,7 @@ export function CatalogFooter({ variant = 'catalog' }: { variant?: 'catalog' | '
             <ul className="space-y-2.5 text-sm text-stone-600">
               <li><Link href="/products" className="hover:text-[#4A3728] transition">All Products</Link></li>
               <li><Link href="/products" className="hover:text-[#4A3728] transition">New Arrivals</Link></li>
-              <li><Link href="/products" className="hover:text-[#4A3728] transition">Gift Sets</Link></li>
+              <li><Link href="/decants" className="hover:text-[#4A3728] transition">Decant</Link></li>
             </ul>
           </div>
           <div>
@@ -331,7 +332,7 @@ export function CatalogFooter({ variant = 'catalog' }: { variant?: 'catalog' | '
           </div>
         </div>
         <p className="text-center text-xs text-stone-500 tracking-wide pt-8 border-t border-stone-300/40">
-          © 2024 Esscentia. All Rights Reserved.
+          © 2026 Esscentia. All Rights Reserved.
         </p>
       </div>
     </footer>

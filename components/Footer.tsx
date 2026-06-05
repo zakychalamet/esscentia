@@ -16,7 +16,7 @@ export function Footer() {
             <ul className="space-y-2.5 text-sm text-stone-600">
               <li><Link href="/products" className="hover:text-[#4A3728] transition">All Products</Link></li>
               <li><Link href="/products" className="hover:text-[#4A3728] transition">New Arrivals</Link></li>
-              <li><Link href="/products" className="hover:text-[#4A3728] transition">Gift Sets</Link></li>
+              <li><Link href="/decants" className="hover:text-[#4A3728] transition">Decant</Link></li>
             </ul>
           </div>
           <div>
@@ -37,7 +37,7 @@ export function Footer() {
           </div>
         </div>
         <p className="text-center text-xs text-stone-500 tracking-wide pt-8 border-t border-stone-300/40">
-          © 2024 Esscentia. All Rights Reserved.
+          © 2026 Esscentia. All Rights Reserved.
         </p>
       </div>
     </footer>
