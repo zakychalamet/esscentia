@@ -40,6 +40,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# uploaded product images
-/public/uploads/products/*
-!/public/uploads/products/.gitkeep
+# uploaded product images (commented out to allow committing local fallbacks)
+# /public/uploads/products/*
+# !/public/uploads/products/.gitkeep

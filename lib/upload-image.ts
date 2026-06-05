@@ -26,14 +26,21 @@ export async function saveProductImage(file: File): Promise<string> {
 
   // Try to upload to remote host (Catbox.moe) first for permanent public hosting
   try {
+    const buffer = await file.arrayBuffer();
+    const blob = new Blob([buffer], { type: file.type });
+
     const formData = new FormData();
     formData.append('reqtype', 'fileupload');
-    formData.append('fileToUpload', file);
+    formData.append('fileToUpload', blob, file.name);
 
     const response = await fetch('https://catbox.moe/user/api.php', {
       method: 'POST',
       body: formData,
-      signal: AbortSignal.timeout(10000) // 10s timeout
+      cache: 'no-store', // bypass Next.js fetch caching interceptor
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+      },
+      signal: AbortSignal.timeout(15000) // 15s timeout
     });
 
     if (response.ok) {
@@ -42,6 +49,8 @@ export async function saveProductImage(file: File): Promise<string> {
         console.log('Successfully uploaded image remotely to Catbox:', remoteUrl);
         return remoteUrl.trim();
       }
+    } else {
+      console.warn('Catbox upload response not ok:', response.status, await response.text());
     }
   } catch (error) {
     console.warn('Failed to upload image remotely, falling back to local storage:', error);
