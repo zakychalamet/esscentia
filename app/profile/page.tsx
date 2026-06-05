@@ -89,9 +89,17 @@ export default function ProfilePage() {
         {/* Kartu profil */}
         <div className="bg-white/60 border border-stone-200/80 p-8 mb-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
-            <div className="w-20 h-20 rounded-full bg-[#4A3728] text-[#F9F7F2] flex items-center justify-center text-2xl font-serif shrink-0">
-              {initials}
-            </div>
+            {user.image ? (
+              <img 
+                src={user.image} 
+                alt={user.name} 
+                className="w-20 h-20 rounded-full object-cover border border-stone-200 shrink-0"
+              />
+            ) : (
+              <div className="w-20 h-20 rounded-full bg-[#4A3728] text-[#F9F7F2] flex items-center justify-center text-2xl font-serif shrink-0 font-medium">
+                {initials}
+              </div>
+            )}
             <div className="flex-1">
               <h2 className="text-2xl font-serif text-[#4A3728] mb-1">{user.name}</h2>
               <p className="text-sm text-stone-500 flex items-center gap-2 mb-2">
@@ -176,13 +184,22 @@ export default function ProfilePage() {
             </Link>
           )}
 
-          <div className="flex items-center gap-4 p-5 bg-white/40 border border-stone-200/60 opacity-60">
-            <Settings size={22} strokeWidth={1.5} className="text-stone-400" />
-            <div className="flex-1">
-              <p className="font-medium text-stone-500">Pengaturan Akun</p>
-              <p className="text-xs text-stone-400">Segera hadir</p>
-            </div>
-          </div>
+          {user.role === 'user' && (
+            <Link
+              href="/settings"
+              className="flex items-center gap-4 p-5 bg-white/40 border border-stone-200/60 hover:border-[#8C7355]/40 transition group"
+            >
+              <Settings
+                size={22}
+                strokeWidth={1.5}
+                className="text-[#8C7355] group-hover:text-[#4A3728]"
+              />
+              <div className="flex-1">
+                <p className="font-medium text-[#4A3728]">Pengaturan Akun</p>
+                <p className="text-xs text-stone-500">Ubah nama dan foto profil Anda</p>
+              </div>
+            </Link>
+          )}
         </div>
 
         {/* Info akun */}

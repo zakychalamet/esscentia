@@ -9,6 +9,8 @@ export interface User {
   name: string;
   email: string;
   role: UserRole;
+  image?: string | null;
+  quizResult?: string | null;
   /** @deprecated use role === 'admin' */
   isAdmin?: boolean;
 }
@@ -19,6 +21,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
+  updateUser: (userData: User) => void;
   /** Super admin */
   isAdmin: boolean;
   isMarketingAdmin: boolean;
@@ -113,6 +116,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         login,
         register,
         logout,
+        updateUser: persistUser,
         isAdmin: user?.role === 'admin',
         isMarketingAdmin: user?.role === 'marketing',
       }}

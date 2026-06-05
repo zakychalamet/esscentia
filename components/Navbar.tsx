@@ -136,8 +136,16 @@ export function Navbar() {
           </div>
 
           <div className="flex items-center gap-3">
-            <Link href="/profile" className="hidden sm:block text-gray-700 hover:text-[#8C7355] transition" aria-label="Profil">
-              <User size={20} />
+            <Link href="/profile" className="hidden sm:block text-gray-700 hover:text-[#8C7355] transition flex items-center shrink-0" aria-label="Profil">
+              {user?.image ? (
+                <img
+                  src={user.image}
+                  alt={user.name}
+                  className="w-6 h-6 rounded-full object-cover border border-stone-300"
+                />
+              ) : (
+                <User size={20} />
+              )}
             </Link>
             
             <Link href="/cart" className="relative">
@@ -182,6 +190,13 @@ export function Navbar() {
 
             {user ? (
               <div className="hidden sm:flex items-center gap-2">
+                {user.image && (
+                  <img
+                    src={user.image}
+                    alt={user.name}
+                    className="w-7 h-7 rounded-full object-cover border border-stone-200"
+                  />
+                )}
                 <Link href="/profile" className="text-right hover:opacity-80 transition">
                   <p className="text-sm font-semibold text-gray-900">{user.name}</p>
                   {canAccessAdmin(user.role) && (

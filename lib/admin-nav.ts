@@ -47,12 +47,14 @@ export const roleAllowedPaths: Record<string, string[]> = {
     '/admin/journal',
     '/admin/customers',
     '/admin/products',
+    '/admin/settings',
   ],
   crm: [
     '/admin',
     '/admin/analytics',
     '/admin/customers',
     '/admin/campaigns',
+    '/admin/settings',
   ],
   executive: [
     '/admin',
@@ -61,6 +63,7 @@ export const roleAllowedPaths: Record<string, string[]> = {
     '/admin/products',
     '/admin/customers',
     '/admin/journal',
+    '/admin/settings',
   ],
 };
 

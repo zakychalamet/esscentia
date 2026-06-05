@@ -9,6 +9,8 @@ export interface DbUser {
   email: string;
   role: UserRole;
   phone: string | null;
+  image: string | null;
+  quizResult: string | null;
   loginCount: number;
   lastLoginAt: Date | null;
   createdAt: Date;
@@ -21,6 +23,8 @@ interface UserRow extends RowDataPacket {
   password: string;
   role: string;
   phone: string | null;
+  image: string | null;
+  quiz_result: string | null;
   login_count: number;
   last_login_at: Date | null;
   created_at: Date;
@@ -33,6 +37,8 @@ function rowToUser(row: UserRow): DbUser {
     email: row.email,
     role: row.role as UserRole,
     phone: row.phone,
+    image: row.image,
+    quizResult: row.quiz_result,
     loginCount: row.login_count ?? 0,
     lastLoginAt: row.last_login_at,
     createdAt: row.created_at,
@@ -45,6 +51,8 @@ export function toPublicUser(user: DbUser) {
     name: user.name,
     email: user.email,
     role: user.role,
+    image: user.image,
+    quizResult: user.quizResult,
     isAdmin: user.role === 'admin',
   };
 }
@@ -61,7 +69,7 @@ export async function findUserByEmail(email: string): Promise<(DbUser & { passwo
 
 export async function findUserById(id: string): Promise<DbUser | null> {
   const [rows] = await pool.query<UserRow[]>(
-    'SELECT id, name, email, role, phone, login_count, last_login_at, created_at FROM users WHERE id = ?',
+    'SELECT id, name, email, role, phone, image, quiz_result, login_count, last_login_at, created_at FROM users WHERE id = ?',
     [id]
   );
   if (!rows.length) return null;
@@ -108,7 +116,7 @@ export async function authenticateUser(
 
 export async function getCustomerUsers(): Promise<DbUser[]> {
   const [rows] = await pool.query<UserRow[]>(
-    `SELECT id, name, email, role, phone, login_count, last_login_at, created_at
+    `SELECT id, name, email, role, phone, image, login_count, last_login_at, created_at
      FROM users WHERE role = 'user' ORDER BY COALESCE(last_login_at, created_at) DESC`
   );
   return rows.map(rowToUser);
@@ -128,4 +136,20 @@ export async function ensureSeedUsers(): Promise<void> {
       await createUser(seed);
     }
   }
+}
+
+export async function updateUserProfile(id: string, name: string, image: string | null): Promise<DbUser | null> {
+  await pool.query(
+    'UPDATE users SET name = ?, image = ? WHERE id = ?',
+    [name.trim(), image, id]
+  );
+  return findUserById(id);
+}
+
+export async function updateUserQuizResult(id: string, quizResult: string | null): Promise<DbUser | null> {
+  await pool.query(
+    'UPDATE users SET quiz_result = ? WHERE id = ?',
+    [quizResult, id]
+  );
+  return findUserById(id);
 }

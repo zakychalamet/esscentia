@@ -162,6 +162,8 @@ export default function ProductDetailPage() {
       router.push(getLoginUrl(`/products/${productId}`));
       return;
     }
+    localStorage.removeItem('cartPromoCode');
+    localStorage.removeItem('checkoutSource');
     addToCart(product, 1, selectedVolume, displayPrice);
     router.push('/checkout');
   };

@@ -148,6 +148,88 @@ export default function CheckoutPage() {
   const [paymentMethod, setPaymentMethod] = useState('transfer');
   const [isProcessing, setIsProcessing] = useState(false);
 
+  const [promoCode, setPromoCode] = useState('');
+  const [appliedPromo, setAppliedPromo] = useState<string | null>(null);
+  const [promoDiscount, setPromoDiscount] = useState(0);
+  const [promoError, setPromoError] = useState<string | null>(null);
+
+  const PROMO_CODES: Record<string, { type: 'percent' | 'fixed'; value: number }> = {
+    'SPECIAL25': { type: 'percent', value: 25 },
+    'NEWSCENT10': { type: 'percent', value: 10 },
+    'BACK25': { type: 'percent', value: 25 },
+    'REACTIVATE30': { type: 'percent', value: 30 },
+    'LOVAL200': { type: 'fixed', value: 200000 },
+  };
+
+  // Load saved promo from localStorage if we came from cart checkout flow
+  useEffect(() => {
+    const source = localStorage.getItem('checkoutSource');
+    if (source === 'cart') {
+      const savedPromo = localStorage.getItem('cartPromoCode');
+      if (savedPromo) {
+        const promo = PROMO_CODES[savedPromo];
+        if (promo) {
+          let discount = 0;
+          if (promo.type === 'percent') {
+            discount = Math.round((promo.value / 100) * total);
+          } else {
+            discount = promo.value;
+          }
+          if (discount > total) {
+            discount = total;
+          }
+          setPromoDiscount(discount);
+          setAppliedPromo(savedPromo);
+        }
+      }
+    } else {
+      // Bypassed cart, clear any residual/stored promo code in localStorage
+      localStorage.removeItem('cartPromoCode');
+    }
+  }, [total]);
+
+  const handleApplyPromo = () => {
+    setPromoError(null);
+    const code = promoCode.trim().toUpperCase();
+    if (!code) return;
+
+    const promo = PROMO_CODES[code];
+    if (!promo) {
+      setPromoError('Kode promo tidak valid');
+      setPromoDiscount(0);
+      setAppliedPromo(null);
+      return;
+    }
+
+    let discount = 0;
+    if (promo.type === 'percent') {
+      discount = Math.round((promo.value / 100) * total);
+    } else {
+      discount = promo.value;
+    }
+
+    if (discount > total) {
+      discount = total;
+    }
+
+    setPromoDiscount(discount);
+    setAppliedPromo(code);
+    setPromoCode('');
+
+    // Save to localStorage so reload doesn't lose it
+    localStorage.setItem('cartPromoCode', code);
+    localStorage.setItem('checkoutSource', 'cart');
+  };
+
+  const handleRemovePromo = () => {
+    setAppliedPromo(null);
+    setPromoDiscount(0);
+    setPromoCode('');
+    setPromoError(null);
+    localStorage.removeItem('cartPromoCode');
+    localStorage.removeItem('checkoutSource');
+  };
+
   const baseShipping = total > 500000 ? 0 : 50000;
   const shippingCost =
     shipMethod === 'express'
@@ -155,7 +237,7 @@ export default function CheckoutPage() {
       : shipMethod === 'same-day'
         ? baseShipping + 100000
         : baseShipping;
-  const finalTotal = total + shippingCost;
+  const finalTotal = Math.max(0, total + shippingCost - promoDiscount);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -215,6 +297,8 @@ export default function CheckoutPage() {
 
       alert(`Pesanan berhasil dibuat! Nomor pesanan: ${data.orderNumber}`);
       clearCart();
+      localStorage.removeItem('cartPromoCode');
+      localStorage.removeItem('checkoutSource');
       router.push('/');
     } catch (error) {
       alert(error instanceof Error ? error.message : 'Gagal membuat pesanan');
@@ -469,11 +553,59 @@ export default function CheckoutPage() {
                 ))}
               </ul>
 
+              {/* Promo Code Panel */}
+              <div className="border-t border-stone-300/60 pt-5 pb-5">
+                <p className="text-[10px] uppercase tracking-[0.15em] text-stone-500 mb-2 font-bold">
+                  Punya Kode Promo?
+                </p>
+                {appliedPromo ? (
+                  <div className="flex justify-between items-center bg-[#6B8F71]/10 border border-[#6B8F71]/30 p-2.5 rounded text-xs text-[#4A3728]">
+                    <div>
+                      Kupon <span className="font-bold text-[#6B8F71]">{appliedPromo}</span> terpasang
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleRemovePromo}
+                      className="text-[#8D4F38] hover:underline font-semibold ml-2 uppercase text-[9px] tracking-wider"
+                    >
+                      Hapus
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={promoCode}
+                        onChange={(e) => setPromoCode(e.target.value)}
+                        className="flex-1 bg-white border border-stone-300 px-3 py-2 text-xs focus:outline-none focus:border-[#8D4F38] rounded-xs"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleApplyPromo}
+                        className="bg-[#4A3728] text-[#F9F7F2] hover:bg-[#8C7355] text-[10px] uppercase tracking-wider font-bold px-4 py-2 transition shrink-0"
+                      >
+                        Pasang
+                      </button>
+                    </div>
+                    {promoError && (
+                      <p className="text-[10px] text-red-600 font-medium">{promoError}</p>
+                    )}
+                  </div>
+                )}
+              </div>
+
               <div className="space-y-2.5 text-sm border-t border-stone-300/60 pt-5 mb-5">
                 <div className="flex justify-between text-stone-600">
                   <span>Subtotal</span>
                   <span className="text-[#4A3728]">{formatPrice(total)}</span>
                 </div>
+                {promoDiscount > 0 && (
+                  <div className="flex justify-between text-[#6B8F71] font-semibold">
+                    <span>Diskon ({appliedPromo})</span>
+                    <span>-{formatPrice(promoDiscount)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-stone-600">
                   <span>Pengiriman</span>
                   <span className="text-[#4A3728]">

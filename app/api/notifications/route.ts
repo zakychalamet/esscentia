@@ -12,9 +12,16 @@ export async function GET(request: Request) {
       segment = await getUserSegment(userId);
     }
 
-    // Query notifications that are targeted to the user's specific segment or 'all'
+    // Automatically clean up expired notifications from database
+    await pool.query(
+      `DELETE FROM campaign_notifications 
+       WHERE duration_days IS NOT NULL 
+         AND NOW() > DATE_ADD(created_at, INTERVAL duration_days DAY)`
+    );
+
+    // Query active notifications that are targeted to the user's specific segment or 'all'
     const [rows] = await pool.query(
-      `SELECT id, title, message, segment, promo_type as promoType, created_at as createdAt 
+      `SELECT id, title, message, segment, promo_type as promoType, duration_days as durationDays, created_at as createdAt 
        FROM campaign_notifications 
        WHERE segment = ? OR segment = 'all' 
        ORDER BY id DESC`,

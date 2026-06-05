@@ -250,10 +250,18 @@ export function CatalogNav() {
             {user ? (
               <Link
                 href="/profile"
-                className="text-[#4A3728] hover:text-[#8C7355] transition"
+                className="text-[#4A3728] hover:text-[#8C7355] transition flex items-center shrink-0"
                 aria-label="Profil"
               >
-                <User size={20} strokeWidth={1.5} />
+                {user.image ? (
+                  <img
+                    src={user.image}
+                    alt={user.name}
+                    className="w-6 h-6 rounded-full object-cover border border-stone-300"
+                  />
+                ) : (
+                  <User size={20} strokeWidth={1.5} />
+                )}
               </Link>
             ) : (
               <Link

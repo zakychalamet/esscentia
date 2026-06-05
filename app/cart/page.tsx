@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Trash2, Plus, Minus, ShoppingBag } from 'lucide-react';
@@ -16,6 +16,14 @@ const intensityLabels: Record<Product['intensity'], string> = {
   EXTRAIT: 'Extrait de Parfum',
 };
 
+const PROMO_CODES: Record<string, { type: 'percent' | 'fixed'; value: number }> = {
+  'SPECIAL25': { type: 'percent', value: 25 },
+  'NEWSCENT10': { type: 'percent', value: 10 },
+  'BACK25': { type: 'percent', value: 25 },
+  'REACTIVATE30': { type: 'percent', value: 30 },
+  'LOVAL200': { type: 'fixed', value: 200000 },
+};
+
 function formatPrice(amount: number) {
   return `Rp ${amount.toLocaleString('id-ID')}`;
 }
@@ -25,23 +33,49 @@ export default function CartPage() {
   const { items, removeFromCart, updateQuantity, total, clearCart } = useCart();
   const { user } = useAuth();
   const [promoCode, setPromoCode] = useState('');
-  const [discount, setDiscount] = useState(0);
+  const [appliedPromo, setAppliedPromo] = useState<string | null>(null);
+
+  const discount = useMemo(() => {
+    if (!appliedPromo) return 0;
+    const promo = PROMO_CODES[appliedPromo];
+    if (!promo) return 0;
+
+    let calculatedDiscount = 0;
+    if (promo.type === 'percent') {
+      calculatedDiscount = Math.round((promo.value / 100) * total);
+    } else {
+      calculatedDiscount = promo.value;
+    }
+
+    return calculatedDiscount > total ? total : calculatedDiscount;
+  }, [appliedPromo, total]);
 
   const shippingEstimate = total > 500000 ? 0 : 50000;
-  const finalTotal = total - discount + shippingEstimate;
+  const finalTotal = Math.max(0, total - discount + shippingEstimate);
 
   const handlePromoCode = () => {
-    if (promoCode === 'DISKON10') {
-      setDiscount(total * 0.1);
-    } else if (promoCode === 'DISKON20') {
-      setDiscount(total * 0.2);
-    } else {
+    const code = promoCode.trim().toUpperCase();
+    if (!code) return;
+
+    const promo = PROMO_CODES[code];
+    if (!promo) {
       alert('Kode promo tidak valid');
-      setDiscount(0);
+      setAppliedPromo(null);
+      return;
     }
+
+    setAppliedPromo(code);
+    setPromoCode('');
   };
 
   const handleCheckout = () => {
+    if (appliedPromo) {
+      localStorage.setItem('cartPromoCode', appliedPromo);
+      localStorage.setItem('checkoutSource', 'cart');
+    } else {
+      localStorage.removeItem('cartPromoCode');
+      localStorage.removeItem('checkoutSource');
+    }
     if (!user) {
       router.push(getLoginUrl('/checkout'));
       return;
@@ -189,26 +223,43 @@ export default function CartPage() {
               </div>
 
               <div className="mb-6 pb-6 border-b border-stone-300/50">
-                <p className="text-[10px] uppercase tracking-[0.2em] text-stone-500 mb-3">
+                <p className="text-[10px] uppercase tracking-[0.2em] text-stone-500 mb-3 font-bold">
                   Kode Promo
                 </p>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    placeholder="Masukkan kode"
-                    value={promoCode}
-                    onChange={(e) => setPromoCode(e.target.value)}
-                    className="flex-1 min-w-0 bg-transparent border-0 border-b border-stone-400 py-2 text-sm text-[#4A3728] placeholder:text-stone-400 focus:outline-none focus:border-[#8D4F38]"
-                  />
-                  <button
-                    type="button"
-                    onClick={handlePromoCode}
-                    className="shrink-0 px-4 py-2 text-[10px] uppercase tracking-wider border border-[#8D4F38] text-[#8D4F38] hover:bg-[#8D4F38] hover:text-[#F9F7F2] transition"
-                  >
-                    Gunakan
-                  </button>
-                </div>
-                <p className="text-[10px] text-stone-400 mt-2">Coba: DISKON10 atau DISKON20</p>
+                {appliedPromo ? (
+                  <div className="flex justify-between items-center bg-[#6B8F71]/10 border border-[#6B8F71]/30 p-2.5 rounded text-xs text-[#4A3728]">
+                    <div>
+                      Kupon <span className="font-bold text-[#6B8F71]">{appliedPromo}</span> terpasang
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAppliedPromo(null);
+                        setPromoCode('');
+                      }}
+                      className="text-[#8D4F38] hover:underline font-semibold ml-2 uppercase text-[9px] tracking-wider"
+                    >
+                      Hapus
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="Masukkan kode"
+                      value={promoCode}
+                      onChange={(e) => setPromoCode(e.target.value)}
+                      className="flex-1 min-w-0 bg-transparent border-0 border-b border-stone-400 py-2 text-sm text-[#4A3728] placeholder:text-stone-400 focus:outline-none focus:border-[#8D4F38]"
+                    />
+                    <button
+                      type="button"
+                      onClick={handlePromoCode}
+                      className="shrink-0 px-4 py-2 text-[10px] uppercase tracking-wider border border-[#8D4F38] text-[#8D4F38] hover:bg-[#8D4F38] hover:text-[#F9F7F2] transition"
+                    >
+                      Gunakan
+                    </button>
+                  </div>
+                )}
               </div>
 
               <div className="flex justify-between items-baseline gap-4 mb-6">
@@ -231,7 +282,7 @@ export default function CartPage() {
                 onClick={() => {
                   if (confirm('Apakah Anda yakin ingin mengosongkan keranjang?')) {
                     clearCart();
-                    setDiscount(0);
+                    setAppliedPromo(null);
                     setPromoCode('');
                   }
                 }}

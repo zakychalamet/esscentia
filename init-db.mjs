@@ -42,6 +42,8 @@ async function init() {
       password VARCHAR(255) NOT NULL,
       role VARCHAR(50) DEFAULT 'user',
       phone VARCHAR(50),
+      image TEXT,
+      quiz_result TEXT,
       login_count INT DEFAULT 0,
       last_login_at TIMESTAMP NULL,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -108,6 +110,7 @@ async function init() {
       message TEXT NOT NULL,
       segment VARCHAR(100) NOT NULL,
       promo_type VARCHAR(100) DEFAULT 'Private Collection Access',
+      duration_days INT DEFAULT 7,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
   `);
@@ -117,6 +120,8 @@ async function init() {
     ['login_count', 'ALTER TABLE users ADD COLUMN login_count INT DEFAULT 0'],
     ['last_login_at', 'ALTER TABLE users ADD COLUMN last_login_at TIMESTAMP NULL'],
     ['phone', 'ALTER TABLE users ADD COLUMN phone VARCHAR(50) NULL'],
+    ['image', 'ALTER TABLE users ADD COLUMN image TEXT NULL'],
+    ['quiz_result', 'ALTER TABLE users ADD COLUMN quiz_result TEXT NULL'],
   ];
   for (const [col, sql] of userMigrations) {
     const [exists] = await connection.query(
@@ -127,6 +132,22 @@ async function init() {
     if (!Array.isArray(exists) || exists.length === 0) {
       await connection.query(sql);
       console.log(`Added users.${col}`);
+    }
+  }
+
+  // Migrate campaign_notifications table
+  const campaignMigrations = [
+    ['duration_days', 'ALTER TABLE campaign_notifications ADD COLUMN duration_days INT DEFAULT 7'],
+  ];
+  for (const [col, sql] of campaignMigrations) {
+    const [exists] = await connection.query(
+      `SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+       WHERE TABLE_SCHEMA = 'parfum' AND TABLE_NAME = 'campaign_notifications' AND COLUMN_NAME = ?`,
+      [col]
+    );
+    if (!Array.isArray(exists) || exists.length === 0) {
+      await connection.query(sql);
+      console.log(`Added campaign_notifications.${col}`);
     }
   }
 

@@ -35,6 +35,21 @@ function LoginContent() {
 
     try {
       await login(email, password);
+      
+      // Redirect administrative users directly to admin panel dashboard
+      const savedUser = localStorage.getItem('user');
+      if (savedUser) {
+        try {
+          const userObj = JSON.parse(savedUser);
+          if (userObj.role && ['admin', 'marketing', 'crm', 'executive'].includes(userObj.role)) {
+            router.push('/admin');
+            return;
+          }
+        } catch (e) {
+          console.error('Failed to parse user for redirect:', e);
+        }
+      }
+      
       router.push(redirectTo);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Login gagal');
