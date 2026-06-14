@@ -82,7 +82,7 @@ const SEGMENT_METADATA: Record<RfmSegmentLabel, {
       'Event Invitation': 'Sebagai ungkapan terima kasih kepada pelanggan setia kami, kami mengundang Anda menghadiri "Esscentia VIP Scent Soirée". Nikmati konsultasi wewangian gratis dan penawaran spesial selama acara berlangsung.'
     }
   },
-  'Potential Loyalist': {
+  'Potential Loyalists': {
     label: 'Potential Loyalists',
     characteristics: 'Baru mulai sering berbelanja dan menunjukkan potensi loyal',
     crmStrategy: 'Welcome journey, diskon pembelian kedua, edukasi parfum, rekomendasi produk personal',
@@ -98,7 +98,7 @@ const SEGMENT_METADATA: Record<RfmSegmentLabel, {
       'Event Invitation': 'Mari temukan karakter aroma sejati Anda! Kami mengundang Anda menghadiri "Scent Customization Workshop" akhir pekan ini di butik utama Esscentia. Konfirmasi kehadiran Anda hari ini.'
     }
   },
-  'Recent Customers': {
+  'New Customers': {
     label: 'New Customers',
     characteristics: 'Baru pertama kali membeli',
     crmStrategy: 'Onboarding email, panduan penggunaan parfum, voucher pembelian berikutnya dalam 7-14 hari',
@@ -146,8 +146,8 @@ const SEGMENT_METADATA: Record<RfmSegmentLabel, {
       'Event Invitation': 'Sudah lama tidak berjumpa! Kami mengundang Anda ke acara temu pelanggan eksklusif "Esscentia Re-engagement High Tea" untuk mencoba rilisan aroma terbaru kami secara langsung.'
     }
   },
-  'About to Sleep': {
-    label: 'About to Sleep',
+  'About To Sleep': {
+    label: 'About To Sleep',
     characteristics: 'Sudah lama tidak membeli dan mulai pasif',
     crmStrategy: 'Flash sale terbatas, notifikasi stok baru, kampanye "Kami Merindukan Anda"',
     desc: 'Kecenderungan tidak aktif tinggi jika tidak segera dihubungi.',
@@ -178,8 +178,8 @@ const SEGMENT_METADATA: Record<RfmSegmentLabel, {
       'Event Invitation': 'Kembalilah mengeksplorasi seni wewangian bersama kami. Hadiri acara workshop "Scent & Soul Therapy" secara gratis khusus untuk pelanggan berharga seperti Anda.'
     }
   },
-  "Can't Lose Them": {
-    label: "Can't Lose Them",
+  'Cannot Lose Them': {
+    label: 'Cannot Lose Them',
     characteristics: 'Pelanggan bernilai tinggi yang hampir churn',
     crmStrategy: 'Personal account manager, hadiah spesial, telemarketing personal, voucher premium',
     desc: 'Pelanggan VIP lama yang hampir hilang.',
@@ -210,7 +210,7 @@ const SEGMENT_METADATA: Record<RfmSegmentLabel, {
       'Event Invitation': 'Kami menyelenggarakan acara reaktivasi khusus "Esscentia Scent Revival Gatherings". Hadiri acara ini secara gratis dan nikmati diskon khusus langsung di lokasi.'
     }
   },
-  'Lost': {
+  'Lost Customers': {
     label: 'Lost Customers',
     characteristics: 'Praktis sudah meninggalkan brand',
     crmStrategy: 'Win-back campaign, penawaran sangat menarik, survei alasan berhenti, jika tidak respons hentikan biaya pemasaran',
@@ -227,7 +227,7 @@ const SEGMENT_METADATA: Record<RfmSegmentLabel, {
     }
   },
 };
-;
+
 
 const DEFAULT_MESSAGES: Record<string, string> = {
   'Private Collection Access': "Sebagai pelanggan berharga dalam lingkaran utama kami, kami mengundang Anda untuk merasakan pengalaman pertama koleksi premium 'Midnight Amber' sebelum dirilis ke publik. Dapatkan alokasi eksklusif Anda hari ini.",
@@ -289,15 +289,15 @@ export default function CampaignManagerPage() {
     const counts: Record<RfmSegmentLabel, number> = {
       'Champions': 0,
       'Loyal Customers': 0,
-      'Potential Loyalist': 0,
-      'Recent Customers': 0,
+      'Potential Loyalists': 0,
+      'New Customers': 0,
       'Promising': 0,
       'Need Attention': 0,
-      'About to Sleep': 0,
+      'About To Sleep': 0,
       'At Risk': 0,
-      "Can't Lose Them": 0,
+      'Cannot Lose Them': 0,
       'Hibernating': 0,
-      'Lost': 0,
+      'Lost Customers': 0,
     };
     if (analytics?.customers) {
       analytics.customers.forEach((c) => {
@@ -440,8 +440,7 @@ export default function CampaignManagerPage() {
   }
 
   const getDropdownLabel = (seg: RfmSegmentLabel) => {
-    if (seg === 'Lost') return 'Lost';
-    return SEGMENT_METADATA[seg].label;
+    return SEGMENT_METADATA[seg]?.label || seg;
   };
 
   return (

@@ -33,7 +33,7 @@ export const quizQuestions: QuizQuestion[] = [
         id: 'romantic',
         label: 'Anggun & Romantis',
         description: 'Lembut, elegan, menyukai estetika bunga dan kemewahan yang natural.',
-        image: 'https://images.unsplash.com/photo-1518895949257-762f457f584f?w=600&h=600&fit=crop',
+        image: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&h=600&fit=crop',
         scores: { Floral: 3, Amber: 2 },
       },
       {
@@ -47,7 +47,7 @@ export const quizQuestions: QuizQuestion[] = [
         id: 'sweet',
         label: 'Hangat & Cozy',
         description: 'Menyenangkan, menyukai kenyamanan, manisnya hidup, dan keintiman.',
-        image: 'https://images.unsplash.com/photo-1513694203232-719a280e20f0?w=600&h=600&fit=crop',
+        image: 'https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=600&h=600&fit=crop',
         scores: { Vanilla: 3, Aromatic: 2 },
       },
     ],
@@ -135,7 +135,7 @@ export const quizQuestions: QuizQuestion[] = [
         id: 'flowers',
         label: 'Mawar Segar & Rempah Ringan',
         description: 'Keharuman kelopak bunga mawar mekar dipadu dengan dedaunan hijau.',
-        image: 'https://images.unsplash.com/photo-1490750967868-88aa298bd6c0?w=600&h=600&fit=crop',
+        image: 'https://images.unsplash.com/photo-1561181286-d3fee7d55364?w=600&h=600&fit=crop',
         scores: { Floral: 3, Aromatic: 2 },
       },
       {

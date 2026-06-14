@@ -20,15 +20,15 @@ interface RfmClusterChartProps {
 const SEGMENTS: RfmSegmentLabel[] = [
   'Champions',
   'Loyal Customers',
-  'Potential Loyalist',
-  'Recent Customers',
+  'Potential Loyalists',
+  'New Customers',
   'Promising',
   'Need Attention',
-  'About to Sleep',
+  'About To Sleep',
   'At Risk',
-  "Can't Lose Them",
+  'Cannot Lose Them',
   'Hibernating',
-  'Lost',
+  'Lost Customers',
 ];
 
 export function RfmClusterChart({ customers }: RfmClusterChartProps) {

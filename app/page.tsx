@@ -93,7 +93,7 @@ export default function HomePage() {
               </div>
               <div className="relative h-96 md:h-full">
                 <img
-                  src="/images/hero-perfume.jpg"
+                  src="/images/esscentia.png"
                   alt="Premium Perfume"
                   className="w-full h-full object-cover rounded-lg shadow-2xl"
                 />

@@ -20,7 +20,7 @@ export const journalArticles: JournalArticle[] = [
     date: '12 Mei 2024',
     readTime: '6 menit',
     image:
-      'https://images.unsplash.com/photo-1541643600912-78b084683601?w=800&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=800&h=500&fit=crop',
     author: 'Tim Esscentia',
     content: [
       'Setiap parfum dibangun seperti sebuah komposisi musik. Not atas (top notes) adalah kesan pertama yang Anda cium saat semprotan — biasanya segar dan ringan, seperti jeruk bergamot atau lemon. Mereka menghilang dalam 15 menit pertama.',
@@ -110,7 +110,7 @@ export const journalArticles: JournalArticle[] = [
     date: '8 Maret 2024',
     readTime: '5 menit',
     image:
-      'https://images.unsplash.com/photo-1490750967868-88aa298bd6c0?w=800&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1594035910387-fea47794261f?w=800&h=500&fit=crop',
     author: 'Elena Rahman',
     content: [
       'Pagi hari memanggil kesegaran: citrus dan floral ringan dalam formulasi Eau de Toilette yang tidak overwhelming di ruang kerja ber-AC.',

@@ -173,15 +173,15 @@ export default function AdminDashboard() {
             {([
               'Champions',
               'Loyal Customers',
-              'Potential Loyalist',
-              'Recent Customers',
+              'Potential Loyalists',
+              'New Customers',
               'Promising',
               'Need Attention',
-              'About to Sleep',
+              'About To Sleep',
               'At Risk',
-              "Can't Lose Them",
+              'Cannot Lose Them',
               'Hibernating',
-              'Lost',
+              'Lost Customers',
             ] as const).map((seg) => (
               <span key={seg} className="flex items-center gap-2 text-xs text-slate-600">
                 <span

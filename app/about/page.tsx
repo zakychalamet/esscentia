@@ -33,7 +33,7 @@ export default function AboutPage() {
         {/* Hero */}
         <section className="relative min-h-[420px] flex items-end overflow-hidden">
           <img
-            src="https://images.unsplash.com/photo-1608168895822-f1bd922bb235?w=1400&h=700&fit=crop"
+            src="/images/esscentia_16.png"
             alt="Esscentia artisanal fragrance"
             className="absolute inset-0 w-full h-full object-cover"
           />
@@ -43,7 +43,7 @@ export default function AboutPage() {
               Our Story
             </p>
             <h1 className="text-4xl md:text-6xl font-serif text-[#F9F7F2] max-w-2xl leading-tight">
-              Crafting sensory narratives since 2018
+              Discover Your Signature Scent
             </h1>
           </div>
         </section>
@@ -61,7 +61,7 @@ export default function AboutPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
             <div className="aspect-[4/5] overflow-hidden bg-stone-200">
               <img
-                src="https://images.unsplash.com/photo-1596081223915-b4dc8b5a0b19?w=700&h=900&fit=crop"
+                src="/images/craftsmanship.png"
                 alt="Perfume craftsmanship"
                 className="w-full h-full object-cover"
               />

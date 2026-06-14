@@ -8,6 +8,7 @@ import {
   type RfmCustomerPoint,
   type RfmSegmentLabel,
   type ChurnRiskLevel,
+  generateMockTransactions,
 } from './customer-rfm';
 
 export interface CustomerListItem {
@@ -15,6 +16,7 @@ export interface CustomerListItem {
   name: string;
   email: string;
   initials: string;
+  image: string | null;
   segment: RfmSegmentLabel;
   segmentColor: string;
   orders: number;
@@ -48,15 +50,15 @@ export interface CustomerDetail extends CustomerListItem {
 const SEGMENT_BADGE: Record<RfmSegmentLabel, string> = {
   'Champions': 'bg-purple-100 text-purple-700 border border-purple-200',
   'Loyal Customers': 'bg-blue-100 text-blue-700 border border-blue-200',
-  'Potential Loyalist': 'bg-emerald-100 text-emerald-700 border border-emerald-200',
-  'Recent Customers': 'bg-cyan-100 text-cyan-700 border border-cyan-200',
+  'Potential Loyalists': 'bg-emerald-100 text-emerald-700 border border-emerald-200',
+  'New Customers': 'bg-cyan-100 text-cyan-700 border border-cyan-200',
   'Promising': 'bg-lime-100 text-lime-700 border border-lime-200',
   'Need Attention': 'bg-amber-100 text-amber-700 border border-amber-200',
-  'About to Sleep': 'bg-pink-100 text-pink-700 border border-pink-200',
+  'About To Sleep': 'bg-pink-100 text-pink-700 border border-pink-200',
   'At Risk': 'bg-red-100 text-red-700 border border-red-200',
-  "Can't Lose Them": 'bg-indigo-100 text-indigo-700 border border-indigo-200',
+  'Cannot Lose Them': 'bg-indigo-100 text-indigo-700 border border-indigo-200',
   'Hibernating': 'bg-slate-100 text-slate-700 border border-slate-200',
-  'Lost': 'bg-stone-100 text-stone-600 border border-stone-200',
+  'Lost Customers': 'bg-stone-100 text-stone-600 border border-stone-200',
 };
 
 function getInitials(name: string): string {
@@ -113,6 +115,7 @@ function mapRfmPoint(
     name: user.name,
     email: user.email,
     initials: getInitials(user.name),
+    image: user.image,
     segment: point.segment,
     segmentColor: SEGMENT_BADGE[point.segment],
     orders: orderStats?.orderCount ?? 0,
@@ -214,13 +217,34 @@ export async function getCustomerDetail(id: string): Promise<CustomerDetail | nu
   };
 }
 
-export async function getAdminRfmAnalytics(): Promise<RfmAnalyticsResult> {
+export async function getAdminRfmAnalytics(
+  recencyWeight = 40,
+  frequencyWeight = 30,
+  monetaryWeight = 30,
+  k = 4,
+  maxIterations = 300
+): Promise<RfmAnalyticsResult> {
   const [users, stats] = await Promise.all([getCustomerUsers(), getUserOrderStats()]);
   const transactions = users.map((user) => buildTransaction(user, stats));
-  const analytics = buildRfmAnalytics(transactions);
+
+  const analytics = buildRfmAnalytics(
+    transactions,
+    recencyWeight,
+    frequencyWeight,
+    monetaryWeight,
+    k,
+    maxIterations
+  );
+
+  const userMap = new Map(users.map((u) => [u.id, u.name]));
+  const customerTable = analytics.customerTable?.map((row) => ({
+    ...row,
+    customerName: userMap.get(row.customerId) ?? row.customerName,
+  }));
 
   return {
     ...analytics,
+    customerTable,
     kpi: {
       ...analytics.kpi,
       totalCliente: users.length,
@@ -232,7 +256,7 @@ export async function getAdminRfmAnalytics(): Promise<RfmAnalyticsResult> {
 export async function getUserSegment(userId: string): Promise<RfmSegmentLabel> {
   const customers = await getCustomerDirectory();
   const customer = customers.find((c) => c.id === userId);
-  return customer ? customer.segment : 'Recent Customers';
+  return customer ? customer.segment : 'New Customers';
 }
 
 export { SEGMENT_BADGE };
