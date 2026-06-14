@@ -289,11 +289,30 @@ export default function ProductDetailPage() {
                 </div>
               </div>
 
+              {/* Sisa Stok Indicator */}
+              <div className="mb-6 flex items-center gap-2 bg-[#EDEAE4]/30 px-4 py-2.5 rounded-sm self-start border border-[#E7E5E0]/60">
+                <span className={`w-2 h-2 rounded-full ${
+                  !product.inStock || (product.stock !== undefined && product.stock <= 0)
+                    ? 'bg-[#8D4F38]'
+                    : (product.stock !== undefined && product.stock <= 5)
+                      ? 'bg-amber-500 animate-pulse'
+                      : 'bg-emerald-600'
+                }`} />
+                <span className="text-[10px] uppercase tracking-[0.2em] font-semibold text-stone-600">
+                  {!product.inStock || (product.stock !== undefined && product.stock <= 0)
+                    ? 'Habis Terjual'
+                    : (product.stock !== undefined && product.stock <= 5)
+                      ? `Stok Terbatas: Sisa ${product.stock} botol`
+                      : `Sisa Stok: ${product.stock ?? 10} botol`
+                  }
+                </span>
+              </div>
+
               <div className="flex flex-col sm:flex-row gap-4 mb-6">
                 <button
                   type="button"
                   onClick={handleAddToCart}
-                  disabled={!product.inStock}
+                  disabled={!product.inStock || (product.stock !== undefined && product.stock <= 0)}
                   className="flex-1 py-4 bg-[#4A3728] text-[#F9F7F2] text-xs uppercase tracking-[0.2em] hover:bg-[#8C7355] transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer font-semibold"
                 >
                   Add to Bag
@@ -301,7 +320,7 @@ export default function ProductDetailPage() {
                 <button
                   type="button"
                   onClick={handleBuyNow}
-                  disabled={!product.inStock}
+                  disabled={!product.inStock || (product.stock !== undefined && product.stock <= 0)}
                   className="flex-1 py-4 bg-[#8D4F38] text-[#F9F7F2] text-xs uppercase tracking-[0.2em] hover:bg-[#7a4532] transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer font-semibold"
                 >
                   Buy Now — {formatPrice(displayPrice)}

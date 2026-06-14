@@ -17,6 +17,7 @@ interface ProductRow extends RowDataPacket {
   rating: number;
   reviews: number;
   inStock: number | boolean;
+  stock: number;
   isBestseller: number | boolean;
   volume_prices: string | { volume: number; price: number }[] | null;
   sillage: string | null;
@@ -37,6 +38,7 @@ export interface ProductInput {
   image?: string;
   description?: string;
   inStock?: boolean;
+  stock?: number;
   isBestseller?: boolean;
   scent: string[];
   volume_prices: { volume: number; price: number }[];
@@ -85,6 +87,7 @@ export function rowToProduct(row: ProductRow): Product {
     rating: Number(row.rating) || 5,
     reviews: row.reviews || 0,
     inStock: Boolean(row.inStock),
+    stock: Number(row.stock) || 0,
     isBestseller: Boolean(row.isBestseller),
     volume_prices: parseVolumePrices(row.volume_prices),
     sillage: row.sillage || '',
@@ -112,8 +115,8 @@ export async function getProductByIdFromDb(id: string): Promise<Product | null> 
 export async function createProduct(input: ProductInput): Promise<Product> {
   const [result] = await pool.query<ResultSetHeader>(
     `INSERT INTO products
-      (name, brand, price, image, description, category, family, intensity, scent, volume, rating, reviews, inStock, isBestseller, volume_prices, sillage, projection, longevity)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      (name, brand, price, image, description, category, family, intensity, scent, volume, rating, reviews, inStock, stock, isBestseller, volume_prices, sillage, projection, longevity)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       input.name,
       input.brand,
@@ -128,6 +131,7 @@ export async function createProduct(input: ProductInput): Promise<Product> {
       input.rating ?? 5,
       input.reviews ?? 0,
       input.inStock ?? true,
+      input.stock ?? 10,
       input.isBestseller ?? false,
       JSON.stringify(input.volume_prices || []),
       input.sillage || '',
@@ -149,7 +153,7 @@ export async function updateProduct(
     `UPDATE products SET
       name = ?, brand = ?, price = ?, image = ?, description = ?,
       category = ?, family = ?, intensity = ?, scent = ?, volume = ?,
-      rating = ?, reviews = ?, inStock = ?, isBestseller = ?, volume_prices = ?,
+      rating = ?, reviews = ?, inStock = ?, stock = ?, isBestseller = ?, volume_prices = ?,
       sillage = ?, projection = ?, longevity = ?
      WHERE id = ?`,
     [
@@ -166,6 +170,7 @@ export async function updateProduct(
       input.rating ?? 5,
       input.reviews ?? 0,
       input.inStock ?? true,
+      input.stock ?? 10,
       input.isBestseller ?? false,
       JSON.stringify(input.volume_prices || []),
       input.sillage || '',
@@ -229,6 +234,7 @@ export function normalizeProductInput(body: Record<string, unknown>): ProductInp
     image: String(body.image ?? ''),
     description: String(body.description ?? ''),
     inStock: body.inStock !== false && body.inStock !== 0,
+    stock: num(body.stock, 10),
     isBestseller: Boolean(body.isBestseller),
     scent: normalizeScent(body),
     volume_prices: volumePrices,

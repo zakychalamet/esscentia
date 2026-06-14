@@ -305,6 +305,8 @@ export default function CheckoutPage() {
             productName: `${item.product.name} (${item.isDecant ? 'Decant ' : ''}${item.selectedVolume}ml)`,
             quantity: item.quantity,
             price: item.selectedPrice,
+            isDecant: item.isDecant,
+            selectedVolume: item.selectedVolume,
           })),
         }),
       });

@@ -20,7 +20,6 @@ export interface AdminNavItem {
 
 export const adminNavItems: AdminNavItem[] = [
   { href: '/admin', label: 'Dashboard', icon: BarChart3 },
-  { href: '/admin/integration', label: 'Data Integration', icon: Database },
   { href: '/admin/analytics', label: 'Analytics Engine', icon: LineChart },
   { href: '/admin/campaigns', label: 'Campaign Manager', icon: Megaphone },
   { href: '/admin/customers', label: 'Customers', icon: Users },
@@ -34,7 +33,6 @@ export const adminNavItems: AdminNavItem[] = [
 export const roleAllowedPaths: Record<string, string[]> = {
   admin: [
     '/admin',
-    '/admin/integration',
     '/admin/analytics',
     '/admin/campaigns',
     '/admin/customers',

@@ -255,6 +255,7 @@ export default function AdminProductsPage() {
                   <th className="text-left py-4 px-5">Kapasitas (Varian)</th>
                   <th className="text-left py-4 px-5 whitespace-nowrap">Harga</th>
                   <th className="text-left py-4 px-5">Intensity</th>
+                  <th className="text-left py-4 px-5">Stok</th>
                   <th className="text-left py-4 px-5">Status</th>
                   <th className="text-center py-4 px-5">Aksi</th>
                 </tr>
@@ -309,15 +310,18 @@ export default function AdminProductsPage() {
                             {product.intensity}
                           </span>
                         </td>
+                        <td className="py-4 px-5 text-[#4A3728] font-medium font-mono text-xs">
+                          {product.stock !== undefined ? `${product.stock} pcs` : '10 pcs'}
+                        </td>
                         <td className="py-4 px-5">
                           <span
                             className={`inline-block px-2.5 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider border ${
-                              product.inStock
+                              product.inStock && (product.stock === undefined || product.stock > 0)
                                 ? 'bg-emerald-50 text-emerald-700 border-emerald-200/50'
                                 : 'bg-red-50 text-[#8D4F38] border-red-200/50'
                             }`}
                           >
-                            {product.inStock ? 'Tersedia' : 'Habis'}
+                            {product.inStock && (product.stock === undefined || product.stock > 0) ? 'Tersedia' : 'Habis'}
                           </span>
                         </td>
                         <td className="py-4 px-5 text-center" onClick={(e) => e.stopPropagation()}>

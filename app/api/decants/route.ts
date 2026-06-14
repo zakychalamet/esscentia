@@ -29,6 +29,10 @@ export async function POST(request: Request) {
       inStock2ml,
       inStock5ml,
       inStock10ml,
+      stock1ml,
+      stock2ml,
+      stock5ml,
+      stock10ml,
     } = body;
 
     if (!productId) {
@@ -48,6 +52,10 @@ export async function POST(request: Request) {
       inStock2ml: inStock2ml !== false,
       inStock5ml: inStock5ml !== false,
       inStock10ml: inStock10ml !== false,
+      stock1ml: stock1ml !== undefined ? Number(stock1ml) : 10,
+      stock2ml: stock2ml !== undefined ? Number(stock2ml) : 10,
+      stock5ml: stock5ml !== undefined ? Number(stock5ml) : 10,
+      stock10ml: stock10ml !== undefined ? Number(stock10ml) : 10,
     });
 
     return NextResponse.json(decant, { status: 201 });

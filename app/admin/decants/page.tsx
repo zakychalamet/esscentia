@@ -45,6 +45,11 @@ export default function AdminDecantsPage() {
   const [inStock2ml, setInStock2ml] = useState(true);
   const [inStock5ml, setInStock5ml] = useState(true);
   const [inStock10ml, setInStock10ml] = useState(true);
+
+  const [stock1ml, setStock1ml] = useState('10');
+  const [stock2ml, setStock2ml] = useState('10');
+  const [stock5ml, setStock5ml] = useState('10');
+  const [stock10ml, setStock10ml] = useState('10');
   
   const [formError, setFormError] = useState('');
   const [isSaving, setIsSaving] = useState(false);
@@ -114,6 +119,10 @@ export default function AdminDecantsPage() {
     setInStock2ml(true);
     setInStock5ml(true);
     setInStock10ml(true);
+    setStock1ml('10');
+    setStock2ml('10');
+    setStock5ml('10');
+    setStock10ml('10');
     setFormError('');
     setIsModalOpen(true);
   };
@@ -129,6 +138,10 @@ export default function AdminDecantsPage() {
     setInStock2ml(decant.inStock2ml);
     setInStock5ml(decant.inStock5ml);
     setInStock10ml(decant.inStock10ml);
+    setStock1ml(String(decant.stock1ml ?? '10'));
+    setStock2ml(String(decant.stock2ml ?? '10'));
+    setStock5ml(String(decant.stock5ml ?? '10'));
+    setStock10ml(String(decant.stock10ml ?? '10'));
     setFormError('');
     setIsModalOpen(true);
   };
@@ -167,6 +180,10 @@ export default function AdminDecantsPage() {
           inStock2ml,
           inStock5ml,
           inStock10ml,
+          stock1ml: Number(stock1ml),
+          stock2ml: Number(stock2ml),
+          stock5ml: Number(stock5ml),
+          stock10ml: Number(stock10ml),
         }),
       });
 
@@ -290,35 +307,47 @@ export default function AdminDecantsPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <p className="font-medium text-stone-800">{formatPrice(decant.price1ml)}</p>
-                      <span className={`inline-block text-[10px] px-1.5 py-0.5 font-medium rounded-full mt-1 ${
-                        decant.inStock1ml ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'
-                      }`}>
-                        {decant.inStock1ml ? 'Ready' : 'Habis'}
-                      </span>
+                      <div className="flex flex-col mt-1">
+                        <span className={`inline-block text-[10px] px-1.5 py-0.5 font-medium rounded-full self-start ${
+                          decant.inStock1ml ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'
+                        }`}>
+                          {decant.inStock1ml ? 'Ready' : 'Habis'}
+                        </span>
+                        <span className="text-[11px] text-stone-500 mt-0.5">Stok: {decant.stock1ml ?? 10}</span>
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <p className="font-medium text-stone-800">{formatPrice(decant.price2ml)}</p>
-                      <span className={`inline-block text-[10px] px-1.5 py-0.5 font-medium rounded-full mt-1 ${
-                        decant.inStock2ml ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'
-                      }`}>
-                        {decant.inStock2ml ? 'Ready' : 'Habis'}
-                      </span>
+                      <div className="flex flex-col mt-1">
+                        <span className={`inline-block text-[10px] px-1.5 py-0.5 font-medium rounded-full self-start ${
+                          decant.inStock2ml ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'
+                        }`}>
+                          {decant.inStock2ml ? 'Ready' : 'Habis'}
+                        </span>
+                        <span className="text-[11px] text-stone-500 mt-0.5">Stok: {decant.stock2ml ?? 10}</span>
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <p className="font-medium text-stone-800">{formatPrice(decant.price5ml)}</p>
-                      <span className={`inline-block text-[10px] px-1.5 py-0.5 font-medium rounded-full mt-1 ${
-                        decant.inStock5ml ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'
-                      }`}>
-                        {decant.inStock5ml ? 'Ready' : 'Habis'}
-                      </span>
+                      <div className="flex flex-col mt-1">
+                        <span className={`inline-block text-[10px] px-1.5 py-0.5 font-medium rounded-full self-start ${
+                          decant.inStock5ml ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'
+                        }`}>
+                          {decant.inStock5ml ? 'Ready' : 'Habis'}
+                        </span>
+                        <span className="text-[11px] text-stone-500 mt-0.5">Stok: {decant.stock5ml ?? 10}</span>
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <p className="font-medium text-stone-800">{formatPrice(decant.price10ml)}</p>
-                      <span className={`inline-block text-[10px] px-1.5 py-0.5 font-medium rounded-full mt-1 ${
-                        decant.inStock10ml ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'
-                      }`}>
-                        {decant.inStock10ml ? 'Ready' : 'Habis'}
-                      </span>
+                      <div className="flex flex-col mt-1">
+                        <span className={`inline-block text-[10px] px-1.5 py-0.5 font-medium rounded-full self-start ${
+                          decant.inStock10ml ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'
+                        }`}>
+                          {decant.inStock10ml ? 'Ready' : 'Habis'}
+                        </span>
+                        <span className="text-[11px] text-stone-500 mt-0.5">Stok: {decant.stock10ml ?? 10}</span>
+                      </div>
                     </td>
                     {canManage && (
                       <td className="px-6 py-4 whitespace-nowrap text-right text-xs font-semibold space-x-2">
@@ -409,6 +438,16 @@ export default function AdminDecantsPage() {
                       className="w-full px-3 py-1.5 border border-stone-200 text-sm focus:outline-none bg-white"
                     />
                   </div>
+                  <div>
+                    <label className="block text-[10px] text-stone-500 mb-1">Jumlah Stok</label>
+                    <input
+                      type="number"
+                      value={stock1ml}
+                      onChange={(e) => setStock1ml(e.target.value)}
+                      className="w-full px-3 py-1.5 border border-stone-200 text-sm focus:outline-none bg-white"
+                      min="0"
+                    />
+                  </div>
                   <label className="flex items-center gap-2 text-xs text-stone-600 cursor-pointer">
                     <input
                       type="checkbox"
@@ -430,6 +469,16 @@ export default function AdminDecantsPage() {
                       value={price2ml}
                       onChange={(e) => setPrice2ml(e.target.value)}
                       className="w-full px-3 py-1.5 border border-stone-200 text-sm focus:outline-none bg-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] text-stone-500 mb-1">Jumlah Stok</label>
+                    <input
+                      type="number"
+                      value={stock2ml}
+                      onChange={(e) => setStock2ml(e.target.value)}
+                      className="w-full px-3 py-1.5 border border-stone-200 text-sm focus:outline-none bg-white"
+                      min="0"
                     />
                   </div>
                   <label className="flex items-center gap-2 text-xs text-stone-600 cursor-pointer">
@@ -458,6 +507,16 @@ export default function AdminDecantsPage() {
                       className="w-full px-3 py-1.5 border border-stone-200 text-sm focus:outline-none bg-white"
                     />
                   </div>
+                  <div>
+                    <label className="block text-[10px] text-stone-500 mb-1">Jumlah Stok</label>
+                    <input
+                      type="number"
+                      value={stock5ml}
+                      onChange={(e) => setStock5ml(e.target.value)}
+                      className="w-full px-3 py-1.5 border border-stone-200 text-sm focus:outline-none bg-white"
+                      min="0"
+                    />
+                  </div>
                   <label className="flex items-center gap-2 text-xs text-stone-600 cursor-pointer">
                     <input
                       type="checkbox"
@@ -479,6 +538,16 @@ export default function AdminDecantsPage() {
                       value={price10ml}
                       onChange={(e) => setPrice10ml(e.target.value)}
                       className="w-full px-3 py-1.5 border border-stone-200 text-sm focus:outline-none bg-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] text-stone-500 mb-1">Jumlah Stok</label>
+                    <input
+                      type="number"
+                      value={stock10ml}
+                      onChange={(e) => setStock10ml(e.target.value)}
+                      className="w-full px-3 py-1.5 border border-stone-200 text-sm focus:outline-none bg-white"
+                      min="0"
                     />
                   </div>
                   <label className="flex items-center gap-2 text-xs text-stone-600 cursor-pointer">

@@ -6,6 +6,8 @@ export interface OrderItemInput {
   productName: string;
   quantity: number;
   price: number;
+  isDecant?: boolean;
+  selectedVolume?: number;
 }
 
 export interface CreateOrderInput {
@@ -132,6 +134,65 @@ export async function createOrder(input: CreateOrderInput): Promise<OrderRecord>
        VALUES (?, ?, ?, ?, ?)`,
       [orderId, item.productId || null, item.productName, item.quantity, item.price]
     );
+
+    // Dynamic stock decrement based on product type
+    if (item.productId) {
+      let isDecant = item.isDecant;
+      let selectedVolume = item.selectedVolume;
+
+      // Fallback parsing from productName if explicit values are missing
+      if (isDecant === undefined || selectedVolume === undefined) {
+        const decantMatch = item.productName.match(/\(Decant\s+(\d+)ml\)/i);
+        const bottleMatch = item.productName.match(/\((\d+)ml\)/i);
+        if (decantMatch) {
+          isDecant = true;
+          selectedVolume = parseInt(decantMatch[1], 10);
+        } else if (bottleMatch) {
+          isDecant = false;
+          selectedVolume = parseInt(bottleMatch[1], 10);
+        }
+      }
+
+      if (isDecant) {
+        const volKey = `${selectedVolume}ml`;
+        if (['1ml', '2ml', '5ml', '10ml'].includes(volKey)) {
+          const stockCol = `stock_${volKey}`;
+          const instockCol = `in_stock_${volKey}`;
+
+          // Decrement stock (ensure cast to signed to prevent unsigned overflow warnings if any)
+          await pool.query(
+            `UPDATE decants 
+             SET ${stockCol} = GREATEST(0, CAST(${stockCol} AS SIGNED) - ?) 
+             WHERE product_id = ?`,
+            [item.quantity, item.productId]
+          );
+
+          // Mark out-of-stock if stock reaches 0
+          await pool.query(
+            `UPDATE decants 
+             SET ${instockCol} = false 
+             WHERE product_id = ? AND ${stockCol} = 0`,
+            [item.productId]
+          );
+        }
+      } else {
+        // Decrement product stock
+        await pool.query(
+          `UPDATE products 
+           SET stock = GREATEST(0, CAST(stock AS SIGNED) - ?) 
+           WHERE id = ?`,
+          [item.quantity, item.productId]
+        );
+
+        // Mark out-of-stock if stock reaches 0
+        await pool.query(
+          `UPDATE products 
+           SET inStock = false 
+           WHERE id = ? AND stock = 0`,
+          [item.productId]
+        );
+      }
+    }
   }
 
   const order = await getOrderById(String(orderId));

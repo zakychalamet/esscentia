@@ -29,6 +29,7 @@ async function init() {
       rating DECIMAL(3, 2) DEFAULT 0,
       reviews INT DEFAULT 0,
       inStock BOOLEAN DEFAULT true,
+      stock INT NOT NULL DEFAULT 10,
       isBestseller BOOLEAN DEFAULT false,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
@@ -127,6 +128,10 @@ async function init() {
       in_stock_2ml BOOLEAN DEFAULT true,
       in_stock_5ml BOOLEAN DEFAULT true,
       in_stock_10ml BOOLEAN DEFAULT true,
+      stock_1ml INT NOT NULL DEFAULT 10,
+      stock_2ml INT NOT NULL DEFAULT 10,
+      stock_5ml INT NOT NULL DEFAULT 10,
+      stock_10ml INT NOT NULL DEFAULT 10,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
     );
@@ -165,6 +170,41 @@ async function init() {
     if (!Array.isArray(exists) || exists.length === 0) {
       await connection.query(sql);
       console.log(`Added campaign_notifications.${col}`);
+    }
+  }
+
+  // Migrate products table for stock
+  const productStockMigrations = [
+    ['stock', 'ALTER TABLE products ADD COLUMN stock INT NOT NULL DEFAULT 10'],
+  ];
+  for (const [col, sql] of productStockMigrations) {
+    const [exists] = await connection.query(
+      `SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+       WHERE TABLE_SCHEMA = 'parfum' AND TABLE_NAME = 'products' AND COLUMN_NAME = ?`,
+      [col]
+    );
+    if (!Array.isArray(exists) || exists.length === 0) {
+      await connection.query(sql);
+      console.log(`Added products.${col}`);
+    }
+  }
+
+  // Migrate decants table for stock
+  const decantStockMigrations = [
+    ['stock_1ml', 'ALTER TABLE decants ADD COLUMN stock_1ml INT NOT NULL DEFAULT 10'],
+    ['stock_2ml', 'ALTER TABLE decants ADD COLUMN stock_2ml INT NOT NULL DEFAULT 10'],
+    ['stock_5ml', 'ALTER TABLE decants ADD COLUMN stock_5ml INT NOT NULL DEFAULT 10'],
+    ['stock_10ml', 'ALTER TABLE decants ADD COLUMN stock_10ml INT NOT NULL DEFAULT 10'],
+  ];
+  for (const [col, sql] of decantStockMigrations) {
+    const [exists] = await connection.query(
+      `SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+       WHERE TABLE_SCHEMA = 'parfum' AND TABLE_NAME = 'decants' AND COLUMN_NAME = ?`,
+      [col]
+    );
+    if (!Array.isArray(exists) || exists.length === 0) {
+      await connection.query(sql);
+      console.log(`Added decants.${col}`);
     }
   }
 

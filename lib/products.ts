@@ -13,6 +13,7 @@ export interface Product {
   rating: number;
   reviews: number;
   inStock: boolean;
+  stock?: number;
   isBestseller?: boolean;
   volume_prices?: { volume: number; price: number }[];
   sillage?: string;

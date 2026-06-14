@@ -14,6 +14,10 @@ export interface Decant {
   inStock2ml: boolean;
   inStock5ml: boolean;
   inStock10ml: boolean;
+  stock1ml?: number;
+  stock2ml?: number;
+  stock5ml?: number;
+  stock10ml?: number;
   createdAt?: Date;
 }
 
@@ -28,6 +32,10 @@ interface DecantRow extends RowDataPacket {
   in_stock_2ml: number | boolean;
   in_stock_5ml: number | boolean;
   in_stock_10ml: number | boolean;
+  stock_1ml: number;
+  stock_2ml: number;
+  stock_5ml: number;
+  stock_10ml: number;
   created_at: Date;
 }
 
@@ -43,6 +51,10 @@ function rowToDecant(row: DecantRow): Decant {
     inStock2ml: Boolean(row.in_stock_2ml),
     inStock5ml: Boolean(row.in_stock_5ml),
     inStock10ml: Boolean(row.in_stock_10ml),
+    stock1ml: Number(row.stock_1ml) || 0,
+    stock2ml: Number(row.stock_2ml) || 0,
+    stock5ml: Number(row.stock_5ml) || 0,
+    stock10ml: Number(row.stock_10ml) || 0,
     createdAt: row.created_at,
   };
 }
@@ -101,14 +113,24 @@ export async function upsertDecant(input: {
   inStock2ml: boolean;
   inStock5ml: boolean;
   inStock10ml: boolean;
+  stock1ml?: number;
+  stock2ml?: number;
+  stock5ml?: number;
+  stock10ml?: number;
 }): Promise<Decant> {
   // Check if exists
   const existing = await getDecantByProductId(input.productId);
+  const s1ml = input.stock1ml ?? 10;
+  const s2ml = input.stock2ml ?? 10;
+  const s5ml = input.stock5ml ?? 10;
+  const s10ml = input.stock10ml ?? 10;
+
   if (existing) {
     await pool.query(
       `UPDATE decants SET 
         price_1ml = ?, price_2ml = ?, price_5ml = ?, price_10ml = ?,
-        in_stock_1ml = ?, in_stock_2ml = ?, in_stock_5ml = ?, in_stock_10ml = ?
+        in_stock_1ml = ?, in_stock_2ml = ?, in_stock_5ml = ?, in_stock_10ml = ?,
+        stock_1ml = ?, stock_2ml = ?, stock_5ml = ?, stock_10ml = ?
        WHERE product_id = ?`,
       [
         input.price1ml,
@@ -119,6 +141,10 @@ export async function upsertDecant(input: {
         input.inStock2ml,
         input.inStock5ml,
         input.inStock10ml,
+        s1ml,
+        s2ml,
+        s5ml,
+        s10ml,
         input.productId,
       ]
     );
@@ -128,8 +154,8 @@ export async function upsertDecant(input: {
   } else {
     const [result] = await pool.query<ResultSetHeader>(
       `INSERT INTO decants 
-        (product_id, price_1ml, price_2ml, price_5ml, price_10ml, in_stock_1ml, in_stock_2ml, in_stock_5ml, in_stock_10ml)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        (product_id, price_1ml, price_2ml, price_5ml, price_10ml, in_stock_1ml, in_stock_2ml, in_stock_5ml, in_stock_10ml, stock_1ml, stock_2ml, stock_5ml, stock_10ml)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         input.productId,
         input.price1ml,
@@ -140,6 +166,10 @@ export async function upsertDecant(input: {
         input.inStock2ml,
         input.inStock5ml,
         input.inStock10ml,
+        s1ml,
+        s2ml,
+        s5ml,
+        s10ml,
       ]
     );
     const created = await getDecantByProductId(input.productId);

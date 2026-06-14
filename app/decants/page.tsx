@@ -208,23 +208,28 @@ export default function DecantsPage() {
               
               // Get price and stock status for active size
               let displayPrice = decant.price5ml;
-              let isStocked = decant.inStock5ml;
+              let isStocked = decant.inStock5ml && (decant.stock5ml === undefined || decant.stock5ml > 0);
+              let activeStock = decant.stock5ml ?? 10;
+              
               if (activeSize === 1) {
                 displayPrice = decant.price1ml;
-                isStocked = decant.inStock1ml;
+                isStocked = decant.inStock1ml && (decant.stock1ml === undefined || decant.stock1ml > 0);
+                activeStock = decant.stock1ml ?? 10;
               } else if (activeSize === 2) {
                 displayPrice = decant.price2ml;
-                isStocked = decant.inStock2ml;
+                isStocked = decant.inStock2ml && (decant.stock2ml === undefined || decant.stock2ml > 0);
+                activeStock = decant.stock2ml ?? 10;
               } else if (activeSize === 10) {
                 displayPrice = decant.price10ml;
-                isStocked = decant.inStock10ml;
+                isStocked = decant.inStock10ml && (decant.stock10ml === undefined || decant.stock10ml > 0);
+                activeStock = decant.stock10ml ?? 10;
               }
 
               const sizeOptions = [
-                { val: 1, label: '1ml', stocked: decant.inStock1ml },
-                { val: 2, label: '2ml', stocked: decant.inStock2ml },
-                { val: 5, label: '5ml', stocked: decant.inStock5ml },
-                { val: 10, label: '10ml', stocked: decant.inStock10ml },
+                { val: 1, label: '1ml', stocked: decant.inStock1ml && (decant.stock1ml === undefined || decant.stock1ml > 0) },
+                { val: 2, label: '2ml', stocked: decant.inStock2ml && (decant.stock2ml === undefined || decant.stock2ml > 0) },
+                { val: 5, label: '5ml', stocked: decant.inStock5ml && (decant.stock5ml === undefined || decant.stock5ml > 0) },
+                { val: 10, label: '10ml', stocked: decant.inStock10ml && (decant.stock10ml === undefined || decant.stock10ml > 0) },
               ];
 
               const isAdded = addedFeedback[decant.id];
@@ -293,6 +298,15 @@ export default function DecantsPage() {
                           </p>
                           <p className="font-serif text-[#8D4F38] text-[15px] font-medium truncate">
                             {formatPrice(displayPrice)}
+                          </p>
+                          <p className="text-[10px] text-stone-500 mt-0.5 font-light">
+                            {activeStock <= 0 ? (
+                              <span className="text-[#8D4F38] font-medium">Habis</span>
+                            ) : activeStock <= 5 ? (
+                              <span className="text-amber-500 font-medium animate-pulse">Sisa {activeStock} vial</span>
+                            ) : (
+                              <span>Stok: {activeStock} vial</span>
+                            )}
                           </p>
                         </div>
 

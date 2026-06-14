@@ -21,6 +21,7 @@ interface FormData {
   noteHeart: string;
   noteBase: string;
   inStock: boolean;
+  stock: number;
   isBestseller: boolean;
   volume_prices: { volume: number; price: number }[];
   sillage: string;
@@ -40,6 +41,7 @@ const emptyForm: FormData = {
   noteHeart: '',
   noteBase: '',
   inStock: true,
+  stock: 10,
   isBestseller: false,
   volume_prices: [{ volume: 50, price: 350000 }],
   sillage: '',
@@ -150,6 +152,7 @@ export function ProductForm({ productId, onSuccess, onCancel }: ProductFormProps
         noteHeart: product.scent[1] ?? '',
         noteBase: product.scent[2] ?? '',
         inStock: Boolean(product.inStock),
+        stock: product.stock ?? 10,
         isBestseller: Boolean(product.isBestseller),
         volume_prices: mappedVolumePrices,
         sillage: product.sillage ?? '',
@@ -281,6 +284,7 @@ export function ProductForm({ productId, onSuccess, onCancel }: ProductFormProps
         ...formData,
         price: Number(firstTier.price),
         volume: Number(firstTier.volume),
+        stock: Number(formData.stock),
         image: imageUrl,
         scent: [formData.noteTop.trim(), formData.noteHeart.trim(), formData.noteBase.trim()],
       };
@@ -642,27 +646,39 @@ export function ProductForm({ productId, onSuccess, onCancel }: ProductFormProps
           <h4 className="text-xs font-bold uppercase tracking-wider text-[#8C7355] flex items-center gap-2 border-b border-stone-100 pb-2">
             <Eye size={14} /> 07. Publikasi & Tagging
           </h4>
-          <div className="flex items-center gap-8">
-            <label className="flex items-center gap-3 cursor-pointer group select-none">
-              <input
-                type="checkbox"
-                name="inStock"
-                checked={formData.inStock}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
+            <div>
+              <PremiumInput
+                label="Jumlah Stok"
+                name="stock"
+                type="number"
+                value={formData.stock}
                 onChange={handleFormChange}
-                className="w-4 h-4 accent-[#4A3728] cursor-pointer"
+                placeholder="Contoh: 10"
               />
-              <span className="text-xs font-bold uppercase tracking-wider text-stone-500 group-hover:text-[#4A3728] transition">Tersedia / In Stock</span>
-            </label>
-            <label className="flex items-center gap-3 cursor-pointer group select-none">
-              <input
-                type="checkbox"
-                name="isBestseller"
-                checked={formData.isBestseller}
-                onChange={handleFormChange}
-                className="w-4 h-4 accent-[#4A3728] cursor-pointer"
-              />
-              <span className="text-xs font-bold uppercase tracking-wider text-stone-500 group-hover:text-[#4A3728] transition">Bestseller</span>
-            </label>
+            </div>
+            <div className="flex items-center gap-8 pb-3 md:col-span-2">
+              <label className="flex items-center gap-3 cursor-pointer group select-none">
+                <input
+                  type="checkbox"
+                  name="inStock"
+                  checked={formData.inStock}
+                  onChange={handleFormChange}
+                  className="w-4 h-4 accent-[#4A3728] cursor-pointer"
+                />
+                <span className="text-xs font-bold uppercase tracking-wider text-stone-500 group-hover:text-[#4A3728] transition">Tersedia / In Stock</span>
+              </label>
+              <label className="flex items-center gap-3 cursor-pointer group select-none">
+                <input
+                  type="checkbox"
+                  name="isBestseller"
+                  checked={formData.isBestseller}
+                  onChange={handleFormChange}
+                  className="w-4 h-4 accent-[#4A3728] cursor-pointer"
+                />
+                <span className="text-xs font-bold uppercase tracking-wider text-stone-500 group-hover:text-[#4A3728] transition">Bestseller</span>
+              </label>
+            </div>
           </div>
         </div>
       </div>

@@ -46,11 +46,15 @@ export async function POST(request: Request) {
         productName: string;
         quantity: number;
         price: number;
+        isDecant?: boolean;
+        selectedVolume?: number;
       }) => ({
         productId: String(item.productId),
         productName: String(item.productName),
         quantity: Number(item.quantity),
         price: Number(item.price),
+        isDecant: item.isDecant !== undefined ? Boolean(item.isDecant) : undefined,
+        selectedVolume: item.selectedVolume !== undefined ? Number(item.selectedVolume) : undefined,
       })),
     });
 

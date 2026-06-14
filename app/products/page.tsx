@@ -89,9 +89,32 @@ function CatalogProductCard({ product }: { product: Product }) {
       <p className="text-[10px] uppercase tracking-[0.2em] text-stone-500 mb-2">
         {getFamilyTag(product)}
       </p>
-      <h3 className="text-xl font-serif text-[#4A3728] mb-1 group-hover:text-[#8C7355] transition-colors">
-        {product.name}
-      </h3>
+      <div className="grid grid-cols-[85%_15%] items-center mb-1 gap-2">
+        <h3 className="text-xl font-serif text-[#4A3728] group-hover:text-[#8C7355] transition-colors truncate" title={product.name}>
+          {product.name}
+        </h3>
+        <div className="text-right whitespace-nowrap">
+          {product.stock !== undefined ? (
+            product.stock <= 0 ? (
+              <span className="inline-block text-[9px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-sm border border-[#8D4F38]/20 text-[#8D4F38] bg-[#8D4F38]/5">
+                Habis
+              </span>
+            ) : product.stock <= 5 ? (
+              <span className="inline-block text-[9px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-sm border border-amber-500/20 text-amber-600 bg-amber-50/50 animate-pulse">
+                Sisa {product.stock}
+              </span>
+            ) : (
+              <span className="inline-block text-[9px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-sm border border-[#8C7355]/20 text-[#8C7355] bg-stone-50">
+                Sisa {product.stock}
+              </span>
+            )
+          ) : (
+            <span className="inline-block text-[9px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-sm border border-[#8C7355]/20 text-[#8C7355] bg-stone-50">
+              Sisa 10
+            </span>
+          )}
+        </div>
+      </div>
       <p className="text-sm text-stone-500">{intensityLabels[product.intensity]}</p>
     </Link>
   );
