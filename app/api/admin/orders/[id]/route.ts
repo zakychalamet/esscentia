@@ -1,7 +1,23 @@
 import { NextResponse } from 'next/server';
-import { updateOrderStatus } from '@/lib/order-db';
+import { updateOrderStatus, getOrderById } from '@/lib/order-db';
 
 type RouteContext = { params: Promise<{ id: string }> };
+
+export async function GET(request: Request, context: RouteContext) {
+  try {
+    const { id } = await context.params;
+    const order = await getOrderById(id);
+
+    if (!order) {
+      return NextResponse.json({ error: 'Pesanan tidak ditemukan' }, { status: 404 });
+    }
+
+    return NextResponse.json(order);
+  } catch (error) {
+    console.error('GET /api/admin/orders/[id] error:', error);
+    return NextResponse.json({ error: 'Gagal mengambil rincian pesanan' }, { status: 500 });
+  }
+}
 
 export async function PUT(request: Request, context: RouteContext) {
   try {

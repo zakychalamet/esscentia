@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
-import { Eye, Download, RefreshCw, AlertCircle, X } from 'lucide-react';
+import { Eye, Download, RefreshCw, AlertCircle, X, FileText } from 'lucide-react';
+import Link from 'next/link';
 
 interface OrderItem {
   id: string;
@@ -45,7 +46,6 @@ export default function AdminOrdersPage() {
   const [statusUpdateVal, setStatusUpdateVal] = useState('');
   const [updating, setUpdating] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-
   useEffect(() => {
     fetchOrders();
   }, []);
@@ -426,11 +426,19 @@ export default function AdminOrdersPage() {
                   </div>
                 </div>
 
-                <Button 
-                  variant="outline" 
-                  className="w-full flex items-center justify-center gap-2 border-stone-200 text-stone-600 hover:bg-stone-50 hover:text-[#4A3728] text-xs py-2.5 mt-2"
+                <Link
+                  href={`/admin/orders/${selectedOrderData.id}/invoice`}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[#4A3728] hover:bg-[#8C7355] text-white text-xs uppercase tracking-wider font-semibold transition rounded-sm text-center mt-4 font-sans"
                 >
-                  <Download size={14} /> Unduh Invoice (PDF)
+                  <FileText size={14} /> Lihat Invoice
+                </Link>
+
+                <Button
+                  variant="outline"
+                  onClick={() => {}}
+                  className="w-full flex items-center justify-center gap-2 border-stone-200 text-stone-600 hover:bg-stone-50 hover:text-[#4A3728] text-xs py-2.5 mt-2 font-sans cursor-pointer"
+                >
+                  <Download size={14} /> Unduh Invoice
                 </Button>
               </div>
             </div>

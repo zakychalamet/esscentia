@@ -17,6 +17,7 @@ import {
   ChevronUp,
   ShoppingBag,
   User,
+  Download,
 } from 'lucide-react';
 
 interface OrderItem {
@@ -409,6 +410,16 @@ export default function OrderTrackingPage() {
                             <span>Total Keseluruhan</span>
                             <span className="font-mono">{formatPrice(order.totalAmount)}</span>
                           </div>
+                        </div>
+
+                        {/* Lihat & Unduh Invoice Buttons */}
+                        <div className="pt-4 border-t border-stone-100 mt-4">
+                          <Link
+                            href={`/orders/track/${order.id}/invoice`}
+                            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[#4A3728] hover:bg-[#8C7355] text-white text-xs uppercase tracking-wider font-semibold transition rounded-sm text-center font-sans cursor-pointer"
+                          >
+                            <FileText size={14} /> Lihat Invoice
+                          </Link>
                         </div>
                       </div>
 

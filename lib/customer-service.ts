@@ -1,6 +1,7 @@
 import type { DbUser } from './user-db';
 import { getCustomerUsers } from './user-db';
 import { getOrdersByUserId, getUserOrderStats } from './order-db';
+import pool from './db';
 import {
   buildRfmAnalytics,
   type CustomerTransaction,
@@ -8,6 +9,7 @@ import {
   type RfmCustomerPoint,
   type RfmSegmentLabel,
   type ChurnRiskLevel,
+  type SegmentShift,
   generateMockTransactions,
 } from './customer-rfm';
 
@@ -217,6 +219,22 @@ export async function getCustomerDetail(id: string): Promise<CustomerDetail | nu
   };
 }
 
+function formatTimeAgo(date: Date): string {
+  const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
+  if (seconds < 0) return 'just now';
+  let interval = Math.floor(seconds / 31536000);
+  if (interval >= 1) return `${interval}y ago`;
+  interval = Math.floor(seconds / 2592000);
+  if (interval >= 1) return `${interval}mo ago`;
+  interval = Math.floor(seconds / 86400);
+  if (interval >= 1) return `${interval}d ago`;
+  interval = Math.floor(seconds / 3600);
+  if (interval >= 1) return `${interval}h ago`;
+  interval = Math.floor(seconds / 60);
+  if (interval >= 1) return `${interval}m ago`;
+  return 'just now';
+}
+
 export async function getAdminRfmAnalytics(
   recencyWeight = 40,
   frequencyWeight = 30,
@@ -224,10 +242,58 @@ export async function getAdminRfmAnalytics(
   k = 4,
   maxIterations = 300
 ): Promise<RfmAnalyticsResult> {
-  const [users, stats] = await Promise.all([getCustomerUsers(), getUserOrderStats()]);
+  const [users, stats, [orderRows]] = await Promise.all([
+    getCustomerUsers(),
+    getUserOrderStats(),
+    pool.query<any[]>(
+      `SELECT user_id, total_amount, created_at
+       FROM orders
+       WHERE user_id IS NOT NULL AND status = 'completed'
+       ORDER BY created_at ASC`
+    )
+  ]);
+
+  const userOrdersMap = new Map<string, { totalAmount: number; createdAt: Date }[]>();
+  for (const row of orderRows) {
+    const uId = String(row.user_id);
+    const list = userOrdersMap.get(uId) ?? [];
+    list.push({
+      totalAmount: Number(row.total_amount),
+      createdAt: new Date(row.created_at),
+    });
+    userOrdersMap.set(uId, list);
+  }
+
   const transactions = users.map((user) => buildTransaction(user, stats));
 
-  const analytics = buildRfmAnalytics(
+  const pastTransactions = users.map((user) => {
+    const orders = userOrdersMap.get(user.id) ?? [];
+    if (orders.length <= 1) {
+      const referenceDate = user.lastLoginAt ?? user.createdAt;
+      const lastOrderDaysAgo = daysBetween(new Date(referenceDate));
+      return {
+        customerId: user.id,
+        lastOrderDaysAgo,
+        orderCount: 0,
+        totalSpend: 0,
+      };
+    } else {
+      const pastOrders = orders.slice(0, -1);
+      const lastOrder = pastOrders[pastOrders.length - 1];
+      const referenceDate = lastOrder?.createdAt ?? user.lastLoginAt ?? user.createdAt;
+      const lastOrderDaysAgo = daysBetween(new Date(referenceDate));
+      const totalSpend = pastOrders.reduce((sum, o) => sum + o.totalAmount, 0);
+
+      return {
+        customerId: user.id,
+        lastOrderDaysAgo,
+        orderCount: pastOrders.length,
+        totalSpend,
+      };
+    }
+  });
+
+  const currentAnalytics = buildRfmAnalytics(
     transactions,
     recencyWeight,
     frequencyWeight,
@@ -236,17 +302,89 @@ export async function getAdminRfmAnalytics(
     maxIterations
   );
 
+  const pastAnalytics = buildRfmAnalytics(
+    pastTransactions,
+    recencyWeight,
+    frequencyWeight,
+    monetaryWeight,
+    k,
+    maxIterations
+  );
+
+  const pastSegmentMap = new Map(pastAnalytics.customers.map((c) => [c.customerId, c.segment]));
+  const currentSegmentMap = new Map(currentAnalytics.customers.map((c) => [c.customerId, c.segment]));
+
+  const segmentShifts: SegmentShift[] = [];
+  const SEGMENT_RANK: Record<string, number> = {
+    'Champions': 11,
+    'Loyal Customers': 10,
+    'Potential Loyalists': 9,
+    'New Customers': 8,
+    'Promising': 7,
+    'Need Attention': 6,
+    'About To Sleep': 5,
+    'At Risk': 4,
+    'Cannot Lose Them': 3,
+    'Hibernating': 2,
+    'Lost Customers': 1,
+  };
+
+  let shiftIdCounter = 1;
+  for (const user of users) {
+    const currentSeg = currentSegmentMap.get(user.id);
+    const pastSeg = pastSegmentMap.get(user.id);
+
+    if (currentSeg && pastSeg && currentSeg !== pastSeg) {
+      const orders = userOrdersMap.get(user.id) ?? [];
+      const latestOrder = orders[orders.length - 1];
+      const timeAgo = latestOrder ? formatTimeAgo(latestOrder.createdAt) : 'just now';
+
+      const currentRank = SEGMENT_RANK[currentSeg] ?? 6;
+      const pastRank = SEGMENT_RANK[pastSeg] ?? 6;
+      const direction = currentRank > pastRank ? 'up' : 'down';
+
+      const message = direction === 'up'
+        ? `upgraded from '${pastSeg}' to '${currentSeg}'`
+        : `dropped from '${pastSeg}' to '${currentSeg}'`;
+
+      segmentShifts.push({
+        id: String(shiftIdCounter++),
+        customerId: user.id,
+        message,
+        direction,
+        timeAgo,
+      });
+    }
+  }
+
   const userMap = new Map(users.map((u) => [u.id, u.name]));
-  const customerTable = analytics.customerTable?.map((row) => ({
+  const customerTable = currentAnalytics.customerTable?.map((row) => ({
     ...row,
     customerName: userMap.get(row.customerId) ?? row.customerName,
   }));
 
+  // Sort shifts to show most recent first
+  segmentShifts.sort((a, b) => {
+    const parseTime = (str: string) => {
+      const m = str.match(/^(\d+)([a-z]+)/);
+      if (!m) return 0;
+      const val = parseInt(m[1], 10);
+      const unit = m[2];
+      if (unit.startsWith('m')) return val; // minutes
+      if (unit.startsWith('h')) return val * 60; // hours
+      if (unit.startsWith('d')) return val * 1440; // days
+      if (unit.startsWith('mo')) return val * 43200; // months
+      return val * 525600; // years
+    };
+    return parseTime(a.timeAgo) - parseTime(b.timeAgo);
+  });
+
   return {
-    ...analytics,
+    ...currentAnalytics,
     customerTable,
+    segmentShifts,
     kpi: {
-      ...analytics.kpi,
+      ...currentAnalytics.kpi,
       totalCliente: users.length,
       clienteleGrowthPct: users.length > 0 ? Math.min(users.length, 15) : 0,
     },
