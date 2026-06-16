@@ -160,34 +160,68 @@ export default function HomePage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
               {bestsellerProducts.map((product) => (
-                <div key={product.id} className="bg-white p-6 rounded-lg hover:shadow-lg transition">
-                  <Link href={`/products/${product.id}`} className="block mb-4 h-48 bg-gray-200 rounded overflow-hidden">
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      className="w-full h-full object-cover hover:scale-105 transition duration-300"
-                    />
-                  </Link>
-                  <p className="text-xs text-amber-900 uppercase tracking-widest mb-2">{product.brand}</p>
-                  <Link href={`/products/${product.id}`}>
-                    <h3 className="text-lg font-serif text-stone-900 mb-2 hover:text-amber-800 transition">{product.name}</h3>
-                  </Link>
-                  <div className="flex items-center justify-between">
-                    <p className="text-amber-900 font-semibold">Rp {product.price.toLocaleString('id-ID')}</p>
+                <div key={product.id} className="bg-white p-6 rounded-lg hover:shadow-lg transition flex flex-col justify-between">
+                  <div>
+                    <Link href={`/products/${product.id}`} className="block mb-4 h-48 bg-gray-200 rounded overflow-hidden">
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        className="w-full h-full object-cover hover:scale-105 transition duration-300"
+                      />
+                    </Link>
+                    <p className="text-xs text-amber-900 uppercase tracking-widest mb-2">{product.brand}</p>
+                    <Link href={`/products/${product.id}`}>
+                      <h3 className="text-lg font-serif text-stone-900 mb-2 hover:text-amber-800 transition">{product.name}</h3>
+                    </Link>
+                    <div className="flex items-center justify-between mb-4">
+                      <p className="text-amber-900 font-semibold">Rp {product.price.toLocaleString('id-ID')}</p>
+                    </div>
                   </div>
-                  <button
-                    onClick={() => {
-                      if (!user) {
-                        router.push(getLoginUrl('/'));
-                        return;
-                      }
-                      addToCart(product, 1);
-                      alert(`${product.name} ditambahkan ke keranjang!`);
-                    }}
-                    className="w-full mt-4 py-2 border border-amber-900 text-amber-900 text-sm uppercase tracking-widest hover:bg-amber-900 hover:text-white transition"
-                  >
-                    Add to Cart
-                  </button>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      onClick={() => {
+                        if (!user) {
+                          router.push(getLoginUrl('/'));
+                          return;
+                        }
+                        addToCart(product, 1);
+                        alert(`${product.name} ditambahkan ke keranjang!`);
+                      }}
+                      className="w-full py-2 border border-amber-900 text-amber-900 text-[10px] uppercase tracking-wider hover:bg-amber-900 hover:text-white transition font-semibold text-center cursor-pointer rounded-sm"
+                    >
+                      Add to Cart
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (!user) {
+                          router.push(getLoginUrl('/'));
+                          return;
+                        }
+                        addToCart(product, 1, product.volume, product.price, false);
+                        localStorage.removeItem('cartPromoCode');
+                        localStorage.removeItem('checkoutSource');
+                        
+                        const checkoutItem = {
+                          product: {
+                            id: product.id,
+                            name: product.name,
+                            brand: product.brand,
+                            price: product.price,
+                            image: product.image,
+                          },
+                          quantity: 1,
+                          selectedVolume: product.volume,
+                          selectedPrice: product.price,
+                          isDecant: false,
+                        };
+                        localStorage.setItem('checkoutItems', JSON.stringify([checkoutItem]));
+                        router.push('/checkout');
+                      }}
+                      className="w-full py-2 bg-[#8D4F38] text-white text-[10px] uppercase tracking-wider hover:bg-[#7a4532] transition font-semibold text-center cursor-pointer rounded-sm"
+                    >
+                      Buy Now
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
