@@ -451,70 +451,53 @@ export function mapClustersToSegments(
   monetaryWeight: number
 ): Record<number, RfmSegmentLabel> {
   const k = centroids.length;
-  const wR = recencyWeight / 100;
-  const wF = frequencyWeight / 100;
-  const wM = monetaryWeight / 100;
 
-  const archetypeVectors = ARCHETYPES.map((arc) => {
-    const wr = arc.r * wR;
-    const wf = arc.f * wF;
-    const wm = arc.m * wM;
-    const score = wr + wf + wm;
-    return {
-      label: arc.label,
-      vector: [wr, wf, wm, score] as Vec4,
-    };
-  });
+  // Pair each cluster index with its centroid's RFM Score (centroids[c][3])
+  const clusterScores = centroids.map((cent, c) => ({
+    clusterIdx: c,
+    score: cent[3],
+  }));
 
-  interface DistancePair {
-    clusterIdx: number;
-    segmentLabel: RfmSegmentLabel;
-    distance: number;
-  }
+  // Sort clusters by RFM Score descending (best customer cluster first)
+  clusterScores.sort((a, b) => b.score - a.score);
 
-  const pairs: DistancePair[] = [];
-  for (let c = 0; c < k; c++) {
-    for (const arc of archetypeVectors) {
-      const distance = dist4d(centroids[c], arc.vector);
-      pairs.push({
-        clusterIdx: c,
-        segmentLabel: arc.label,
-        distance,
-      });
-    }
-  }
-
-  pairs.sort((a, b) => a.distance - b.distance);
-
-  const matchedClusters = new Set<number>();
-  const matchedSegments = new Set<RfmSegmentLabel>();
   const mapping: Record<number, RfmSegmentLabel> = {};
 
-  for (const pair of pairs) {
-    if (!matchedClusters.has(pair.clusterIdx) && !matchedSegments.has(pair.segmentLabel)) {
-      mapping[pair.clusterIdx] = pair.segmentLabel;
-      matchedClusters.add(pair.clusterIdx);
-      matchedSegments.add(pair.segmentLabel);
+  if (k === 3) {
+    // 1st (Best) -> Champions
+    // 2nd -> Loyal Customers
+    // 3rd (Worst) -> Lost Customers
+    mapping[clusterScores[0].clusterIdx] = 'Champions';
+    mapping[clusterScores[1].clusterIdx] = 'Loyal Customers';
+    mapping[clusterScores[2].clusterIdx] = 'Lost Customers';
+  } else if (k === 5) {
+    // 1st (Best) -> Champions
+    // 2nd -> Loyal Customers
+    // 3rd -> Potential Loyalists
+    // 4th -> About To Sleep
+    // 5th (Worst) -> Lost Customers
+    mapping[clusterScores[0].clusterIdx] = 'Champions';
+    mapping[clusterScores[1].clusterIdx] = 'Loyal Customers';
+    mapping[clusterScores[2].clusterIdx] = 'Potential Loyalists';
+    mapping[clusterScores[3].clusterIdx] = 'About To Sleep';
+    mapping[clusterScores[4].clusterIdx] = 'Lost Customers';
+  } else {
+    // Default to k = 4 or other values
+    // 1st (Best) -> Champions
+    // 2nd -> Loyal Customers
+    // 3rd -> Potential Loyalists
+    // 4th (Worst) -> Lost Customers
+    mapping[clusterScores[0].clusterIdx] = 'Champions';
+    mapping[clusterScores[1].clusterIdx] = 'Loyal Customers';
+    if (k > 2) {
+      mapping[clusterScores[2].clusterIdx] = 'Potential Loyalists';
     }
-    if (matchedClusters.size === k) break;
-  }
-
-  // Fallback
-  for (let c = 0; c < k; c++) {
-    if (mapping[c] === undefined) {
-      let bestLabel: RfmSegmentLabel = 'Need Attention';
-      let minD = Infinity;
-      for (const arc of archetypeVectors) {
-        if (!matchedSegments.has(arc.label)) {
-          const d = dist4d(centroids[c], arc.vector);
-          if (d < minD) {
-            minD = d;
-            bestLabel = arc.label;
-          }
-        }
-      }
-      mapping[c] = bestLabel;
-      matchedSegments.add(bestLabel);
+    if (k > 3) {
+      mapping[clusterScores[3].clusterIdx] = 'Lost Customers';
+    }
+    // Fallback for remaining (if k is large)
+    for (let i = 4; i < k; i++) {
+      mapping[clusterScores[i].clusterIdx] = 'Lost Customers';
     }
   }
 

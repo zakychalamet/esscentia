@@ -76,6 +76,11 @@ export default function CustomersPage() {
     });
   }, [customers, searchTerm, segmentFilter]);
 
+  const activeSegments = useMemo(() => {
+    const set = new Set(customers.map((c) => c.segment));
+    return Array.from(set).sort();
+  }, [customers]);
+
   const hasActiveFilters = searchTerm !== '' || segmentFilter !== 'all';
 
   const resetFilters = () => {
@@ -120,17 +125,9 @@ export default function CustomersPage() {
               className="bg-[#EDEAE4]/20 border border-[#E7E5E0] text-[#4A3728] rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-[#8C7355] focus:ring-1 focus:ring-[#8C7355]/20 focus:bg-white transition-all duration-200 min-w-[170px]"
             >
               <option value="all">Semua Segmen</option>
-              <option value="Champions">Champions</option>
-              <option value="Loyal Customers">Loyal Customers</option>
-              <option value="Potential Loyalists">Potential Loyalists</option>
-              <option value="New Customers">New Customers</option>
-              <option value="Promising">Promising</option>
-              <option value="Need Attention">Need Attention</option>
-              <option value="About To Sleep">About To Sleep</option>
-              <option value="At Risk">At Risk</option>
-              <option value="Cannot Lose Them">Cannot Lose Them</option>
-              <option value="Hibernating">Hibernating</option>
-              <option value="Lost Customers">Lost Customers</option>
+              {activeSegments.map((seg) => (
+                <option key={seg} value={seg}>{seg}</option>
+              ))}
             </select>
             {hasActiveFilters && (
               <button

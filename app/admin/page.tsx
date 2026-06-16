@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import {
   Users,
@@ -50,6 +50,13 @@ export default function AdminDashboard() {
       .finally(() => setDbLoading(false));
   }, [user?.role]);
 
+  const activeSegments = useMemo(() => {
+    const customersList = analytics?.customers;
+    if (!customersList) return [];
+    const set = new Set(customersList.map((c) => c.segment));
+    return Array.from(set).sort();
+  }, [analytics?.customers]);
+
   if (!canViewAnalytics(user?.role)) {
     return (
       <div className="max-w-lg mx-auto text-center py-16 font-sans">
@@ -82,6 +89,8 @@ export default function AdminDashboard() {
 
   const { kpi, customers, churnPie, segmentShifts } = analytics;
   const highRiskPct = churnPie.find((s) => s.level === 'high')?.value ?? 0;
+
+
 
   const formatPrice = (amount: number) => {
     return new Intl.NumberFormat('id-ID', {
@@ -307,19 +316,7 @@ export default function AdminDashboard() {
           </div>
           <RfmClusterChart customers={customers} />
           <div className="flex flex-wrap gap-x-4 gap-y-2 mt-4 pt-4 border-t border-stone-200">
-            {([
-              'Champions',
-              'Loyal Customers',
-              'Potential Loyalists',
-              'New Customers',
-              'Promising',
-              'Need Attention',
-              'About To Sleep',
-              'At Risk',
-              'Cannot Lose Them',
-              'Hibernating',
-              'Lost Customers',
-            ] as const).map((seg) => (
+            {activeSegments.map((seg) => (
               <span key={seg} className="flex items-center gap-2 text-xs text-stone-600">
                 <span
                   className="w-2.5 h-2.5 rounded-full shrink-0"
