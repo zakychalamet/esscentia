@@ -103,48 +103,48 @@ export default function AdminDashboard() {
     {
       label: 'Pendapatan Hari Ini',
       value: formatPrice(dashboardData.revenue.daily),
-      trend: 'Real-time sales today',
+      trend: 'Penjualan real-time hari ini',
       trendUp: true,
     },
     {
       label: 'Pendapatan Mingguan (7 Hari)',
       value: formatPrice(dashboardData.revenue.weekly),
-      trend: 'Sales in the last 7 days',
+      trend: 'Penjualan dalam 7 hari terakhir',
       trendUp: true,
     },
     {
       label: 'Pendapatan Bulanan (30 Hari)',
       value: formatPrice(dashboardData.revenue.monthly),
-      trend: 'Sales in the last 30 days',
+      trend: 'Penjualan dalam 30 hari terakhir',
       trendUp: true,
     },
     {
       label: 'Total Pendapatan',
       value: formatPrice(dashboardData.revenue.total),
-      trend: 'All-time cumulative sales',
+      trend: 'Total semua penjualan',
       trendUp: true,
     },
   ];
 
   const kpiCards = [
     {
-      label: 'Total Clientele',
+      label: 'Jumlah Pelanggan',
       value: kpi.totalCliente.toLocaleString('id-ID'),
-      trend: `+${kpi.clienteleGrowthPct}% vs last quarter`,
+      trend: `+${kpi.clienteleGrowthPct}% vs kuartal terakhir`,
       trendUp: true,
       icon: Users,
     },
     {
-      label: 'Avg Churn Risk',
+      label: 'Rata-rata Risiko Churn',
       value: `${kpi.avgChurnRiskPct}%`,
-      trend: `${kpi.churnTrendPct}% vs last quarter`,
+      trend: `${kpi.churnTrendPct}% vs kuartal terakhir`,
       trendUp: kpi.churnTrendPct < 0,
       icon: AlertTriangle,
     },
     {
-      label: 'Top Segment',
+      label: 'Segmen Teratas',
       value: kpi.topSegment,
-      trend: `${kpi.topSegmentRevenuePct}% of Total Revenue`,
+      trend: `${kpi.topSegmentRevenuePct}% of Total Pendapatan`,
       trendUp: true,
       icon: Star,
       isSegment: true,
@@ -157,10 +157,10 @@ export default function AdminDashboard() {
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 border-b border-stone-200/60 pb-6">
         <div>
           <h1 className="text-3xl md:text-4xl font-serif font-bold text-[#4A3728]">
-            Intelligence Overview
+            Dashboard
           </h1>
           <p className="text-stone-500 text-sm mt-1 max-w-xl font-light">
-            Real-time metrics, revenue analysis, inventory tracking, and client RFM segmentation portfolios.
+            Metrik real-time, analisis pendapatan, pelacakan persediaan, dan portofolio segmentasi RFM klien.
           </p>
         </div>
         <div className="flex items-center gap-3 shrink-0">
@@ -184,7 +184,7 @@ export default function AdminDashboard() {
       {/* Row 1: Revenue Metrics */}
       <div>
         <h3 className="text-xs font-bold uppercase tracking-widest text-[#8C7355] mb-4">
-          Financial Summary
+          Laporan Keuangan
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
           {revenueCards.map((card) => {
@@ -272,8 +272,8 @@ export default function AdminDashboard() {
         {/* Churn Exposure */}
         <div className="bg-white border border-[#E7E5E0] rounded-lg p-6 shadow-xs flex flex-col justify-between">
           <div>
-            <h2 className="text-lg font-serif font-bold text-[#4A3728] mb-1">Churn Exposure</h2>
-            <p className="text-xs text-stone-500 mb-4 font-light">Distribution by predicted churn risk</p>
+            <h2 className="text-lg font-serif font-bold text-[#4A3728] mb-1">Risiko Churn</h2>
+            <p className="text-xs text-stone-500 mb-4 font-light">Distribusi berdasarkan risiko churn yang diprediksi</p>
             <ChurnPieChart data={churnPie} highRiskPct={highRiskPct} />
           </div>
           <ul className="mt-4 space-y-2 border-t border-stone-100 pt-4">
@@ -300,9 +300,9 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         <div className="xl:col-span-2 bg-white border border-[#E7E5E0] rounded-lg p-6 shadow-xs">
           <div className="mb-4">
-            <h2 className="text-lg font-serif font-bold text-[#4A3728]">RFM Cluster Analysis</h2>
+            <h2 className="text-lg font-serif font-bold text-[#4A3728]">Analisis Klaster RFM</h2>
             <p className="text-xs text-stone-500 mt-1 font-light">
-              K-Means segmentation on Recency, Frequency, and Monetary scores. Bubble size = monetary value.
+              Segmentasi K-Means berdasarkan skor Recency, Frequency, dan Monetary. Ukuran bubble = nilai moneter.
             </p>
           </div>
           <RfmClusterChart customers={customers} />
@@ -320,7 +320,7 @@ export default function AdminDashboard() {
         </div>
 
         <div className="bg-white border border-[#E7E5E0] rounded-lg p-6 shadow-xs">
-          <h2 className="text-lg font-serif font-bold text-[#4A3728] mb-4">Segment Shifts</h2>
+          <h2 className="text-lg font-serif font-bold text-[#4A3728] mb-4">Perubahan Segmentasi</h2>
           <ul className="space-y-4 max-h-[380px] overflow-y-auto pr-1">
             {segmentShifts.map((shift) => (
               <li key={shift.id} className="flex gap-3 text-sm border-b border-stone-50 pb-3 last:border-0 last:pb-0">

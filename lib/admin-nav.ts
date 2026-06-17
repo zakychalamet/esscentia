@@ -20,14 +20,14 @@ export interface AdminNavItem {
 
 export const adminNavItems: AdminNavItem[] = [
   { href: '/admin', label: 'Dashboard', icon: BarChart3 },
-  { href: '/admin/analytics', label: 'Analytics Engine', icon: LineChart },
-  { href: '/admin/campaigns', label: 'Campaign Manager', icon: Megaphone },
-  { href: '/admin/customers', label: 'Customers', icon: Users },
+  { href: '/admin/analytics', label: 'Analisis', icon: LineChart },
+  { href: '/admin/campaigns', label: 'Kampanye', icon: Megaphone },
+  { href: '/admin/customers', label: 'Pelanggan', icon: Users },
   { href: '/admin/products', label: 'Produk', icon: Package },
   { href: '/admin/decants', label: 'Decant', icon: Droplet },
   { href: '/admin/journal', label: 'Jurnal', icon: BookOpen },
   { href: '/admin/orders', label: 'Pesanan', icon: ShoppingCart },
-  { href: '/admin/settings', label: 'Settings', icon: Settings },
+  { href: '/admin/settings', label: 'Pengaturan', icon: Settings },
 ];
 
 export const roleAllowedPaths: Record<string, string[]> = {

@@ -190,7 +190,7 @@ export default function AnalyticsPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-stone-200/60 pb-6">
         <div>
-          <h1 className="text-3xl font-serif text-stone-900">RFM & K-Means Analytics Engine</h1>
+          <h1 className="text-3xl font-serif text-stone-900">Analisis RFM & K-Means</h1>
           <p className="text-stone-500 text-sm mt-1 max-w-xl">
             Sistem pengelompokan pelanggan otomatis berdasarkan kebaruan transaksi (Recency),
             frekuensi belanja (Frequency), dan nilai moneter (Monetary) untuk mengoptimalkan kampanye CRM.
@@ -215,7 +215,7 @@ export default function AnalyticsPage() {
         <div className="bg-white p-6 rounded-xl border border-stone-200 shadow-sm flex flex-col justify-between">
           <div>
             <div className="flex justify-between items-center mb-6">
-              <h3 className="font-serif font-semibold text-[#4A3728]">RFM Weights Configuration</h3>
+              <h3 className="font-serif font-semibold text-[#4A3728]">Konfigurasi Bobot RFM</h3>
               <Settings2 size={18} className="text-[#8C7355]" />
             </div>
             
@@ -275,27 +275,27 @@ export default function AnalyticsPage() {
         <div className="bg-white p-6 rounded-xl border border-stone-200 shadow-sm flex flex-col justify-between">
           <div>
             <div className="flex justify-between items-center mb-6">
-              <h3 className="font-serif font-semibold text-[#4A3728]">K-Means Parameters</h3>
+              <h3 className="font-serif font-semibold text-[#4A3728]">Parameter K-Means</h3>
               <Network size={18} className="text-[#8C7355]" />
             </div>
             
             <div className="space-y-4">
               <div>
-                <label className="block text-xs text-stone-600 font-medium mb-1.5">Number of Clusters (k)</label>
+                <label className="block text-xs text-stone-600 font-medium mb-1.5">Jumlah Kluster (k)</label>
                 <select 
                   value={k}
                   onChange={(e) => setK(Number(e.target.value))}
                   className="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#8C7355] appearance-none bg-white font-medium"
                 >
                   <option value={3}>3 Clusters</option>
-                  <option value={4}>4 Clusters (Recomended)</option>
+                  <option value={4}>4 Clusters (Rekomendasi)</option>
                   <option value={5}>5 Clusters</option>
                 </select>
               </div>
 
               <div>
                 <div className="flex justify-between text-xs mb-1.5">
-                  <span className="text-stone-600 font-medium">Max Iterations</span>
+                  <span className="text-stone-600 font-medium">Maksimum Iterasi</span>
                   <span className="text-[#8C7355] font-bold">{maxIterations}</span>
                 </div>
                 <input 
@@ -319,7 +319,7 @@ export default function AnalyticsPage() {
           <div className="w-14 h-14 rounded-full bg-stone-50 flex items-center justify-center mb-4 border border-stone-200/60 shadow-inner">
             <Activity size={26} className="text-[#8C7355]" />
           </div>
-          <h3 className="font-serif font-semibold text-[#4A3728] mb-1">Process Data & Update Segments</h3>
+          <h3 className="font-serif font-semibold text-[#4A3728] mb-1">Proses Data & Perbarui Segmentasi</h3>
           <p className="text-xs text-stone-500 mb-6 max-w-[240px]">
             Jalankan ulang mesin analitik untuk menghitung profil pengeluaran dan klasterisasi pelanggan.
           </p>
@@ -333,7 +333,7 @@ export default function AnalyticsPage() {
             ) : (
               <Play size={14} fill="currentColor" />
             )}
-            Run Analytics Engine
+            Jalankan Analisis
           </button>
         </div>
 
@@ -346,7 +346,7 @@ export default function AnalyticsPage() {
         </div>
       ) : !analytics ? (
         <div className="py-12 text-center text-stone-500 bg-white rounded-xl border border-stone-200 shadow-sm">
-          Gagal memuat data analitik. Klik "Run Analytics Engine" untuk mencoba kembali.
+          Gagal memuat data analitik. Klik "Jalankan Analisis" untuk mencoba kembali.
         </div>
       ) : (
         <>
@@ -369,13 +369,13 @@ export default function AnalyticsPage() {
                   <thead className="bg-stone-50/50 text-[11px] font-bold text-stone-500 uppercase tracking-wider border-b border-stone-100">
                     <tr>
                       <th className="px-6 py-3.5">Cluster ID</th>
-                      <th className="px-6 py-3.5">Segment Assignment</th>
-                      <th className="px-6 py-3.5 text-right">Customer Count</th>
-                      <th className="px-6 py-3.5 text-right">Database Share</th>
-                      <th className="px-6 py-3.5 text-right">Avg Recency (Days)</th>
-                      <th className="px-6 py-3.5 text-right">Avg Frequency</th>
-                      <th className="px-6 py-3.5 text-right">Avg Spend</th>
-                      <th className="px-6 py-3.5 text-center">Avg RFM Score</th>
+                      <th className="px-6 py-3.5">Penetapan Segmentasi</th>
+                      <th className="px-6 py-3.5 text-right">Jumlah Pelanggan</th>
+                      <th className="px-6 py-3.5 text-right">Pembagian Database</th>
+                      <th className="px-6 py-3.5 text-right">Rata-rata Recency (Perhari)</th>
+                      <th className="px-6 py-3.5 text-right">Rata-rata Frequency</th>
+                      <th className="px-6 py-3.5 text-right">Rata-rata Pengeluaran</th>
+                      <th className="px-6 py-3.5 text-center">Rata-rata Skor RFM</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-stone-100">
@@ -407,7 +407,7 @@ export default function AnalyticsPage() {
           <div className="bg-white rounded-xl border border-stone-200 shadow-sm overflow-hidden">
             <div className="px-6 py-4 border-b border-stone-200/60 bg-stone-50 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div>
-                <h3 className="font-serif font-semibold text-[#4A3728]">Customer Segmentation Table</h3>
+                <h3 className="font-serif font-semibold text-[#4A3728]">Tabel Segmentasi Pelanggan</h3>
                 <p className="text-stone-500 text-xs mt-0.5">
                   Rincian skor RFM dan hasil klasterisasi dari seluruh pelanggan terdaftar yang telah mendaftar dan login.
                 </p>
@@ -418,7 +418,7 @@ export default function AnalyticsPage() {
                   <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" />
                   <input
                     type="text"
-                    placeholder="Search by ID or Name..."
+                    placeholder="Cari berdasarkan ID atau Nama..."
                     value={searchTerm}
                     onChange={(e) => {
                       setSearchTerm(e.target.value);
@@ -462,13 +462,13 @@ export default function AnalyticsPage() {
                     <thead className="bg-stone-50/50 text-[11px] font-bold text-stone-500 uppercase tracking-wider border-b border-stone-100">
                       <tr>
                         <th className="px-6 py-3.5">Customer ID</th>
-                        <th className="px-6 py-3.5">Customer Name</th>
-                        <th className="px-6 py-3.5 text-right">Recency (Days)</th>
+                        <th className="px-6 py-3.5">Nama Pelanggan</th>
+                        <th className="px-6 py-3.5 text-right">Recency (Hari)</th>
                         <th className="px-6 py-3.5 text-right">Frequency</th>
-                        <th className="px-6 py-3.5 text-right">Monetary Spend</th>
-                        <th className="px-6 py-3.5 text-center">Quantile R-F-M</th>
+                        <th className="px-6 py-3.5 text-right">Pengeluaran</th>
+                        <th className="px-6 py-3.5 text-center">Kuantil R-F-M</th>
                         <th className="px-6 py-3.5">Cluster ID</th>
-                        <th className="px-6 py-3.5">Segment Assignment</th>
+                        <th className="px-6 py-3.5">Segmentasi Pelanggan</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-stone-100">

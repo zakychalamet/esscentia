@@ -434,7 +434,7 @@ export default function CampaignManagerPage() {
   if (loading) {
     return (
       <div className="py-16 text-center text-slate-500 text-sm">
-        Memuat data Campaign Manager...
+        Memuat data Kampanye...
       </div>
     );
   }
@@ -453,7 +453,7 @@ export default function CampaignManagerPage() {
         </div>
         <div>
           <h1 className="text-2xl font-bold text-[#4A3728]">
-            Campaign Designer
+            Kampanye Promosi
           </h1>
           <p className="text-stone-500 text-xs mt-1">
             Konfigurasikan strategi penawaran promo atau peluncuran berita ke segmentasi terpilih.
@@ -481,7 +481,7 @@ export default function CampaignManagerPage() {
               {/* Target Audience Dropdown */}
               <div>
                 <label className="block text-[10px] font-bold text-slate-400 tracking-wider uppercase mb-1.5">
-                  Target Audience (RFM Segment)
+                  Target Audiens (Segmentasi RFM)
                 </label>
                 <div className="relative">
                   <select 
@@ -503,7 +503,7 @@ export default function CampaignManagerPage() {
               {/* Campaign Internal Name */}
               <div>
                 <label className="block text-[10px] font-bold text-slate-400 tracking-wider uppercase mb-1.5">
-                  Campaign Internal Name
+                  Nama Kampanye
                 </label>
                 <input 
                   type="text" 
@@ -518,7 +518,7 @@ export default function CampaignManagerPage() {
               {/* Promotion Type */}
               <div>
                 <label className="block text-[10px] font-bold text-slate-400 tracking-wider uppercase mb-1.5">
-                  Promotion Type
+                  Tipe Promosi
                 </label>
                 <div className="relative">
                   <select 
@@ -526,9 +526,9 @@ export default function CampaignManagerPage() {
                     onChange={(e) => handlePromoTypeChange(e.target.value)}
                     className="w-full appearance-none border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#8C7355] focus:border-[#8C7355] bg-white text-slate-700 font-medium"
                   >
-                    <option value="Private Collection Access">Private Collection Access (Akses Awal Produk)</option>
-                    <option value="Discount Code">Discount Code (Kode Kupon Diskon)</option>
-                    <option value="Event Invitation">Event Invitation (Undangan Event VIP)</option>
+                    <option value="Akses Awal Produk">Akses Awal Produk</option>
+                    <option value="Kode Kupon Diskon">Kode Kupon Diskon</option>
+                    <option value="Undangan Event VIP">Undangan Event VIP</option>
                   </select>
                   <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={16} />
                 </div>
@@ -554,7 +554,7 @@ export default function CampaignManagerPage() {
               <div>
                 <div className="flex justify-between items-center mb-1.5">
                   <label className="block text-[10px] font-bold text-slate-400 tracking-wider uppercase">
-                    Message Copy (Akan muncul di notifikasi aplikasi pengguna)
+                    Pesan (Akan muncul di notifikasi aplikasi pengguna)
                   </label>
                   <button 
                     type="button"
@@ -581,7 +581,7 @@ export default function CampaignManagerPage() {
                   disabled={isSubmitting}
                   className="bg-[#4A3728] hover:bg-[#8C7355] text-white px-8 py-3 rounded-xl text-sm font-semibold transition-all duration-300 flex items-center gap-2 w-full justify-center shadow-md shadow-stone-100 disabled:opacity-50"
                 >
-                  <Send size={16} /> {isSubmitting ? 'Meluncurkan...' : 'Launch Segment Campaign Now'}
+                  <Send size={16} /> {isSubmitting ? 'Membuat...' : 'Buat Kampanye Sekarang'}
                 </button>
               </div>
 
@@ -660,7 +660,7 @@ export default function CampaignManagerPage() {
         <div className="px-6 py-5 border-b border-slate-100 bg-[#fafafa] flex items-center justify-between">
           <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
             <History className="text-[#8C7355]" size={18} />
-            Campaign Launch History
+            Histori Kampanye
           </h2>
           <span className="text-xs font-semibold bg-[#8C7355]/10 text-[#8C7355] px-2.5 py-1 rounded-full border border-[#8C7355]/20">
             Total {history.length} Terkirim
@@ -677,9 +677,9 @@ export default function CampaignManagerPage() {
               <thead className="text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100 bg-slate-50">
                 <tr>
                   <th className="px-6 py-4">Waktu Peluncuran</th>
-                  <th className="px-6 py-4">Internal Name & Content</th>
-                  <th className="px-6 py-4">Target Segment</th>
-                  <th className="px-6 py-4">Promo Type</th>
+                  <th className="px-6 py-4">Nama & Konten</th>
+                  <th className="px-6 py-4">Target Segmentasi</th>
+                  <th className="px-6 py-4">Tipe Promosi</th>
                   <th className="px-6 py-4 text-center">Status & Aksi</th>
                 </tr>
               </thead>

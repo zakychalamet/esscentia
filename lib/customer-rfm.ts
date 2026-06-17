@@ -527,9 +527,9 @@ export function buildRfmAnalytics(
         churnTrendPct: 0,
       },
       churnPie: [
-        { name: 'Low Risk', level: 'low', value: 0, color: CHURN_COLORS.low },
-        { name: 'Medium Risk', level: 'medium', value: 0, color: CHURN_COLORS.medium },
-        { name: 'High Risk', level: 'high', value: 0, color: CHURN_COLORS.high },
+        { name: 'Resiko Rendah', level: 'low', value: 0, color: CHURN_COLORS.low },
+        { name: 'Resiko Sedang', level: 'medium', value: 0, color: CHURN_COLORS.medium },
+        { name: 'Resiko Tinggi', level: 'high', value: 0, color: CHURN_COLORS.high },
       ],
       segmentShifts: [],
       clusterCentroids: [],
@@ -633,19 +633,19 @@ export function buildRfmAnalytics(
   const total = customers.length;
   const churnPie: ChurnSlice[] = [
     {
-      name: 'Low Risk',
+      name: 'Resiko Rendah',
       level: 'low',
       value: Math.round((churnCounts.low / total) * 100),
       color: CHURN_COLORS.low,
     },
     {
-      name: 'Medium Risk',
+      name: 'Resiko Sedang',
       level: 'medium',
       value: Math.round((churnCounts.medium / total) * 100),
       color: CHURN_COLORS.medium,
     },
     {
-      name: 'High Risk',
+      name: 'Resiko Tinggi',
       level: 'high',
       value: Math.round((churnCounts.high / total) * 100),
       color: CHURN_COLORS.high,

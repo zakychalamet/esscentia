@@ -115,14 +115,14 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                 className="w-full flex items-center gap-3 px-4 py-2 text-sm text-stone-500 hover:text-[#4A3728] text-left cursor-pointer"
               >
                 <HelpCircle size={16} />
-                Help Center
+                Pusat Bantuan
               </button>
               <button
                 type="button"
                 className="w-full flex items-center gap-3 px-4 py-2 text-sm text-stone-500 hover:text-[#4A3728] mb-2 text-left cursor-pointer"
               >
                 <FileText size={16} />
-                Documentation
+                Dokumentasi
               </button>
             </>
           )}
