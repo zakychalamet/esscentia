@@ -75,19 +75,19 @@ export default function HomePage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
               <div>
-                <p className="text-sm text-amber-900 uppercase tracking-widest mb-4">Artisanal Fragrance</p>
+                <p className="text-sm text-amber-900 uppercase tracking-widest mb-4">Premium Fragrance Place</p>
                 <h1 className="text-5xl md:text-6xl font-serif text-stone-900 mb-4">
-                  Quiet Luxury,
+                  Authentic Luxury,
                 </h1>
                 <h1 className="text-5xl md:text-6xl font-serif text-amber-800 mb-6">
-                  Olfactory Poetry.
+                  In Every Drop.
                 </h1>
                 <p className="text-gray-700 text-lg mb-8 leading-relaxed">
-                  Discover curated scents that linger in memory. Handcrafted & small-batches using sustainably sourced botanical essences.
+                  Temukan koleksi parfum mewah original terlengkap. Dapatkan produk botol penuh atau pilih ukuran decant (1ml - 10ml) untuk mencoba wewangian favorit Anda dengan mudah.
                 </p>
                 <Link href="/products">
                   <button className="px-8 py-3 bg-amber-800 text-white text-sm uppercase tracking-widest hover:bg-amber-900 transition">
-                    Discover Your Scent
+                    Jelajahi Sekarang
                   </button>
                 </Link>
               </div>
@@ -106,9 +106,9 @@ export default function HomePage() {
         <section className="py-20 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center mb-12">
-              <h2 className="text-4xl font-serif text-stone-900">Featured Collections</h2>
+              <h2 className="text-4xl font-serif text-stone-900">Koleksi Pilihan</h2>
               <Link href="/products" className="text-sm text-amber-900 hover:text-amber-800 uppercase tracking-widest flex items-center gap-2">
-                View All Collections <ChevronRight size={16} />
+                Lihat Semua Koleksi <ChevronRight size={16} />
               </Link>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-6 auto-rows-[250px]">
@@ -135,7 +135,7 @@ export default function HomePage() {
         {/* Bestsellers */}
         <section className="py-20 bg-stone-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="text-4xl font-serif text-stone-900 text-center mb-6">Bestsellers</h2>
+            <h2 className="text-4xl font-serif text-stone-900 text-center mb-6">Produk Terlaris</h2>
             
             {/* Gender Switch Tabs */}
             <div className="flex justify-center gap-6 mb-12 border-b border-stone-200 pb-3 max-w-xs mx-auto">
@@ -189,7 +189,7 @@ export default function HomePage() {
                       }}
                       className="w-full py-2 border border-amber-900 text-amber-900 text-[10px] uppercase tracking-wider hover:bg-amber-900 hover:text-white transition font-semibold text-center cursor-pointer rounded-sm"
                     >
-                      Add to Cart
+                      Tambah Keranjang
                     </button>
                     <button
                       onClick={() => {
@@ -219,7 +219,7 @@ export default function HomePage() {
                       }}
                       className="w-full py-2 bg-[#8D4F38] text-white text-[10px] uppercase tracking-wider hover:bg-[#7a4532] transition font-semibold text-center cursor-pointer rounded-sm"
                     >
-                      Buy Now
+                      Beli Sekarang
                     </button>
                   </div>
                 </div>
@@ -240,24 +240,24 @@ export default function HomePage() {
                 />
               </div>
               <div>
-                <p className="text-xs text-[#8D4F38] uppercase tracking-widest mb-4 font-semibold">Discovery Decants</p>
-                <h2 className="text-4xl font-serif text-stone-900 mb-6 leading-tight">Hesitant to Buy Expensive Perfumes?</h2>
+                <p className="text-xs text-[#8D4F38] uppercase tracking-widest mb-4 font-semibold">Eksplorasi Decant</p>
+                <h2 className="text-4xl font-serif text-stone-900 mb-6 leading-tight">Ragu Membeli Parfum Botol Penuh?</h2>
                 <p className="text-stone-600 text-[15px] mb-8 leading-relaxed">
-                  Try a decant first. Esscentia provides premium decants in 1ml, 2ml, 5ml, and 10ml sizes, decanted directly from official original bottles to help you discover your signature scent before committing to a full bottle.
+                  Coba versi decant terlebih dahulu. Esscentia menyediakan decant premium ukuran 1ml, 2ml, 5ml, dan 10ml yang dipindahkan langsung dari botol parfum original distributor resmi untuk membantu Anda menemukan aroma favorit sebelum membeli botol penuh.
                 </p>
                 <div className="grid grid-cols-2 gap-8">
                   <div>
-                    <h3 className="text-xs uppercase tracking-[0.15em] text-[#4A3728] font-bold mb-2">100% Authentic</h3>
-                    <p className="text-xs text-stone-500 leading-relaxed">Pure, unaltered fragrance decanted in sterile conditions directly from official retail bottles.</p>
+                    <h3 className="text-xs uppercase tracking-[0.15em] text-[#4A3728] font-bold mb-2">100% Original</h3>
+                    <p className="text-xs text-stone-500 leading-relaxed">Parfum murni asli tanpa campuran apa pun, ditakar secara steril langsung dari botol resmi.</p>
                   </div>
                   <div>
-                    <h3 className="text-xs uppercase tracking-[0.15em] text-[#4A3728] font-bold mb-2">Smart Exploration</h3>
-                    <p className="text-xs text-stone-500 leading-relaxed">Explore a wide range of luxury scents without having to invest in a full-sized bottle upfront.</p>
+                    <h3 className="text-xs uppercase tracking-[0.15em] text-[#4A3728] font-bold mb-2">Eksplorasi</h3>
+                    <p className="text-xs text-stone-500 leading-relaxed">Jelajahi berbagai wewangian mewah dunia tanpa harus melakukan investasi besar di awal.</p>
                   </div>
                 </div>
                 <Link href="/decants">
                   <button className="mt-8 px-8 py-3 bg-[#4A3728] hover:bg-[#8C7355] text-white text-xs uppercase tracking-widest transition font-semibold">
-                    Explore Decants
+                    Jelajahi Decant
                   </button>
                 </Link>
               </div>
@@ -270,24 +270,24 @@ export default function HomePage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
               <div className="order-2 md:order-1">
-                <p className="text-xs text-[#8D4F38] uppercase tracking-widest mb-4 font-semibold">Scent Profiler</p>
-                <h2 className="text-4xl font-serif text-stone-900 mb-6 leading-tight">Find Your Olfactory Signature</h2>
+                <p className="text-xs text-[#8D4F38] uppercase tracking-widest mb-4 font-semibold">Profil Aroma</p>
+                <h2 className="text-4xl font-serif text-stone-900 mb-6 leading-tight">Temukan Karakter Aroma Anda</h2>
                 <p className="text-stone-600 text-[15px] mb-8 leading-relaxed">
-                  Struggling to find the perfume that truly represents you? Take our 2-minute fragrance personality quiz. Discover your unique scent family and receive custom-curated recommendations from our master collections.
+                  Bingung mencari parfum yang benar-benar mewakili karakter Anda? Ikuti kuis kepribadian aroma selama 2 menit. Temukan kelompok aroma khas Anda dan dapatkan rekomendasi kurasi terbaik.
                 </p>
                 <div className="grid grid-cols-2 gap-8">
                   <div>
-                    <h3 className="text-xs uppercase tracking-[0.15em] text-[#4A3728] font-bold mb-2">Tailored Matching</h3>
-                    <p className="text-xs text-stone-500 leading-relaxed">Get paired with specific notes matching your sensory preferences and personality.</p>
+                    <h3 className="text-xs uppercase tracking-[0.15em] text-[#4A3728] font-bold mb-2">Rekomendasi Personal</h3>
+                    <p className="text-xs text-stone-500 leading-relaxed">Dapatkan pilihan parfum yang cocok dengan preferensi sensorik dan kepribadian Anda.</p>
                   </div>
                   <div>
-                    <h3 className="text-xs uppercase tracking-[0.15em] text-[#4A3728] font-bold mb-2">All 8 Families</h3>
-                    <p className="text-xs text-stone-500 leading-relaxed">Discover which of the 8 signature olfactory groups matches your unique aesthetic.</p>
+                    <h3 className="text-xs uppercase tracking-[0.15em] text-[#4A3728] font-bold mb-2">8 Kelompok Aroma</h3>
+                    <p className="text-xs text-stone-500 leading-relaxed">Cari tahu kelompok aroma mana dari 8 kategori wewangian yang paling mengekspresikan diri Anda.</p>
                   </div>
                 </div>
                 <Link href="/quiz">
                   <button className="mt-8 px-8 py-3 bg-[#4A3728] hover:bg-[#8C7355] text-white text-xs uppercase tracking-widest transition font-semibold">
-                    Take the Quiz
+                    Mulai Kuis
                   </button>
                 </Link>
               </div>
@@ -305,20 +305,20 @@ export default function HomePage() {
         {/* Newsletter */}
         <section className="py-20 bg-stone-100">
           <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 className="text-4xl font-serif text-stone-900 mb-4">Stay in the Note</h2>
+            <h2 className="text-4xl font-serif text-stone-900 mb-4">Dapatkan Update Terbaru</h2>
             <p className="text-gray-700 mb-8">
-              Join our community to receive early access to new collections, exclusive events and insider offers.
+              Bergabunglah dengan komunitas kami untuk mendapatkan akses awal ke koleksi baru, acara eksklusif, dan penawaran khusus.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <input
                 type="email"
-                placeholder="Email Address"
+                placeholder="Alamat Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="flex-1 px-4 py-3 border border-gray-300 focus:outline-none focus:border-amber-900"
               />
               <button className="px-8 py-3 bg-amber-800 text-white text-sm uppercase tracking-widest hover:bg-amber-900 transition">
-                Subscribe
+                Langganan
               </button>
             </div>
           </div>
@@ -331,27 +331,27 @@ export default function HomePage() {
               <div>
                 <h3 className="text-2xl font-serif mb-4">Esscentia</h3>
                 <p className="text-sm text-stone-600 leading-relaxed max-w-xs">
-                  A curation of artisanal fragrances for the modern soul, crafted with intention and sustainably sourced botanical essences.
+                  Platform e-commerce parfum premium terkurasi. Menawarkan koleksi wewangian original desainer dan niche ternama serta decant steril berkualitas tinggi.
                 </p>
               </div>
               <div>
-                <h4 className="text-xs uppercase tracking-[0.2em] mb-4 font-medium text-stone-500">Shop</h4>
+                <h4 className="text-xs uppercase tracking-[0.2em] mb-4 font-medium text-stone-500">Belanja</h4>
                 <ul className="space-y-2.5 text-sm text-stone-600">
-                  <li><Link href="/products" className="hover:text-[#4A3728] transition">All Products</Link></li>
-                  <li><Link href="/products" className="hover:text-[#4A3728] transition">New Arrivals</Link></li>
+                  <li><Link href="/products" className="hover:text-[#4A3728] transition">Semua Produk</Link></li>
+                  <li><Link href="/products" className="hover:text-[#4A3728] transition">Produk Baru</Link></li>
                   <li><Link href="/decants" className="hover:text-[#4A3728] transition">Decant</Link></li>
                 </ul>
               </div>
               <div>
-                <h4 className="text-xs uppercase tracking-[0.2em] mb-4 font-medium text-stone-500">Assistance</h4>
+                <h4 className="text-xs uppercase tracking-[0.2em] mb-4 font-medium text-stone-500">Bantuan</h4>
                 <ul className="space-y-2.5 text-sm text-stone-600">
-                  <li><Link href="/contact" className="hover:text-[#4A3728] transition">Contact Us</Link></li>
-                  <li><Link href="/faq" className="hover:text-[#4A3728] transition">FAQs</Link></li>
-                  <li><Link href="/privacy" className="hover:text-[#4A3728] transition">Privacy Policy</Link></li>
+                  <li><Link href="/contact" className="hover:text-[#4A3728] transition">Hubungi Kami</Link></li>
+                  <li><Link href="/faq" className="hover:text-[#4A3728] transition">Tanya Jawab (FAQ)</Link></li>
+                  <li><Link href="/privacy" className="hover:text-[#4A3728] transition">Kebijakan Privasi</Link></li>
                 </ul>
               </div>
               <div>
-                <h4 className="text-xs uppercase tracking-[0.2em] mb-4 font-medium text-stone-500">Connect</h4>
+                <h4 className="text-xs uppercase tracking-[0.2em] mb-4 font-medium text-stone-500">Ikuti Kami</h4>
                 <ul className="space-y-2.5 text-sm text-stone-600">
                   <li><a href="#" className="hover:text-[#4A3728] transition">Instagram</a></li>
                   <li><a href="#" className="hover:text-[#4A3728] transition">Facebook</a></li>
@@ -360,7 +360,7 @@ export default function HomePage() {
               </div>
             </div>
             <div className="border-t border-stone-300/60 pt-8 text-center text-xs text-stone-500 tracking-wide">
-              <p>© 2026 Esscentia. All rights reserved.</p>
+              <p>© 2026 Esscentia. Hak Cipta Dilindungi.</p>
             </div>
           </div>
         </footer>

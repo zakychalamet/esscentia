@@ -145,9 +145,9 @@ export default function AdminProductsPage() {
           </p>
         </div>
         <div className="bg-white p-6 border border-[#E7E5E0] rounded-lg shadow-xs space-y-1 relative overflow-hidden group hover:border-[#8C7355]/40 transition duration-300">
-          <p className="text-stone-500 text-[10px] uppercase tracking-[0.25em] mb-1 font-medium">Nilai Portofolio</p>
-          <p className="text-3xl font-serif font-bold text-[#8D4F38] text-ellipsis overflow-hidden">
-            {formatPrice(allProducts.reduce((sum, p) => sum + (p.price || 0), 0))}
+          <p className="text-stone-500 text-[10px] uppercase tracking-[0.25em] mb-1 font-medium">Stok Habis</p>
+          <p className="text-3xl font-serif font-bold text-[#8D4F38]">
+            {allProducts.filter((p) => !p.inStock).length}
           </p>
         </div>
       </div>

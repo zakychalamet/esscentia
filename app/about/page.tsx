@@ -40,22 +40,22 @@ export default function AboutPage() {
           <div className="absolute inset-0 bg-gradient-to-t from-[#4A3728]/90 via-[#4A3728]/40 to-transparent" />
           <div className="relative z-10 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pb-14 pt-32">
             <p className="text-[10px] uppercase tracking-[0.3em] text-stone-300 mb-4">
-              Our Story
+              Tentang Esscentia
             </p>
             <h1 className="text-4xl md:text-6xl font-serif text-[#F9F7F2] max-w-2xl leading-tight">
-              Discover Your Signature Scent
+              Discover Your <br></br>
+              Signature Scent
             </h1>
           </div>
         </section>
-
+ 
         {/* Intro */}
         <section className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20 text-center">
           <p className="text-lg md:text-xl text-stone-600 leading-relaxed font-serif italic">
-            &ldquo;At Esscentia, we believe a fragrance is more than a product. It is an invisible
-            thread that connects you to your most cherished memories.&rdquo;
+            &ldquo;Di Esscentia, kami percaya bahwa belanja parfum secara online haruslah menjadi pengalaman yang aman, transparan, dan menyenangkan. Kami menghubungkan Anda dengan wewangian original terbaik dunia.&rdquo;
           </p>
         </section>
-
+ 
         {/* Story two-column */}
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
@@ -68,24 +68,18 @@ export default function AboutPage() {
             </div>
             <div>
               <p className="text-[10px] uppercase tracking-[0.2em] text-stone-500 mb-4">
-                The Beginning
+                Layanan Kami
               </p>
-              <h2 className="text-3xl font-serif text-[#4A3728] mb-6">The Art of Scent</h2>
+              <h2 className="text-3xl font-serif text-[#4A3728] mb-6">Butik Digital Parfum Autentik</h2>
               <div className="space-y-5 text-stone-600 text-[15px] leading-relaxed">
                 <p>
-                  Esscentia lahir dari keyakinan bahwa parfum artisanal layak diakses oleh mereka
-                  yang menghargai kualitas — tanpa mengorbankan keaslian. Kami mengkurasi koleksi
-                  dari perfumer independen dan rumah fragrans terpilih di seluruh dunia.
+                  Esscentia didirikan sebagai platform e-commerce parfum terkurasi untuk memudahkan pencinta wewangian di seluruh Indonesia mendapatkan produk 100% original. Kami bermitra langsung dengan distributor resmi dan kurator wewangian independen untuk memastikan setiap produk yang Anda beli terjamin keasliannya.
                 </p>
                 <p>
-                  Setiap botol menceritakan kisah: kayu cedar yang disadap di hutan berkelanjutan,
-                  mawar absolue yang dipetik di puncak musim, amber yang dibiarkan matang selama
-                  bertahun-tahun. Master perfumer kami menyatukan tradisi kuno dengan kreativitas
-                  modern.
+                  Kami memahami bahwa memilih parfum secara online bisa menjadi tantangan tersendiri. Oleh karena itu, Esscentia memelopori layanan pembelian parfum dalam ukuran <em>decant</em> (1ml, 2ml, 5ml, 10ml) yang dikemas secara steril, serta menghadirkan fitur <em>Fragrance Quiz</em> pintar untuk membantu menemukan aroma yang paling sesuai dengan kepribadian Anda.
                 </p>
                 <p>
-                  Dari laboratorium kecil di Jakarta hingga jangkauan nasional, misi kami tetap
-                  sama — menghadirkan quiet luxury dalam setiap semprotan.
+                  Dari parfum desainer ternama hingga wewangian niche yang langka, misi kami adalah menghadirkan butik parfum mewah langsung ke layar perangkat Anda dengan jaminan pengemasan premium dan pengiriman aman ke seluruh Nusantara.
                 </p>
               </div>
             </div>
@@ -157,11 +151,10 @@ export default function AboutPage() {
             <div>
               <h2 className="text-2xl font-serif mb-3">Hubungi Kami</h2>
               <p className="text-stone-300 text-sm leading-relaxed max-w-md">
-                Jl. Kemang Raya No. 123, Jakarta Selatan 12560
+                Jl. Kebenaran
                 <br />
                 support@esscentia.com · +62 812-3456-7890
-                <br />
-                Senin–Jumat, 09:00–18:00 WIB
+                
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-4 shrink-0">

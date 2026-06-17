@@ -27,7 +27,7 @@ const navItems: { key: NavKey; label: string; href: string }[] = [
   { key: 'decants', label: 'Decant', href: '/decants' },
   { key: 'quiz', label: 'Fragrance Quiz', href: '/quiz' },
   { key: 'journal', label: 'The Journal', href: '/journal' },
-  { key: 'story', label: 'Our Story', href: '/about' },
+  { key: 'story', label: 'About Us', href: '/about' },
 ];
 
 function getActiveNav(pathname: string): NavKey | null {
@@ -303,27 +303,27 @@ export function CatalogFooter({ variant = 'catalog' }: { variant?: 'catalog' | '
           <div>
             <h3 className="text-2xl font-serif mb-4">Esscentia</h3>
             <p className="text-sm text-stone-600 leading-relaxed max-w-xs">
-              A curation of artisanal fragrances for the modern soul, crafted with intention and sustainably sourced botanical essences.
+              Platform e-commerce parfum premium terkurasi. Menawarkan koleksi wewangian original desainer dan niche ternama serta decant steril berkualitas tinggi.
             </p>
           </div>
           <div>
-            <h4 className="text-xs uppercase tracking-[0.2em] mb-4 font-medium text-stone-500">Shop</h4>
+            <h4 className="text-xs uppercase tracking-[0.2em] mb-4 font-medium text-stone-500">Belanja</h4>
             <ul className="space-y-2.5 text-sm text-stone-600">
-              <li><Link href="/products" className="hover:text-[#4A3728] transition">All Products</Link></li>
-              <li><Link href="/products" className="hover:text-[#4A3728] transition">New Arrivals</Link></li>
+              <li><Link href="/products" className="hover:text-[#4A3728] transition">Semua Produk</Link></li>
+              <li><Link href="/products" className="hover:text-[#4A3728] transition">Produk Baru</Link></li>
               <li><Link href="/decants" className="hover:text-[#4A3728] transition">Decant</Link></li>
             </ul>
           </div>
           <div>
-            <h4 className="text-xs uppercase tracking-[0.2em] mb-4 font-medium text-stone-500">Assistance</h4>
+            <h4 className="text-xs uppercase tracking-[0.2em] mb-4 font-medium text-stone-500">Bantuan</h4>
             <ul className="space-y-2.5 text-sm text-stone-600">
-              <li><Link href="/contact" className="hover:text-[#4A3728] transition">Contact Us</Link></li>
-              <li><Link href="/faq" className="hover:text-[#4A3728] transition">FAQs</Link></li>
-              <li><Link href="/privacy" className="hover:text-[#4A3728] transition">Privacy Policy</Link></li>
+              <li><Link href="/contact" className="hover:text-[#4A3728] transition">Hubungi Kami</Link></li>
+              <li><Link href="/faq" className="hover:text-[#4A3728] transition">Tanya Jawab (FAQ)</Link></li>
+              <li><Link href="/privacy" className="hover:text-[#4A3728] transition">Kebijakan Privasi</Link></li>
             </ul>
           </div>
           <div>
-            <h4 className="text-xs uppercase tracking-[0.2em] mb-4 font-medium text-stone-500">Connect</h4>
+            <h4 className="text-xs uppercase tracking-[0.2em] mb-4 font-medium text-stone-500">Ikuti Kami</h4>
             <ul className="space-y-2.5 text-sm text-stone-600">
               <li><a href="#" className="hover:text-[#4A3728] transition">Instagram</a></li>
               <li><a href="#" className="hover:text-[#4A3728] transition">Facebook</a></li>
@@ -332,7 +332,7 @@ export function CatalogFooter({ variant = 'catalog' }: { variant?: 'catalog' | '
           </div>
         </div>
         <p className="text-center text-xs text-stone-500 tracking-wide pt-8 border-t border-stone-300/40">
-          © 2026 Esscentia. All Rights Reserved.
+          © 2026 Esscentia. Hak Cipta Dilindungi.
         </p>
       </div>
     </footer>

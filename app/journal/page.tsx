@@ -27,14 +27,13 @@ export default function JournalPage() {
       <main className="flex-1 max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10 lg:py-14">
         <header className="mb-10 lg:mb-14 text-center sm:text-left max-w-2xl">
           <p className="text-[10px] uppercase tracking-[0.25em] text-stone-500 mb-3">
-            The Journal
+            Esscentia Journal
           </p>
           <h1 className="text-4xl md:text-5xl font-serif text-[#4A3728] mb-4 leading-tight">
-            Olfactory Stories
+            Esscentia Journal
           </h1>
           <p className="text-stone-600 text-[15px] leading-relaxed">
-            Berita, tren, dan wawasan dari dunia parfum — kurasi tim Esscentia untuk membantu Anda
-            menemukan aroma yang bermakna.
+            Jelajahi artikel, tren, dan insight terkini dari dunia parfum. Pelajari karakter aroma, tips penggunaan, hingga perkembangan industri wewangian yang terus berkembang.
           </p>
         </header>
 

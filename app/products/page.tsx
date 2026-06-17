@@ -230,12 +230,12 @@ function ProductsContent() {
         </p>
         <div className="mb-14 max-w-2xl">
           <h1 className="text-4xl md:text-5xl font-serif text-[#4A3728] mb-5 leading-tight">
-            The Olfactory Gallery
+            Koleksi Parfum Premium
           </h1>
           <p className="text-stone-600 leading-relaxed text-[15px]">
             {searchQuery.trim()
               ? `Menampilkan hasil pencarian untuk “${searchQuery.trim()}”.`
-              : 'Discover our curated selection of artisanal scents, crafted for those who seek the extraordinary in every breath.'}
+              : 'Jelajahi pilihan parfum mewah desainer dan niche ternama 100% original. Dapatkan botol penuh atau coba variasi aroma dengan botol decant.'}
           </p>
           {searchQuery.trim() && (
             <Link
@@ -437,9 +437,9 @@ function ProductsContent() {
           <div className="flex-1 min-w-0">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10 pb-6 border-b border-stone-200/80">
               <p className="text-sm text-stone-600">
-                Showing{' '}
-                <span className="text-[#4A3728]">{paginatedProducts.length}</span> of{' '}
-                <span className="text-[#4A3728]">{filteredProducts.length}</span> perfumes
+                Menampilkan{' '}
+                <span className="text-[#4A3728]">{paginatedProducts.length}</span> dari{' '}
+                <span className="text-[#4A3728]">{filteredProducts.length}</span> parfum
               </p>
               <div className="flex items-center gap-3">
                 <span className="text-sm text-stone-500">Sort By</span>

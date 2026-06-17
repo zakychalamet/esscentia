@@ -257,7 +257,7 @@ export function SearchModal({ open, onClose }: SearchModalProps) {
                 onClick={close}
                 className="mt-auto block w-full py-3.5 text-center text-xs uppercase tracking-[0.15em] bg-[#EDEAE4] text-[#4A3728] hover:bg-[#E0DCD4] transition"
               >
-                View All Collections
+                Lihat Semua Koleksi
               </Link>
             </div>
           </div>

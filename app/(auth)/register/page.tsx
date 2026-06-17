@@ -59,7 +59,7 @@ function RegisterContent() {
 
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-2">
         <AuthImagePanel
-          image="https://images.unsplash.com/photo-1608168895822-f1bd922bb235?w=900&h=1200&fit=crop"
+          image="/images/register.jpeg"
           quote="Discover curated scents crafted for the extraordinary."
         />
 

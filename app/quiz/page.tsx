@@ -177,7 +177,7 @@ export default function FragranceQuizPage() {
               Cari Aroma Khas Anda
             </h1>
             <p className="text-stone-600 text-sm leading-relaxed mb-8">
-              Temukan wewangian ideal Anda dengan menjawab beberapa pertanyaan sensorik. Silakan masuk atau mendaftar terlebih dahulu untuk memulai kuis dan menyimpan hasilnya.
+              Temukan wewangian ideal Anda dengan menjawab beberapa pertanyaan. Silakan masuk atau mendaftar terlebih dahulu untuk memulai kuis dan menyimpan hasilnya.
             </p>
             <div className="flex flex-col gap-3">
               <Link
@@ -220,7 +220,7 @@ export default function FragranceQuizPage() {
                 Find Your Signature Scent
               </h1>
               <p className="text-stone-600 text-sm md:text-[15px] max-w-xl mx-auto leading-relaxed">
-                Jawab beberapa pertanyaan sensorik di bawah ini untuk menemukan kelompok wewangian yang paling selaras dengan esensi pribadi Anda.
+                Jawab beberapa pertanyaan di bawah ini untuk menemukan kelompok wewangian yang paling sesuai dengan esensi Anda.
               </p>
             </div>
 

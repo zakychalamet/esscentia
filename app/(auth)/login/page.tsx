@@ -153,8 +153,8 @@ function LoginContent() {
         </div>
 
         <AuthImagePanel
-          image="https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=900&h=1200&fit=crop"
-          quote="Quiet luxury, olfactory poetry."
+          image="/images/login.jpeg"
+          quote="Authentic luxury, in every drop."
         />
       </div>
 
