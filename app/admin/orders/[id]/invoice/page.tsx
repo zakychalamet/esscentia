@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useState, use, useRef } from 'react';
-import { useRouter } from 'next/navigation';
-import { ArrowLeft, Printer, Download, RefreshCw } from 'lucide-react';
+import { useEffect, useState, use, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { ArrowLeft, Download, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 
 interface OrderItem {
@@ -38,10 +38,11 @@ interface OrderRecord {
 
 export default function OrderInvoicePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const router = useRouter();
+  const searchParams = useSearchParams();
   const [order, setOrder] = useState<OrderRecord | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [downloading, setDownloading] = useState(false);
   useEffect(() => {
     fetch(`/api/admin/orders/${id}`)
       .then((res) => {
@@ -60,6 +61,40 @@ export default function OrderInvoicePage({ params }: { params: Promise<{ id: str
       maximumFractionDigits: 0,
     }).format(amount);
   };
+
+  const handleDownloadPDF = useCallback(async () => {
+    if (!order) return;
+    setDownloading(true);
+    try {
+      const html2pdf = (await import('html2pdf.js')).default;
+      const { generateInvoiceHTML } = await import('@/lib/generate-invoice-html');
+
+      // Build a standalone HTML string with only inline hex colors,
+      // completely bypassing Tailwind CSS v4's lab()/oklch() stylesheet.
+      const container = document.createElement('div');
+      container.innerHTML = generateInvoiceHTML(order);
+
+      const opt = {
+        margin: [10, 10, 10, 10],
+        filename: `Invoice-${order.orderNumber}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, letterRendering: true, backgroundColor: '#ffffff' },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' as const },
+      };
+      await html2pdf().set(opt).from(container).save();
+    } catch (err) {
+      console.error('Gagal mengunduh invoice:', err);
+    } finally {
+      setDownloading(false);
+    }
+  }, [order]);
+
+  // Auto-download when navigated with ?download=true
+  useEffect(() => {
+    if (searchParams.get('download') === 'true' && order && !loading) {
+      handleDownloadPDF();
+    }
+  }, [searchParams, order, loading, handleDownloadPDF]);
 
   if (loading) {
     return (
@@ -129,10 +164,15 @@ export default function OrderInvoicePage({ params }: { params: Promise<{ id: str
           </p>
         </div>
         <button
-          onClick={() => {}}
-          className="flex items-center gap-2 px-4 py-2 bg-[#4A3728] hover:bg-[#8C7355] text-white text-xs uppercase tracking-wider transition rounded-sm font-semibold cursor-pointer"
+          onClick={handleDownloadPDF}
+          disabled={downloading}
+          className="flex items-center gap-2 px-4 py-2 bg-[#4A3728] hover:bg-[#8C7355] text-white text-xs uppercase tracking-wider transition rounded-sm font-semibold cursor-pointer disabled:opacity-50"
         >
-          <Download size={14} /> Unduh Invoice
+          {downloading ? (
+            <><RefreshCw size={14} className="animate-spin" /> Mengunduh...
+          </>) : (
+            <><Download size={14} /> Unduh Invoice
+          </>)}
         </button>
       </div>
 

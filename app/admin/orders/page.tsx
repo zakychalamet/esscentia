@@ -435,7 +435,9 @@ export default function AdminOrdersPage() {
 
                 <Button
                   variant="outline"
-                  onClick={() => {}}
+                  onClick={() => {
+                    window.open(`/admin/orders/${selectedOrderData.id}/invoice?download=true`, '_blank');
+                  }}
                   className="w-full flex items-center justify-center gap-2 border-stone-200 text-stone-600 hover:bg-stone-50 hover:text-[#4A3728] text-xs py-2.5 mt-2 font-sans cursor-pointer"
                 >
                   <Download size={14} /> Unduh Invoice

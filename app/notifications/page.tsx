@@ -130,8 +130,8 @@ export default function NotificationsPage() {
           </div>
         )}
 
-        {/* Notifications Listing */}
-        <div className="space-y-6">
+        {/* Notifications Listing - only visible for logged-in users */}
+        {user && <div className="space-y-6">
           {loading ? (
             <div className="py-16 text-center text-slate-500 text-sm">
               Memuat penawaran khusus Anda...
@@ -237,7 +237,7 @@ export default function NotificationsPage() {
               );
             })
           )}
-        </div>
+        </div>}
       </main>
 
       <CatalogFooter variant="catalog" />
