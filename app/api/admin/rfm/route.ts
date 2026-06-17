@@ -1,16 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAdminRfmAnalytics } from '@/lib/customer-service';
+import { getAdminRfmAnalytics, saveRfmConfig } from '@/lib/customer-service';
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const rWeight = Number(searchParams.get('rWeight') ?? '40');
-    const fWeight = Number(searchParams.get('fWeight') ?? '30');
-    const mWeight = Number(searchParams.get('mWeight') ?? '30');
-    const k = Number(searchParams.get('k') ?? '4');
-    const maxIter = Number(searchParams.get('maxIter') ?? '300');
+    const rWeightStr = searchParams.get('rWeight');
+    const fWeightStr = searchParams.get('fWeight');
+    const mWeightStr = searchParams.get('mWeight');
+    const kStr = searchParams.get('k');
+    const maxIterStr = searchParams.get('maxIter');
 
-    const analytics = await getAdminRfmAnalytics(rWeight, fWeight, mWeight, k, maxIter);
+    if (rWeightStr && fWeightStr && mWeightStr && kStr && maxIterStr) {
+      const rWeight = Number(rWeightStr);
+      const fWeight = Number(fWeightStr);
+      const mWeight = Number(mWeightStr);
+      const k = Number(kStr);
+      const maxIter = Number(maxIterStr);
+
+      await saveRfmConfig({
+        recencyWeight: rWeight,
+        frequencyWeight: fWeight,
+        monetaryWeight: mWeight,
+        k,
+        maxIterations: maxIter,
+      });
+
+      const analytics = await getAdminRfmAnalytics(rWeight, fWeight, mWeight, k, maxIter);
+      return NextResponse.json(analytics);
+    }
+
+    const analytics = await getAdminRfmAnalytics();
     return NextResponse.json(analytics);
   } catch (error) {
     console.error('GET /api/admin/rfm error:', error);

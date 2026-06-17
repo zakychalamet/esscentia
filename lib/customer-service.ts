@@ -132,10 +132,86 @@ function mapRfmPoint(
   };
 }
 
+export interface RfmConfig {
+  recencyWeight: number;
+  frequencyWeight: number;
+  monetaryWeight: number;
+  k: number;
+  maxIterations: number;
+}
+
+export async function getRfmConfig(): Promise<RfmConfig> {
+  try {
+    const [rows] = await pool.query<any[]>(
+      'SELECT recency_weight, frequency_weight, monetary_weight, k, max_iterations FROM rfm_configs WHERE id = 1'
+    );
+    if (rows && rows.length > 0) {
+      return {
+        recencyWeight: Number(rows[0].recency_weight),
+        frequencyWeight: Number(rows[0].frequency_weight),
+        monetaryWeight: Number(rows[0].monetary_weight),
+        k: Number(rows[0].k),
+        maxIterations: Number(rows[0].max_iterations),
+      };
+    }
+  } catch (error: any) {
+    if (error.code === 'ER_NO_SUCH_TABLE') {
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS rfm_configs (
+          id INT PRIMARY KEY DEFAULT 1,
+          recency_weight INT DEFAULT 40,
+          frequency_weight INT DEFAULT 30,
+          monetary_weight INT DEFAULT 30,
+          k INT DEFAULT 4,
+          max_iterations INT DEFAULT 300,
+          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        )
+      `);
+      await pool.query(`
+        INSERT INTO rfm_configs (id, recency_weight, frequency_weight, monetary_weight, k, max_iterations)
+        VALUES (1, 40, 30, 30, 4, 300)
+        ON DUPLICATE KEY UPDATE id=id
+      `);
+    } else {
+      console.error('Failed to query or create rfm_configs table:', error);
+    }
+  }
+
+  return {
+    recencyWeight: 40,
+    frequencyWeight: 30,
+    monetaryWeight: 30,
+    k: 4,
+    maxIterations: 300,
+  };
+}
+
+export async function saveRfmConfig(config: RfmConfig): Promise<void> {
+  await getRfmConfig(); // Ensure table exists
+  await pool.query(
+    `INSERT INTO rfm_configs (id, recency_weight, frequency_weight, monetary_weight, k, max_iterations)
+     VALUES (1, ?, ?, ?, ?, ?)
+     ON DUPLICATE KEY UPDATE
+       recency_weight = VALUES(recency_weight),
+       frequency_weight = VALUES(frequency_weight),
+       monetary_weight = VALUES(monetary_weight),
+       k = VALUES(k),
+       max_iterations = VALUES(max_iterations)`,
+    [config.recencyWeight, config.frequencyWeight, config.monetaryWeight, config.k, config.maxIterations]
+  );
+}
+
 export async function getCustomerDirectory(): Promise<CustomerListItem[]> {
-  const [users, stats] = await Promise.all([getCustomerUsers(), getUserOrderStats()]);
+  const [users, stats, config] = await Promise.all([getCustomerUsers(), getUserOrderStats(), getRfmConfig()]);
   const transactions = users.map((user) => buildTransaction(user, stats));
-  const analytics = buildRfmAnalytics(transactions);
+  const analytics = buildRfmAnalytics(
+    transactions,
+    config.recencyWeight,
+    config.frequencyWeight,
+    config.monetaryWeight,
+    config.k,
+    config.maxIterations
+  );
   const pointMap = new Map(analytics.customers.map((p) => [p.customerId, p]));
 
   return users.map((user) => {
@@ -164,12 +240,19 @@ export async function getCustomerDirectory(): Promise<CustomerListItem[]> {
 }
 
 export async function getCustomerDetail(id: string): Promise<CustomerDetail | null> {
-  const [users, stats] = await Promise.all([getCustomerUsers(), getUserOrderStats()]);
+  const [users, stats, config] = await Promise.all([getCustomerUsers(), getUserOrderStats(), getRfmConfig()]);
   const user = users.find((u) => u.id === id);
   if (!user) return null;
 
   const transactions = users.map((u) => buildTransaction(u, stats));
-  const analytics = buildRfmAnalytics(transactions);
+  const analytics = buildRfmAnalytics(
+    transactions,
+    config.recencyWeight,
+    config.frequencyWeight,
+    config.monetaryWeight,
+    config.k,
+    config.maxIterations
+  );
   const point = analytics.customers.find((p) => p.customerId === id);
   const base = mapRfmPoint(
     user,
@@ -236,13 +319,13 @@ function formatTimeAgo(date: Date): string {
 }
 
 export async function getAdminRfmAnalytics(
-  recencyWeight = 40,
-  frequencyWeight = 30,
-  monetaryWeight = 30,
-  k = 4,
-  maxIterations = 300
+  recencyWeight?: number,
+  frequencyWeight?: number,
+  monetaryWeight?: number,
+  k?: number,
+  maxIterations?: number
 ): Promise<RfmAnalyticsResult> {
-  const [users, stats, [orderRows]] = await Promise.all([
+  const [users, stats, [orderRows], config] = await Promise.all([
     getCustomerUsers(),
     getUserOrderStats(),
     pool.query<any[]>(
@@ -250,8 +333,15 @@ export async function getAdminRfmAnalytics(
        FROM orders
        WHERE user_id IS NOT NULL AND status = 'completed'
        ORDER BY created_at ASC`
-    )
+    ),
+    getRfmConfig()
   ]);
+
+  const rW = recencyWeight ?? config.recencyWeight;
+  const fW = frequencyWeight ?? config.frequencyWeight;
+  const mW = monetaryWeight ?? config.monetaryWeight;
+  const kVal = k ?? config.k;
+  const maxIter = maxIterations ?? config.maxIterations;
 
   const userOrdersMap = new Map<string, { totalAmount: number; createdAt: Date }[]>();
   for (const row of orderRows) {
@@ -295,20 +385,20 @@ export async function getAdminRfmAnalytics(
 
   const currentAnalytics = buildRfmAnalytics(
     transactions,
-    recencyWeight,
-    frequencyWeight,
-    monetaryWeight,
-    k,
-    maxIterations
+    rW,
+    fW,
+    mW,
+    kVal,
+    maxIter
   );
 
   const pastAnalytics = buildRfmAnalytics(
     pastTransactions,
-    recencyWeight,
-    frequencyWeight,
-    monetaryWeight,
-    k,
-    maxIterations
+    rW,
+    fW,
+    mW,
+    kVal,
+    maxIter
   );
 
   const pastSegmentMap = new Map(pastAnalytics.customers.map((c) => [c.customerId, c.segment]));

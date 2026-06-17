@@ -12,7 +12,6 @@ import {
   ArrowDown,
   Download,
   Calendar,
-  DollarSign,
   ShieldAlert,
   PackageOpen,
 } from 'lucide-react';
@@ -106,28 +105,24 @@ export default function AdminDashboard() {
       value: formatPrice(dashboardData.revenue.daily),
       trend: 'Real-time sales today',
       trendUp: true,
-      icon: DollarSign,
     },
     {
       label: 'Pendapatan Mingguan (7 Hari)',
       value: formatPrice(dashboardData.revenue.weekly),
       trend: 'Sales in the last 7 days',
       trendUp: true,
-      icon: DollarSign,
     },
     {
       label: 'Pendapatan Bulanan (30 Hari)',
       value: formatPrice(dashboardData.revenue.monthly),
       trend: 'Sales in the last 30 days',
       trendUp: true,
-      icon: DollarSign,
     },
     {
       label: 'Total Pendapatan',
       value: formatPrice(dashboardData.revenue.total),
       trend: 'All-time cumulative sales',
       trendUp: true,
-      icon: DollarSign,
     },
   ];
 
@@ -193,7 +188,6 @@ export default function AdminDashboard() {
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
           {revenueCards.map((card) => {
-            const Icon = card.icon;
             return (
               <div
                 key={card.label}
@@ -203,9 +197,6 @@ export default function AdminDashboard() {
                   <p className="text-[10px] uppercase tracking-[0.15em] text-stone-500 font-bold">
                     {card.label}
                   </p>
-                  <div className="p-2 rounded-md bg-[#8C7355]/10 text-[#8C7355]">
-                    <Icon size={18} />
-                  </div>
                 </div>
                 <p className="font-serif font-bold text-2xl text-[#4A3728] mb-2 truncate">
                   {card.value}

@@ -23,7 +23,7 @@ export default function NewProductPage() {
         </button>
         <div>
           <h1 className="text-3xl sm:text-4xl font-serif text-[#4A3728] tracking-tight font-semibold">
-            Tambah Fragrans Baru
+            Tambah Parfum Baru
           </h1>
           <p className="text-stone-500 text-xs uppercase tracking-widest mt-2">
             Lengkapi formulir wewangian premium untuk dimasukkan ke katalog Esscentia

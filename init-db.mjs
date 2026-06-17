@@ -137,6 +137,24 @@ async function init() {
     );
   `);
 
+  await connection.query(`
+    CREATE TABLE IF NOT EXISTS rfm_configs (
+      id INT PRIMARY KEY DEFAULT 1,
+      recency_weight INT DEFAULT 40,
+      frequency_weight INT DEFAULT 30,
+      monetary_weight INT DEFAULT 30,
+      k INT DEFAULT 4,
+      max_iterations INT DEFAULT 300,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    );
+  `);
+
+  await connection.query(`
+    INSERT INTO rfm_configs (id, recency_weight, frequency_weight, monetary_weight, k, max_iterations)
+    VALUES (1, 40, 30, 30, 4, 300)
+    ON DUPLICATE KEY UPDATE id=id
+  `);
+
   // Migrate users table
   const userMigrations = [
     ['login_count', 'ALTER TABLE users ADD COLUMN login_count INT DEFAULT 0'],

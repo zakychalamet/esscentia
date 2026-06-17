@@ -126,7 +126,7 @@ export default function AdminProductsPage() {
               onClick={() => router.push('/admin/products/new')}
               className="flex items-center gap-2 bg-[#4A3728] text-white hover:bg-[#8C7355] text-xs uppercase tracking-wider font-semibold py-2.5 px-4"
             >
-              <Plus size={16} /> Tambah Fragrans
+              <Plus size={16} /> Tambah Parfum
             </Button>
           )}
         </div>
@@ -139,7 +139,7 @@ export default function AdminProductsPage() {
           <p className="text-3xl font-serif font-bold text-[#4A3728]">{allProducts.length}</p>
         </div>
         <div className="bg-white p-6 border border-[#E7E5E0] rounded-lg shadow-xs space-y-1 relative overflow-hidden group hover:border-[#8C7355]/40 transition duration-300">
-          <p className="text-stone-500 text-[10px] uppercase tracking-[0.25em] mb-1 font-medium">Fragrans Tersedia</p>
+          <p className="text-stone-500 text-[10px] uppercase tracking-[0.25em] mb-1 font-medium">Parfum Tersedia</p>
           <p className="text-3xl font-serif font-bold text-[#6B8F71]">
             {allProducts.filter((p) => p.inStock).length}
           </p>
@@ -158,7 +158,7 @@ export default function AdminProductsPage() {
           {/* Search bar */}
           <div className="flex-1 max-w-lg">
             <Input
-              placeholder="Cari fragrans berdasarkan nama atau brand..."
+              placeholder="Cari parfum berdasarkan nama atau brand..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               type="text"
@@ -250,7 +250,7 @@ export default function AdminProductsPage() {
             <table className="w-full text-sm">
               <thead className="bg-stone-50 border-b border-stone-200">
                 <tr className="text-stone-500 uppercase text-[10px] tracking-wider font-semibold">
-                  <th className="text-left py-4 px-5">Fragrans</th>
+                  <th className="text-left py-4 px-5">Parfum</th>
                   <th className="text-left py-4 px-5">Brand</th>
                   <th className="text-left py-4 px-5">Kapasitas (Varian)</th>
                   <th className="text-left py-4 px-5 whitespace-nowrap">Harga</th>
@@ -350,7 +350,7 @@ export default function AdminProductsPage() {
                 ) : (
                   <tr>
                     <td colSpan={7} className="py-20 text-center text-stone-400 font-light">
-                      Belum ada fragrans yang sesuai atau terdaftar di katalog.
+                      Belum ada parfum yang sesuai atau terdaftar di katalog.
                     </td>
                   </tr>
                 )}
